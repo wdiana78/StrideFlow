@@ -145,6 +145,11 @@ def evaluate_org(db: Session, org_id: uuid.UUID, today: date) -> dict:
         for key, val in _desired_flags(p, today).items():
             desired[key] = {**val, "project_id": p.id}
 
+    from .. import erp  # module-level rules (finance, inventory, documents, approvals, grants)
+
+    for key, val in erp.desired_flags(db, org_id, today).items():
+        desired[key] = val
+
     existing = db.scalars(select(Flag).where(Flag.organization_id == org_id)).all()
     live = {(f.rule, f.subject_type, f.subject_id): f for f in existing if f.status != FlagStatus.resolved}
     quiet_since = datetime.now(timezone.utc) - timedelta(days=MANUAL_RESOLVE_QUIET_DAYS)

@@ -76,6 +76,11 @@ class FlagRule(str, enum.Enum):
     missing_proof = "missing_proof"
     behind_pace = "behind_pace"
     blocked = "blocked"
+    over_budget = "over_budget"
+    approval_waiting = "approval_waiting"
+    expiring = "expiring"
+    low_stock = "low_stock"
+    report_due = "report_due"
 
 
 class FlagSeverity(str, enum.Enum):

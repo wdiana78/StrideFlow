@@ -7,7 +7,7 @@ os.environ["UPLOAD_DIR"] = "/tmp/kept-test-uploads"
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
-from app import models  # noqa: E402,F401
+from app import erp, models  # noqa: E402,F401
 from app.db import Base, engine  # noqa: E402
 from app.main import app  # noqa: E402
 

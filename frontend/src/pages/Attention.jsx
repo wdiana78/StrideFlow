@@ -7,7 +7,7 @@ import { Dialog, Empty, ErrorNotice, Field, Loading, PaceLine, Shape, Toast } fr
 import { fmtDate, fmtDateTime, RULE_LABEL, RULE_WHY } from "../format";
 import { useApi } from "../hooks";
 
-const RULES = ["behind_pace", "overdue", "missing_proof", "blocked", "due_soon"];
+const RULES = ["behind_pace", "overdue", "missing_proof", "blocked", "due_soon", "over_budget", "approval_waiting", "expiring", "low_stock", "report_due"];
 
 function age(iso) {
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
@@ -65,12 +65,12 @@ export default function Attention() {
             </div>
             {items.map((f) => (
               <button key={f.id} className="flag-row" aria-current={selected?.id === f.id} onClick={() => setSelectedId(f.id)}>
-                <span className="status" style={{ color: f.rule === "overdue" ? "var(--bad)" : f.rule === "blocked" ? "var(--slate)" : f.rule === "due_soon" ? "var(--cobalt)" : "var(--risk)" }}>
+                <span className="status" style={{ color: ["overdue", "expiring"].includes(f.rule) || (f.rule === "over_budget" && f.severity === "high") ? "var(--bad)" : f.rule === "blocked" ? "var(--slate)" : ["due_soon", "approval_waiting"].includes(f.rule) ? "var(--cobalt)" : "var(--risk)" }}>
                   <Shape kind={f.rule} />{RULE_LABEL[f.rule]}
                 </span>
                 <span style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
                   <b>{f.title}</b>
-                  <span className="small muted">{f.project_name} · {f.detail}</span>
+                  <span className="small muted">{f.project_name ? `${f.project_name} · ` : ""}{f.detail}</span>
                 </span>
                 <span style={{ fontSize: 14 }}>{f.owner?.full_name || "Unassigned"}</span>
                 <span className="muted" style={{ fontSize: 14, textAlign: "right" }}>{age(view === "resolved" ? f.resolved_at : f.opened_at)}</span>
@@ -103,7 +103,7 @@ function FlagPanel({ flag, canAct, onDone }) {
     try { await fn(); onDone(msg); } catch (e) { setError(e); } finally { setBusy(false); }
   };
   const p = flag.data;
-  const subjectLink = flag.subject_type === "activity" ? `/app/activities/${flag.subject_id}` : `/app/projects/${flag.project_id}`;
+  const subjectLink = flag.subject_type === "activity" ? `/app/activities/${flag.subject_id}` : flag.subject_type === "commitment" ? `/app/projects/${flag.project_id}` : `/app/m/${flag.subject_type}/${flag.subject_id}`;
   return (
     <aside className="narrow panel panel-body stack" aria-label="Selected flag">
       <div className="stack-sm">
@@ -118,12 +118,12 @@ function FlagPanel({ flag, canAct, onDone }) {
       )}
       <dl className="facts">
         <dt>What</dt><dd>{flag.detail}</dd>
-        <dt>Project</dt><dd>{flag.project_name}</dd>
+        {flag.project_name && <><dt>Programme</dt><dd>{flag.project_name}</dd></>}
         <dt>Owner</dt><dd>{flag.owner?.full_name || "Unassigned"}</dd>
         <dt>Opened</dt><dd>{fmtDateTime(flag.opened_at)}</dd>
         {flag.resolution_note && <><dt>Resolution</dt><dd>{flag.resolution_note}{flag.resolved_by && ` (${flag.resolved_by.full_name})`}</dd></>}
       </dl>
-      <Link className="btn" to={subjectLink} style={{ alignSelf: "flex-start" }}>Open {flag.subject_type}</Link>
+      <Link className="btn" to={subjectLink} style={{ alignSelf: "flex-start" }}>Open {["activity", "commitment"].includes(flag.subject_type) ? flag.subject_type : "record"}</Link>
       {history.length > 0 && (
         <div className="stack-sm" style={{ borderTop: "1px solid var(--rule-soft)", paddingTop: 14 }}>
           <b>History</b>

@@ -1,10 +1,14 @@
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { NAV } from "../modules";
 import { useEffect, useState } from "react";
 import { api, PREVIEW } from "../api";
 import { useAuth } from "../auth";
 import { initials } from "../format";
 
 const I = {
+  overview: "M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z",
+  check: "M5 12l4 4 10-10M4 20h16",
+  calendar: "M4 6h16v14H4zM4 10h16M8 3v5M16 3v5",
   attention: "M4 13h4l2 3h4l2-3h4M4 13l2.5-7h11L20 13v6H4z",
   projects: "M3 6h7l2 2h9v11H3z",
   work: "M4 4h16v16H4zM8 12l3 3 5-6",
@@ -18,15 +22,39 @@ export const Logo = ({ size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 22 22" aria-hidden="true"><path d="M3 11.5 L8.5 17 L19 5" fill="none" stroke="#2C3D9B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
 );
 
-function Links({ openFlags, admin }) {
+function Links({ openFlags, approvals, admin, onNavigate }) {
+  const loc = useLocation();
   const cls = ({ isActive }) => "nav-link" + (isActive ? " active" : "");
+  const L = (props) => <NavLink {...props} className={cls} onClick={onNavigate} />;
+  const groupOpen = (g) => g.items.some(([k]) => loc.pathname.startsWith(k === "@finance" ? "/app/finance" : `/app/m/${k}`));
+  const [open, setOpen] = useState(() => Object.fromEntries(NAV.map((g) => [g.label, true])));
   return (
     <>
-      <NavLink to="/app" end className={cls}><Icon d={I.attention} />Attention{openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</NavLink>
-      <NavLink to="/app/projects" className={cls}><Icon d={I.projects} />Projects</NavLink>
-      <NavLink to="/app/work" className={cls}><Icon d={I.work} />Work</NavLink>
-      <NavLink to="/app/reports" className={cls}><Icon d={I.reports} />Reports</NavLink>
-      {admin && <NavLink to="/app/settings" className={cls}><Icon d={I.settings} />Settings</NavLink>}
+      <L to="/app" end><Icon d={I.overview} />Overview</L>
+      <L to="/app/attention"><Icon d={I.attention} />Attention{openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</L>
+      <L to="/app/approvals"><Icon d={I.check} />Approvals{approvals > 0 && <span className="nav-badge" style={{ background: "var(--risk)" }}>{approvals}</span>}</L>
+      <L to="/app/calendar"><Icon d={I.calendar} />Calendar</L>
+      <div className="nav-section">Programmes and M&amp;E</div>
+      <L to="/app/projects"><Icon d={I.projects} />Programmes</L>
+      <L to="/app/work"><Icon d={I.work} />Work</L>
+      <L to="/app/reports"><Icon d={I.reports} />Reports</L>
+      <div className="nav-section">Operations</div>
+      {NAV.map((g) => {
+        const isOpen = open[g.label] !== false || groupOpen(g);
+        return (
+          <div key={g.label}>
+            <button className="nav-group" aria-expanded={isOpen} onClick={() => setOpen({ ...open, [g.label]: !isOpen })}>
+              <span>{g.label}</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style={{ transform: isOpen ? "rotate(90deg)" : "none", transition: "transform .15s" }}><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
+            </button>
+            {isOpen && g.items.map(([k, label]) => k === "@site" ? (
+              <Link key={k} to="/site/timiza" className="nav-link nav-sub" onClick={onNavigate}>{label} ↗</Link>
+            ) : (
+              <L key={k} to={k === "@finance" ? "/app/finance" : `/app/m/${k}`} end={k !== "@finance"}><span className="nav-sub-label">{label}</span></L>
+            ))}
+          </div>
+        );
+      })}
+      {admin && <><div className="nav-section">Admin</div><L to="/app/settings"><Icon d={I.settings} />Settings</L></>}
     </>
   );
 }
@@ -35,8 +63,13 @@ export default function Shell() {
   const { user, signOut, can } = useAuth();
   const nav = useNavigate();
   const [openFlags, setOpenFlags] = useState(0);
+  const [approvals, setApprovals] = useState(0);
+  const [menu, setMenu] = useState(false);
   useEffect(() => {
-    const load = () => api("/flags").then((d) => setOpenFlags(d.items.length)).catch(() => {});
+    const load = () => {
+      api("/flags").then((d) => setOpenFlags(d.items.length)).catch(() => {});
+      api("/approvals").then((d) => setApprovals(d.length)).catch(() => {});
+    };
     load();
     window.addEventListener("kept:changed", load);
     return () => window.removeEventListener("kept:changed", load);
@@ -44,10 +77,10 @@ export default function Shell() {
   const out = () => { signOut(); nav("/"); };
   return (
     <div className="shell">
-      <aside className="sidebar" aria-label="Main">
+      <aside className={"sidebar" + (menu ? " open" : "")} aria-label="Main">
         <Link className="brand" to="/app"><Logo />Kept</Link>
         <div className="org-name"><div className="small muted">Organization</div><div className="strong">{user.organization.name}</div></div>
-        <nav className="stack-sm" style={{ gap: 4 }} aria-label="Sections"><Links openFlags={openFlags} admin={can.admin} /></nav>
+        <nav className="stack-sm side-scroll" style={{ gap: 2 }} aria-label="Sections"><Links openFlags={openFlags} approvals={approvals} admin={can.admin} onNavigate={() => setMenu(false)} /></nav>
         <div className="user-box">
           <span className="avatar">{initials(user.full_name)}</span>
           <span style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
@@ -59,11 +92,14 @@ export default function Shell() {
           </button>
         </div>
       </aside>
-      <nav className="topbar" aria-label="Sections">
+      <nav className="topbar" aria-label="Quick links">
+        <button className="btn btn-quiet" onClick={() => setMenu(true)} aria-label="Open menu"><Icon d="M4 6h16M4 12h16M4 18h16" /></button>
         <Link className="brand" to="/app" style={{ padding: "0 8px" }} aria-label="Kept home"><Logo size={18} /></Link>
-        <Links openFlags={openFlags} admin={can.admin} />
-        <button className="btn btn-quiet" onClick={out}>Sign out</button>
+        <NavLink to="/app" end className="nav-link">Overview</NavLink>
+        <NavLink to="/app/attention" className="nav-link">Attention {openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</NavLink>
+        <NavLink to="/app/approvals" className="nav-link">Approvals</NavLink>
       </nav>
+      {menu && <div className="overlay" style={{ zIndex: 29, padding: 0 }} onClick={() => setMenu(false)} />}
       <main className="main" id="main">{PREVIEW && <PreviewBar />}<Outlet /></main>
     </div>
   );

@@ -1,0 +1,385 @@
+{
+  "groups": ["Funding", "Finance", "Procurement", "Inventory", "People", "Participants", "Operations", "Governance", "Website"],
+  "modules": [
+    {
+      "key": "grants", "label": "Grants", "singular": "Grant", "group": "Funding",
+      "description": "Funding opportunities from prospect to close, with reporting dates.",
+      "title_field": "title",
+      "fields": [
+        {"key": "title", "label": "Title", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "funder_id", "label": "Funder", "type": "ref", "ref": "stakeholders", "list": true, "filter": true},
+        {"key": "project_id", "label": "Programme", "type": "ref", "ref": "projects", "list": true, "filter": true},
+        {"key": "amount", "label": "Amount", "type": "money", "required": true, "list": true},
+        {"key": "deadline", "label": "Application deadline", "type": "date"},
+        {"key": "starts_on", "label": "Grant starts", "type": "date"},
+        {"key": "ends_on", "label": "Grant ends", "type": "date"},
+        {"key": "next_report_due", "label": "Next report due", "type": "date", "list": true},
+        {"key": "owner_id", "label": "Lead", "type": "ref", "ref": "users", "list": true},
+        {"key": "notes", "label": "Notes", "type": "textarea"}
+      ],
+      "status": {"field": "stage", "default": "prospect", "board": true,
+        "options": [["prospect", "Prospect"], ["drafting", "Drafting"], ["submitted", "Submitted"], ["awarded", "Awarded"], ["reporting", "Reporting"], ["declined", "Declined"], ["closed", "Closed"]],
+        "transitions": [
+          {"from": ["prospect"], "to": "drafting", "label": "Start proposal", "roles": ["admin", "manager"]},
+          {"from": ["drafting"], "to": "submitted", "label": "Mark submitted", "roles": ["admin", "manager"]},
+          {"from": ["submitted"], "to": "awarded", "label": "Awarded", "roles": ["admin", "manager"]},
+          {"from": ["submitted"], "to": "declined", "label": "Declined", "roles": ["admin", "manager"], "note": true},
+          {"from": ["awarded"], "to": "reporting", "label": "Start reporting", "roles": ["admin", "manager"]},
+          {"from": ["awarded", "reporting"], "to": "closed", "label": "Close grant", "roles": ["admin"]}
+        ]},
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "income", "label": "Income", "singular": "Income record", "group": "Funding",
+      "description": "Money received: grant tranches, donations, fees.",
+      "title_field": "source",
+      "fields": [
+        {"key": "source", "label": "Source", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "grant_id", "label": "Grant", "type": "ref", "ref": "grants", "list": true, "filter": true},
+        {"key": "amount", "label": "Amount", "type": "money", "required": true, "list": true},
+        {"key": "received_on", "label": "Received", "type": "date", "required": true, "list": true},
+        {"key": "method", "label": "Method", "type": "select", "options": [["bank", "Bank transfer"], ["mpesa", "M-Pesa"], ["cash", "Cash"], ["cheque", "Cheque"]], "list": true, "filter": true},
+        {"key": "reference", "label": "Reference", "type": "text"},
+        {"key": "notes", "label": "Notes", "type": "textarea"}
+      ],
+      "create": ["admin", "manager"], "edit": ["admin"], "delete": ["admin"]
+    },
+    {
+      "key": "budget_lines", "label": "Budget lines", "singular": "Budget line", "group": "Finance",
+      "description": "What each grant allows you to spend, by category.",
+      "title_field": "name",
+      "fields": [
+        {"key": "name", "label": "Line", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "grant_id", "label": "Grant", "type": "ref", "ref": "grants", "list": true, "filter": true},
+        {"key": "project_id", "label": "Programme", "type": "ref", "ref": "projects", "list": true, "filter": true},
+        {"key": "category", "label": "Category", "type": "select", "options": [["personnel", "Personnel"], ["activities", "Activities"], ["transport", "Transport"], ["materials", "Materials and supplies"], ["equipment", "Equipment"], ["admin", "Administration"]], "list": true, "filter": true},
+        {"key": "amount", "label": "Budgeted", "type": "money", "required": true, "list": true}
+      ],
+      "computed": [
+        {"key": "spent", "label": "Spent", "type": "money", "list": true},
+        {"key": "remaining", "label": "Remaining", "type": "money", "list": true},
+        {"key": "used_pct", "label": "Used", "type": "percent", "list": true}
+      ],
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "expenses", "label": "Expenses", "singular": "Expense", "group": "Finance",
+      "description": "Spending claims with receipts, approved before they are paid.",
+      "title_field": "description",
+      "fields": [
+        {"key": "description", "label": "Description", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "budget_line_id", "label": "Budget line", "type": "ref", "ref": "budget_lines", "required": true, "list": true, "filter": true},
+        {"key": "payee", "label": "Paid to", "type": "text", "list": true, "search": true},
+        {"key": "amount", "label": "Amount", "type": "money", "required": true, "list": true},
+        {"key": "spent_on", "label": "Date", "type": "date", "required": true, "list": true},
+        {"key": "method", "label": "Method", "type": "select", "options": [["mpesa", "M-Pesa"], ["bank", "Bank"], ["cash", "Cash"]], "filter": true},
+        {"key": "receipt", "label": "Receipt", "type": "file", "required_for": ["approved", "paid"]},
+        {"key": "notes", "label": "Notes", "type": "textarea"}
+      ],
+      "status": {"field": "status", "default": "submitted", "board": true,
+        "options": [["submitted", "Awaiting approval"], ["approved", "Approved"], ["rejected", "Rejected"], ["paid", "Paid"]],
+        "transitions": [
+          {"from": ["submitted"], "to": "approved", "label": "Approve", "roles": ["admin", "manager"], "not_creator": true},
+          {"from": ["submitted"], "to": "rejected", "label": "Reject", "roles": ["admin", "manager"], "not_creator": true, "note": true},
+          {"from": ["approved"], "to": "paid", "label": "Mark paid", "roles": ["admin"]},
+          {"from": ["rejected"], "to": "submitted", "label": "Resubmit", "roles": ["admin", "manager", "member"]}
+        ]},
+      "create": ["admin", "manager", "member"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "vendors", "label": "Vendors", "singular": "Vendor", "group": "Procurement",
+      "description": "Suppliers and service providers.",
+      "title_field": "name",
+      "fields": [
+        {"key": "name", "label": "Name", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "category", "label": "Supplies", "type": "text", "list": true, "search": true},
+        {"key": "phone", "label": "Phone", "type": "text", "list": true},
+        {"key": "email", "label": "Email", "type": "email"},
+        {"key": "kra_pin", "label": "KRA PIN", "type": "text"},
+        {"key": "rating", "label": "Rating", "type": "select", "options": [["5", "Excellent"], ["4", "Good"], ["3", "Fair"], ["2", "Poor"]], "list": true, "filter": true}
+      ],
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "purchase_requests", "label": "Purchase requests", "singular": "Purchase request", "group": "Procurement",
+      "description": "Request, approve, order and receive.",
+      "title_field": "item",
+      "fields": [
+        {"key": "item", "label": "What is needed", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "quantity", "label": "Quantity", "type": "number", "required": true, "list": true},
+        {"key": "estimated_cost", "label": "Estimated cost", "type": "money", "required": true, "list": true},
+        {"key": "budget_line_id", "label": "Budget line", "type": "ref", "ref": "budget_lines", "required": true, "filter": true},
+        {"key": "vendor_id", "label": "Vendor", "type": "ref", "ref": "vendors", "list": true},
+        {"key": "needed_by", "label": "Needed by", "type": "date", "list": true},
+        {"key": "justification", "label": "Why", "type": "textarea"}
+      ],
+      "status": {"field": "status", "default": "submitted", "board": true,
+        "options": [["submitted", "Awaiting approval"], ["approved", "Approved"], ["rejected", "Rejected"], ["ordered", "Ordered"], ["received", "Received"]],
+        "transitions": [
+          {"from": ["submitted"], "to": "approved", "label": "Approve", "roles": ["admin", "manager"], "not_creator": true},
+          {"from": ["submitted"], "to": "rejected", "label": "Reject", "roles": ["admin", "manager"], "not_creator": true, "note": true},
+          {"from": ["approved"], "to": "ordered", "label": "Mark ordered", "roles": ["admin", "manager"], "requires": ["vendor_id"]},
+          {"from": ["ordered"], "to": "received", "label": "Mark received", "roles": ["admin", "manager", "member"]}
+        ]},
+      "create": ["admin", "manager", "member"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "items", "label": "Stock items", "singular": "Stock item", "group": "Inventory",
+      "description": "Consumables: condoms, IEC materials, seedlings, stationery.",
+      "title_field": "name",
+      "fields": [
+        {"key": "name", "label": "Item", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "category", "label": "Category", "type": "select", "options": [["health", "Health supplies"], ["iec", "IEC materials"], ["seedlings", "Seedlings"], ["stationery", "Stationery"], ["other", "Other"]], "list": true, "filter": true},
+        {"key": "unit", "label": "Unit", "type": "text", "list": true},
+        {"key": "reorder_level", "label": "Reorder at", "type": "number", "required": true, "list": true},
+        {"key": "location", "label": "Store", "type": "text"}
+      ],
+      "computed": [{"key": "stock", "label": "In stock", "type": "number", "list": true}],
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "stock_moves", "label": "Stock movements", "singular": "Stock movement", "group": "Inventory",
+      "description": "Every item received or issued.",
+      "title_field": "note",
+      "fields": [
+        {"key": "item_id", "label": "Item", "type": "ref", "ref": "items", "required": true, "list": true, "filter": true},
+        {"key": "direction", "label": "Direction", "type": "select", "options": [["in", "Received"], ["out", "Issued"]], "required": true, "list": true, "filter": true},
+        {"key": "quantity", "label": "Quantity", "type": "number", "required": true, "list": true, "min": 1},
+        {"key": "moved_on", "label": "Date", "type": "date", "required": true, "list": true},
+        {"key": "project_id", "label": "For programme", "type": "ref", "ref": "projects", "list": true, "filter": true},
+        {"key": "note", "label": "Note", "type": "text", "search": true, "list": true}
+      ],
+      "create": ["admin", "manager", "member"], "edit": ["admin"], "delete": ["admin"]
+    },
+    {
+      "key": "assets", "label": "Assets", "singular": "Asset", "group": "Inventory",
+      "description": "Equipment register with custodians.",
+      "title_field": "name",
+      "fields": [
+        {"key": "name", "label": "Asset", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "tag", "label": "Tag", "type": "text", "list": true, "search": true},
+        {"key": "category", "label": "Category", "type": "select", "options": [["it", "IT"], ["av", "Audio-visual"], ["furniture", "Furniture"], ["vehicle", "Vehicle"], ["other", "Other"]], "list": true, "filter": true},
+        {"key": "value", "label": "Value", "type": "money", "list": true},
+        {"key": "purchased_on", "label": "Purchased", "type": "date"},
+        {"key": "custodian_id", "label": "Custodian", "type": "ref", "ref": "users", "list": true, "filter": true},
+        {"key": "grant_id", "label": "Bought with", "type": "ref", "ref": "grants"}
+      ],
+      "status": {"field": "condition", "default": "good",
+        "options": [["good", "Good"], ["repair", "Needs repair"], ["lost", "Lost"], ["disposed", "Disposed"]],
+        "transitions": [
+          {"from": ["good"], "to": "repair", "label": "Report fault", "roles": ["admin", "manager", "member"]},
+          {"from": ["repair"], "to": "good", "label": "Repaired", "roles": ["admin", "manager"]},
+          {"from": ["good", "repair"], "to": "lost", "label": "Report lost", "roles": ["admin", "manager"], "note": true},
+          {"from": ["good", "repair"], "to": "disposed", "label": "Dispose", "roles": ["admin"], "note": true}
+        ]},
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "volunteers", "label": "Volunteers", "singular": "Volunteer", "group": "People",
+      "description": "Applicants and active volunteers, including sign-ups from the website.",
+      "title_field": "name",
+      "fields": [
+        {"key": "name", "label": "Name", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "phone", "label": "Phone", "type": "text", "list": true},
+        {"key": "email", "label": "Email", "type": "email"},
+        {"key": "ward", "label": "Ward", "type": "text", "list": true, "filter": true},
+        {"key": "interest", "label": "Programme interest", "type": "select", "options": [["health", "Health Advocacy"], ["gps", "Gender, Peace and Security"], ["disability", "Disability Inclusion"], ["climate", "Climate Change"], ["any", "Any"]], "list": true, "filter": true},
+        {"key": "skills", "label": "Skills", "type": "text", "search": true},
+        {"key": "source", "label": "Came from", "type": "select", "options": [["website", "Website"], ["referral", "Referral"], ["event", "Event"]], "filter": true}
+      ],
+      "computed": [{"key": "hours", "label": "Hours", "type": "number", "list": true}],
+      "status": {"field": "status", "default": "applicant", "board": true,
+        "options": [["applicant", "Applicant"], ["active", "Active"], ["inactive", "Inactive"]],
+        "transitions": [
+          {"from": ["applicant"], "to": "active", "label": "Onboard", "roles": ["admin", "manager"]},
+          {"from": ["applicant"], "to": "inactive", "label": "Decline", "roles": ["admin", "manager"]},
+          {"from": ["active"], "to": "inactive", "label": "Mark inactive", "roles": ["admin", "manager"]},
+          {"from": ["inactive"], "to": "active", "label": "Reactivate", "roles": ["admin", "manager"]}
+        ]},
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "volunteer_hours", "label": "Volunteer hours", "singular": "Hours entry", "group": "People",
+      "description": "Time given by volunteers, by programme.",
+      "title_field": "task",
+      "fields": [
+        {"key": "volunteer_id", "label": "Volunteer", "type": "ref", "ref": "volunteers", "required": true, "list": true, "filter": true},
+        {"key": "worked_on", "label": "Date", "type": "date", "required": true, "list": true},
+        {"key": "hours", "label": "Hours", "type": "number", "required": true, "list": true, "min": 0.5, "max": 16},
+        {"key": "project_id", "label": "Programme", "type": "ref", "ref": "projects", "list": true, "filter": true},
+        {"key": "task", "label": "Task", "type": "text", "list": true, "search": true}
+      ],
+      "create": ["admin", "manager", "member"], "edit": ["admin", "manager"], "delete": ["admin", "manager"]
+    },
+    {
+      "key": "leave_requests", "label": "Leave", "singular": "Leave request", "group": "People",
+      "description": "Staff leave with approval.",
+      "title_field": "reason",
+      "fields": [
+        {"key": "user_id", "label": "Staff member", "type": "ref", "ref": "users", "required": true, "list": true, "filter": true, "default_me": true},
+        {"key": "kind", "label": "Type", "type": "select", "options": [["annual", "Annual"], ["sick", "Sick"], ["compassionate", "Compassionate"], ["study", "Study"]], "required": true, "list": true, "filter": true},
+        {"key": "starts_on", "label": "From", "type": "date", "required": true, "list": true},
+        {"key": "ends_on", "label": "To", "type": "date", "required": true, "list": true, "after": "starts_on"},
+        {"key": "reason", "label": "Reason", "type": "text"}
+      ],
+      "status": {"field": "status", "default": "pending", "board": true,
+        "options": [["pending", "Awaiting approval"], ["approved", "Approved"], ["declined", "Declined"]],
+        "transitions": [
+          {"from": ["pending"], "to": "approved", "label": "Approve", "roles": ["admin", "manager"], "not_creator": true},
+          {"from": ["pending"], "to": "declined", "label": "Decline", "roles": ["admin", "manager"], "not_creator": true, "note": true}
+        ]},
+      "create": ["admin", "manager", "member"], "edit": ["admin"], "delete": ["admin"]
+    },
+    {
+      "key": "participants", "label": "Participant registry", "singular": "Participant", "group": "Participants",
+      "description": "Anonymised records for disaggregated reporting. No names: a code, age band, gender, ward and consent.",
+      "title_field": "code",
+      "fields": [
+        {"key": "code", "label": "Code", "type": "text", "required": true, "list": true, "search": true, "unique": true},
+        {"key": "project_id", "label": "Programme", "type": "ref", "ref": "projects", "required": true, "list": true, "filter": true},
+        {"key": "gender", "label": "Gender", "type": "select", "options": [["female", "Female"], ["male", "Male"], ["other", "Other or prefer not to say"]], "required": true, "list": true, "filter": true},
+        {"key": "age_band", "label": "Age band", "type": "select", "options": [["10-14", "10 to 14"], ["15-19", "15 to 19"], ["20-24", "20 to 24"], ["25-35", "25 to 35"], ["36+", "36 and over"]], "required": true, "list": true, "filter": true},
+        {"key": "ward", "label": "Ward", "type": "text", "list": true, "filter": true},
+        {"key": "disability", "label": "Has a disability", "type": "bool", "list": true, "filter": true},
+        {"key": "consent", "label": "Consent recorded", "type": "bool", "required": true, "list": true},
+        {"key": "enrolled_on", "label": "Enrolled", "type": "date", "required": true}
+      ],
+      "create": ["admin", "manager", "member"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "events", "label": "Events", "singular": "Event", "group": "Operations",
+      "description": "Outreach days, dialogues, trainings and partner meetings.",
+      "title_field": "title",
+      "fields": [
+        {"key": "title", "label": "Event", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "kind", "label": "Type", "type": "select", "options": [["outreach", "Outreach"], ["dialogue", "Dialogue"], ["training", "Training"], ["meeting", "Meeting"], ["campaign", "Campaign"]], "list": true, "filter": true},
+        {"key": "project_id", "label": "Programme", "type": "ref", "ref": "projects", "list": true, "filter": true},
+        {"key": "date", "label": "Date", "type": "date", "required": true, "list": true},
+        {"key": "time", "label": "Time", "type": "text"},
+        {"key": "venue", "label": "Venue", "type": "text", "list": true, "search": true},
+        {"key": "expected", "label": "Expected attendance", "type": "number"},
+        {"key": "attended", "label": "Actual attendance", "type": "number", "list": true, "required_for": ["held"]},
+        {"key": "lead_id", "label": "Lead", "type": "ref", "ref": "users"}
+      ],
+      "status": {"field": "status", "default": "planned",
+        "options": [["planned", "Planned"], ["held", "Held"], ["cancelled", "Cancelled"]],
+        "transitions": [
+          {"from": ["planned"], "to": "held", "label": "Mark held", "roles": ["admin", "manager", "member"]},
+          {"from": ["planned"], "to": "cancelled", "label": "Cancel", "roles": ["admin", "manager"], "note": true}
+        ]},
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin", "manager"]
+    },
+    {
+      "key": "documents", "label": "Documents", "singular": "Document", "group": "Operations",
+      "description": "Registration, MoUs, policies and contracts, with expiry dates.",
+      "title_field": "title",
+      "fields": [
+        {"key": "title", "label": "Document", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "category", "label": "Category", "type": "select", "options": [["registration", "Registration and compliance"], ["mou", "MoU or agreement"], ["policy", "Policy"], ["contract", "Contract"], ["report", "Report"], ["other", "Other"]], "list": true, "filter": true},
+        {"key": "file", "label": "File", "type": "file"},
+        {"key": "owner_id", "label": "Owner", "type": "ref", "ref": "users", "list": true},
+        {"key": "expires_on", "label": "Expires", "type": "date", "list": true},
+        {"key": "stakeholder_id", "label": "With", "type": "ref", "ref": "stakeholders", "list": true}
+      ],
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "inquiries", "label": "Inquiries", "singular": "Inquiry", "group": "Operations",
+      "description": "Messages from the website and partners.",
+      "title_field": "name",
+      "fields": [
+        {"key": "name", "label": "From", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "contact", "label": "Email or phone", "type": "text", "required": true, "list": true},
+        {"key": "kind", "label": "About", "type": "select", "options": [["partner", "Partnership"], ["donate", "Donation"], ["media", "Media"], ["other", "Other"]], "list": true, "filter": true},
+        {"key": "message", "label": "Message", "type": "textarea", "required": true, "search": true},
+        {"key": "assignee_id", "label": "Assigned to", "type": "ref", "ref": "users", "list": true}
+      ],
+      "status": {"field": "status", "default": "new", "board": true,
+        "options": [["new", "New"], ["contacted", "Contacted"], ["converted", "Converted"], ["closed", "Closed"]],
+        "transitions": [
+          {"from": ["new"], "to": "contacted", "label": "Mark contacted", "roles": ["admin", "manager", "member"]},
+          {"from": ["new", "contacted"], "to": "converted", "label": "Converted", "roles": ["admin", "manager"], "note": true},
+          {"from": ["new", "contacted"], "to": "closed", "label": "Close", "roles": ["admin", "manager"]}
+        ]},
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "meetings", "label": "Meetings", "singular": "Meeting", "group": "Governance",
+      "description": "Board, staff and partner meetings with minutes.",
+      "title_field": "title",
+      "fields": [
+        {"key": "title", "label": "Meeting", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "kind", "label": "Type", "type": "select", "options": [["board", "Board"], ["staff", "Staff"], ["partner", "Partner"], ["community", "Community"]], "list": true, "filter": true},
+        {"key": "held_on", "label": "Date", "type": "date", "required": true, "list": true},
+        {"key": "attendees", "label": "Attendees", "type": "text"},
+        {"key": "minutes", "label": "Minutes", "type": "textarea", "search": true}
+      ],
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "decisions", "label": "Decisions and actions", "singular": "Decision", "group": "Governance",
+      "description": "What was decided, who owns the follow-up, and by when.",
+      "title_field": "decision",
+      "fields": [
+        {"key": "decision", "label": "Decision or action", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "meeting_id", "label": "Meeting", "type": "ref", "ref": "meetings", "list": true, "filter": true},
+        {"key": "owner_id", "label": "Owner", "type": "ref", "ref": "users", "list": true, "filter": true},
+        {"key": "due_on", "label": "Due", "type": "date", "list": true}
+      ],
+      "status": {"field": "status", "default": "open",
+        "options": [["open", "Open"], ["done", "Done"], ["dropped", "Dropped"]],
+        "transitions": [
+          {"from": ["open"], "to": "done", "label": "Mark done", "roles": ["admin", "manager", "member"]},
+          {"from": ["open"], "to": "dropped", "label": "Drop", "roles": ["admin", "manager"], "note": true}
+        ]},
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "site_settings", "label": "Site settings", "singular": "Site settings", "group": "Website",
+      "description": "What the public portfolio says about you.",
+      "title_field": "slug", "single": true,
+      "fields": [
+        {"key": "slug", "label": "Web address", "type": "text", "required": true, "list": true, "unique": true},
+        {"key": "tagline", "label": "Headline", "type": "text", "required": true, "list": true},
+        {"key": "intro", "label": "Introduction", "type": "textarea", "required": true},
+        {"key": "about", "label": "How we work", "type": "textarea"},
+        {"key": "location", "label": "Location", "type": "text", "list": true},
+        {"key": "contact_email", "label": "Contact email", "type": "email", "list": true},
+        {"key": "phone", "label": "Phone", "type": "text"},
+        {"key": "facebook", "label": "Facebook", "type": "text"},
+        {"key": "twitter", "label": "X (Twitter)", "type": "text"},
+        {"key": "instagram", "label": "Instagram", "type": "text"},
+        {"key": "show_impact", "label": "Show live impact numbers", "type": "bool"}
+      ],
+      "create": ["admin"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "site_programmes", "label": "Site programmes", "singular": "Programme page", "group": "Website",
+      "description": "Programme pages on the public portfolio, linked to live results.",
+      "title_field": "title",
+      "fields": [
+        {"key": "title", "label": "Title", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "project_id", "label": "Live results from", "type": "ref", "ref": "projects", "list": true},
+        {"key": "summary", "label": "Summary", "type": "textarea", "required": true},
+        {"key": "focus", "label": "Focus areas", "type": "text"},
+        {"key": "order", "label": "Order", "type": "number", "list": true},
+        {"key": "published", "label": "Published", "type": "bool", "list": true}
+      ],
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    },
+    {
+      "key": "site_team", "label": "Site team", "singular": "Team member", "group": "Website",
+      "description": "People shown on the public portfolio.",
+      "title_field": "name",
+      "fields": [
+        {"key": "name", "label": "Name", "type": "text", "required": true, "list": true, "search": true},
+        {"key": "role", "label": "Role", "type": "text", "required": true, "list": true},
+        {"key": "bio", "label": "Short bio", "type": "textarea"},
+        {"key": "photo", "label": "Photo", "type": "file"},
+        {"key": "order", "label": "Order", "type": "number", "list": true},
+        {"key": "published", "label": "Published", "type": "bool", "list": true}
+      ],
+      "create": ["admin", "manager"], "edit": ["admin", "manager"], "delete": ["admin"]
+    }
+  ]
+}

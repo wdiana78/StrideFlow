@@ -9,7 +9,9 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import get_settings, today
 from .db import SessionLocal
+from . import erp  # noqa: F401  (registers ERP module tables)
 from .routers import activities, auth, flags, org, projects
+from .routers import erp as erp_router
 from .templates_builtin import ensure_builtin_templates
 
 
@@ -47,7 +49,7 @@ async def validation_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(status_code=422, content={"detail": first, "errors": errors})
 
 
-for r in (auth.router, org.router, projects.router, activities.router, flags.router):
+for r in (auth.router, org.router, projects.router, activities.router, flags.router, erp_router.router, erp_router.public):
     app.include_router(r, prefix="/api")
 
 Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)

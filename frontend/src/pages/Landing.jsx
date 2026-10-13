@@ -94,9 +94,12 @@ export default function Landing() {
             <div className="stack-sm" style={{ maxWidth: 760 }}>
               <span style={{ color: "var(--cobalt)", fontWeight: 700 }}>Case study</span>
               <h2 style={{ fontSize: 40, lineHeight: "46px", fontWeight: 800, letterSpacing: "-0.8px" }}>Timiza Youth Initiative, Kilifi</h2>
-              <p style={{ fontSize: 18, lineHeight: "28px", color: "var(--ink-2)" }}>A youth-led community-based organization running four programmes at once: health advocacy, gender peace and security, disability inclusion and climate change. Each answers to partners and funders. Work like this usually lives in separate spreadsheets, phones and WhatsApp groups; this workspace shows it in one place.</p>
+              <p style={{ fontSize: 18, lineHeight: "28px", color: "var(--ink-2)" }}>A youth-led community-based organization running four programmes at once: health advocacy, gender peace and security, disability inclusion and climate change. Kept runs their whole operation: programmes and evidence, grants, budgets and expenses, procurement, stock and assets, volunteers, leave, a participant registry, events, documents and governance, and it powers their public site with live, verified results. </p>
             </div>
-            <button className="btn btn-primary btn-lg" onClick={openCase}>Open the Timiza workspace</button>
+            <div className="row wrap">
+              <Link className="btn btn-lg" to="/site/timiza">See Timiza's public site</Link>
+              <button className="btn btn-primary btn-lg" onClick={openCase}>Open the Timiza workspace</button>
+            </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16 }}>
             {CASE.map(([prog, rows]) => (

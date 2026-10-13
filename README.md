@@ -24,6 +24,24 @@ Moringa School capstone, 2026. All organizations and people in the demo data are
 
 Every meaningful action, including those made by the rules, is written to the audit log.
 
+## ERP modules (case study: Timiza Youth Initiative)
+
+Beyond programmes and M&E, Kept runs the whole organization. Every module below is defined once in `backend/app/modules.json`; that spec generates the PostgreSQL tables (prefixed `m_`, with real foreign keys), the validated API, the workflow rules and the screens.
+
+| Area | Modules | Highlights |
+|---|---|---|
+| Funding | Grants, Income | Pipeline board from prospect to closed; application and report deadlines flagged |
+| Finance | Budget lines, Expenses, Budget against actual | Approval workflow, receipts required before approval, no self-approval, overspend flags |
+| Procurement | Purchase requests, Vendors | Request, approve, order (vendor required), receive |
+| Inventory | Stock items, Stock movements, Assets | Live stock levels, low-stock flags, asset custodians and condition |
+| People | Volunteers, Volunteer hours, Leave | Website sign-ups land as applicants; leave approval |
+| Participants | Participant registry | Anonymised codes for disaggregated reporting, consent recorded, no names |
+| Operations | Events, Documents, Inquiries | Calendar, document expiry flags, website messages |
+| Governance | Meetings, Decisions and actions | Minutes and owned follow-ups |
+| Website | Site settings, Programme pages, Team | Public portfolio at `/site/<slug>` with live results from verified records |
+
+Also: an organization overview dashboard, an approvals inbox, a combined calendar, CSV export on every module, table and board views, and full history on every record. API reference: `/docs` on the running API.
+
 ## Stack
 
 - **Frontend:** React 18, React Router, Vite, plain CSS design system. Vitest.
@@ -45,7 +63,7 @@ backend/
     routers/             auth, org (people, stakeholders, templates, audit), projects, activities, flags
     services/            pace, rules engine, report builder, audit
   migrations/            Alembic
-  tests/                 15 API and business-rule tests
+  tests/                 22 API, business-rule and ERP tests
   seed.py                fictional demo data
 frontend/
   src/pages              Landing, Auth, Attention, Projects, Project, Activity, Work, Reports, ReportView, Settings
@@ -98,6 +116,8 @@ npm run dev                       # http://localhost:5173
 
 | Email | Role |
 |---|---|
+| zawadi@timiza.example | Manager, Timiza Youth Initiative case study (full ERP data) |
+| admin@timiza.example | Admin, Timiza |
 | achieng@tumaini.example | Manager |
 | admin@tumaini.example | Admin |
 | brian@tumaini.example | Member |
@@ -117,7 +137,7 @@ npm run dev                       # http://localhost:5173
 ## Tests
 
 ```bash
-cd backend && pytest -q          # 15 tests: auth, roles, tenant isolation, validation,
+cd backend && pytest -q          # 22 tests: auth, roles, tenant isolation, validation,
                                  # proof rules, pace, flags, escalation, dependencies, reports
 cd frontend && npm test
 ```

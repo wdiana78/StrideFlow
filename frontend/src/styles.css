@@ -212,3 +212,16 @@ dl.facts dd { margin: 0; }
 .landing { background: var(--ground); }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
 @media (max-width: 640px) { .container { padding: 0 18px; } }
+
+/* ---------- grouped navigation ---------- */
+.side-scroll { overflow-y: auto; flex: 1; min-height: 0; margin: 0 -6px; padding: 0 6px 12px; }
+.nav-section { font-size: 12px; font-weight: 600; color: var(--slate); padding: 14px 10px 4px; }
+.nav-group { width: 100%; display: flex; justify-content: space-between; align-items: center; min-height: 36px; padding: 0 10px; border: 0; background: none; color: var(--ink-2); font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 6px; }
+.nav-group:hover { background: var(--stone); }
+.nav-link .nav-sub-label, .nav-sub { padding-left: 18px; font-size: 14px; }
+.sidebar .nav-link { min-height: 38px; }
+.brand { flex: 0 0 auto; }
+.org-name, .user-box { flex: 0 0 auto; }
+@media (max-width: 900px) {
+  .sidebar.open { display: flex; position: fixed; left: 0; top: 0; bottom: 0; z-index: 30; box-shadow: var(--shadow-float); }
+}

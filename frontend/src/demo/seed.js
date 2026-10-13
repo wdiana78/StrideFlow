@@ -1,3 +1,4 @@
+import SPEC from "../modules.json";
 import TIMIZA from "./timiza.json";
 // Same fictional data and templates as backend/seed.py and backend/app/templates_builtin.py.
 const R = (kind, label, required = true, counts = false) => ({ kind, label, required, counts });
@@ -63,7 +64,7 @@ export const PASSWORD = "kept-demo-2026";
 export function SEED() {
   let i = 0;
   const id = (p) => `${p}-${(++i).toString(36)}`;
-  const db = { orgs: [], users: [], stakeholders: [], templates: JSON.parse(JSON.stringify(TEMPLATES)), projects: [], commitments: [], activities: [], requirements: [], evidence: [], flags: [], reports: [], audit: [], seq: 0 };
+  const db = { orgs: [], users: [], stakeholders: [], templates: JSON.parse(JSON.stringify(TEMPLATES)), projects: [], commitments: [], activities: [], requirements: [], evidence: [], flags: [], reports: [], audit: [], seq: 0, m: {} };
   const at = (d, h = 15) => `${d}T${String(h).padStart(2, "0")}:00:00.000Z`;
   const tplTypes = (tid) => Object.fromEntries(db.templates.find((t) => t.id === tid).blueprint.activity_types.map((t) => [t.key, t]));
   const audit = (org, actor, action, sid, summary) => db.audit.push({ id: ++db.seq, organization_id: org, actor_id: actor, action, subject_type: "activity", subject_id: sid, summary, changes: {}, at: at("2026-10-01", 9) });
@@ -159,8 +160,10 @@ export function SEED() {
   const tz = org(TIMIZA.organization.name, TIMIZA.organization.sector);
   const ppl = Object.fromEntries(TIMIZA.users.map((x) => [x.key, user(tz, x.name, x.email, x.role)]));
   const sk = Object.fromEntries(TIMIZA.stakeholders.map((x) => [x.key, stake(tz, x.name, x.kind)]));
+  const projByName = {};
   for (const pj of TIMIZA.projects) {
     const pr = project(tz, "tpl-youth", sk[pj.stakeholder], ppl[pj.manager], pj.name, pj.starts_on, pj.ends_on, pj.description);
+    projByName[pj.name] = pr;
     const cs = Object.fromEntries(pj.commitments.map((c) => [c.key, commit(pr, c.title, c.unit, c.measure, c.target, c.due)]));
     const keyed = {};
     for (const a of pj.activities) {
@@ -170,5 +173,46 @@ export function SEED() {
       if (a.key) keyed[a.key] = made;
     }
   }
+  seedErp(db, id, tz, ppl, sk, projByName);
   return db;
+}
+
+// ---------- ERP records for the case study (same as backend seed_erp) ----------
+const WARDS = ["Sokoni", "Mnarani", "Tezo", "Matsangoni", "Watamu", "Jaribuni", "Ganze", "Kaloleni", "Malindi Town", "Mtwapa"];
+function participantsFor(spec) {
+  let st = 20261013n; const next = () => { st = (st * 1103515245n + 12345n) % 2147483648n; return Number(st) / 2147483648; };
+  const out = []; let n = 0;
+  for (const [project, count] of Object.entries(spec)) for (let k = 0; k < count; k++) {
+    n++; const [r1, r2, r3, r4, r5] = [next(), next(), next(), next(), next()];
+    const gender = r1 < 0.58 ? "female" : r1 < 0.97 ? "male" : "other";
+    const ages = project !== "Climate Change" ? ["15-19", "20-24", "25-35", "10-14", "36+"] : ["10-14", "15-19", "20-24", "25-35", "36+"];
+    const age = r2 < 0.4 ? ages[0] : r2 < 0.7 ? ages[1] : r2 < 0.88 ? ages[2] : r2 < 0.96 ? ages[3] : ages[4];
+    const enrolled = new Date(Date.UTC(2026, 6, 1) + Math.floor(r5 * 100) * 86400000).toISOString().slice(0, 10);
+    out.push({ code: `TYI-${String(n).padStart(4, "0")}`, project_id: project, gender, age_band: age, ward: WARDS[Math.floor(r4 * WARDS.length)],
+      disability: r3 < (project === "Disability Inclusion" ? 0.6 : 0.06), consent: true, enrolled_on: enrolled });
+  }
+  return out;
+}
+function seedErp(db, id, org, ppl, sk, projects) {
+  const mods = Object.fromEntries(SPEC.modules.map((m) => [m.key, m]));
+  const keys = {};
+  const order = ["site_settings", "site_programmes", "site_team", "grants", "income", "budget_lines", "vendors", "expenses", "purchase_requests", "items",
+    "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests", "events", "documents", "inquiries", "meetings", "decisions", "participants"];
+  const records = { ...TIMIZA.erp, participants: participantsFor(TIMIZA.participants) };
+  const stampDays = (n2) => new Date(Date.UTC(2026, 9, 13, 9) - n2 * 86400000).toISOString();
+  for (const key of order) {
+    const m = mods[key]; const fields = Object.fromEntries(m.fields.map((f) => [f.key, f])); db.m[key] = db.m[key] || [];
+    for (const rec of records[key] || []) {
+      const row = {};
+      for (const [k, v] of Object.entries(rec)) {
+        if (k.startsWith("_") || !fields[k]) continue; const f = fields[k];
+        row[k] = f.type === "ref" ? (f.ref === "users" ? ppl[v].id : f.ref === "stakeholders" ? sk[v].id : f.ref === "projects" ? projects[v].id : keys[v])
+          : f.type === "file" ? { name: v.name, url: "", size: null } : v;
+      }
+      const created = stampDays(rec._age_days ?? 6);
+      const r = { id: id(key.slice(0, 3)), organization_id: org.id, created_by_id: (rec._by ? ppl[rec._by] : ppl.zawadi).id, created_at: created, updated_at: created, ...row };
+      if (m.status) r[m.status.field] = rec._status || m.status.default;
+      db.m[key].push(r); if (rec._key) keys[rec._key] = r.id;
+    }
+  }
 }

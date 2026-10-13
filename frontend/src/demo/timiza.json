@@ -1,106 +1,1911 @@
 {
-  "note": "Case study workspace. Organization, programmes and partners are from timiza.vercel.app. Staff names, targets and figures are illustrative.",
-  "organization": {"name": "Timiza Youth Initiative", "sector": "Youth-led community advocacy, Kilifi County"},
-  "template_key": "youth_advocacy",
-  "users": [
-    {"key": "amani", "name": "Amani Charo", "email": "admin@timiza.example", "role": "admin"},
-    {"key": "zawadi", "name": "Zawadi Kahindi", "email": "zawadi@timiza.example", "role": "manager"},
-    {"key": "baraka", "name": "Baraka Katana", "email": "baraka@timiza.example", "role": "member"},
-    {"key": "neema", "name": "Neema Kazungu", "email": "neema@timiza.example", "role": "member"},
-    {"key": "juma", "name": "Juma Mwangome", "email": "juma@timiza.example", "role": "member"},
-    {"key": "observer", "name": "Partner Observer", "email": "viewer@timiza.example", "role": "viewer"}
-  ],
-  "stakeholders": [
-    {"key": "fund", "name": "Pwani Community Fund (illustrative funder)", "kind": "funder"},
-    {"key": "county", "name": "Kilifi County Government", "kind": "partner"},
-    {"key": "ticah", "name": "TICAH", "kind": "partner"},
-    {"key": "lcvt", "name": "LCVT Health", "kind": "partner"},
-    {"key": "kesco", "name": "Kenya Community Support Center", "kind": "partner"},
-    {"key": "gvrc", "name": "Gender Violence Recovery Center", "kind": "partner"}
-  ],
-  "projects": [
+ "note": "Case study workspace. Organization, programmes and partners are from timiza.vercel.app. Staff names, targets and figures are illustrative.",
+ "organization": {
+  "name": "Timiza Youth Initiative",
+  "sector": "Youth-led community advocacy, Kilifi County"
+ },
+ "template_key": "youth_advocacy",
+ "users": [
+  {
+   "key": "amani",
+   "name": "Amani Charo",
+   "email": "admin@timiza.example",
+   "role": "admin"
+  },
+  {
+   "key": "zawadi",
+   "name": "Zawadi Kahindi",
+   "email": "zawadi@timiza.example",
+   "role": "manager"
+  },
+  {
+   "key": "baraka",
+   "name": "Baraka Katana",
+   "email": "baraka@timiza.example",
+   "role": "member"
+  },
+  {
+   "key": "neema",
+   "name": "Neema Kazungu",
+   "email": "neema@timiza.example",
+   "role": "member"
+  },
+  {
+   "key": "juma",
+   "name": "Juma Mwangome",
+   "email": "juma@timiza.example",
+   "role": "member"
+  },
+  {
+   "key": "observer",
+   "name": "Partner Observer",
+   "email": "viewer@timiza.example",
+   "role": "viewer"
+  }
+ ],
+ "stakeholders": [
+  {
+   "key": "fund",
+   "name": "Pwani Community Fund (illustrative funder)",
+   "kind": "funder"
+  },
+  {
+   "key": "county",
+   "name": "Kilifi County Government",
+   "kind": "partner"
+  },
+  {
+   "key": "ticah",
+   "name": "TICAH",
+   "kind": "partner"
+  },
+  {
+   "key": "lcvt",
+   "name": "LCVT Health",
+   "kind": "partner"
+  },
+  {
+   "key": "kesco",
+   "name": "Kenya Community Support Center",
+   "kind": "partner"
+  },
+  {
+   "key": "gvrc",
+   "name": "Gender Violence Recovery Center",
+   "kind": "partner"
+  }
+ ],
+ "projects": [
+  {
+   "name": "Health Advocacy",
+   "stakeholder": "fund",
+   "manager": "zawadi",
+   "starts_on": "2026-07-01",
+   "ends_on": "2026-12-31",
+   "description": "Sexual and reproductive health information for young people in Kilifi, delivered through outreach days and trained peer educators.",
+   "commitments": [
     {
-      "name": "Health Advocacy", "stakeholder": "fund", "manager": "zawadi", "starts_on": "2026-07-01", "ends_on": "2026-12-31",
-      "description": "Sexual and reproductive health information for young people in Kilifi, delivered through outreach days and trained peer educators.",
-      "commitments": [
-        {"key": "reach", "title": "Reach 1,500 young people with SRH information", "unit": "young people", "measure": "sum", "target": 1500, "due": "2026-12-15"},
-        {"key": "peers", "title": "Train 40 peer educators", "unit": "peer educators", "measure": "sum", "target": 40, "due": "2026-10-31"}
-      ],
-      "activities": [
-        {"c": "reach", "title": "Youth health day, Kilifi town", "due": "2026-07-18", "owner": "baraka", "kind": "outreach", "status": "done", "values": {"People reached": 210}, "files": {"Attendance list or photos": "kilifi-town-youth-day.jpg"}},
-        {"c": "reach", "title": "School outreach, Mnarani", "due": "2026-08-08", "owner": "neema", "kind": "outreach", "status": "done", "values": {"People reached": 180}, "files": {"Attendance list or photos": "mnarani-outreach.jpg"}},
-        {"c": "reach", "title": "Market outreach, Mtwapa", "due": "2026-08-29", "owner": "baraka", "kind": "outreach", "status": "done", "values": {"People reached": 260}, "files": {"Attendance list or photos": "mtwapa-market.jpg"}},
-        {"c": "reach", "title": "Youth football tournament health desk, Kaloleni", "due": "2026-09-19", "owner": "juma", "kind": "outreach", "status": "done", "values": {"People reached": 150}, "files": {"Attendance list or photos": "kaloleni-tournament.jpg"}},
-        {"c": "reach", "title": "Outreach, Malindi youth centre", "due": "2026-10-03", "owner": "neema", "kind": "outreach", "status": "done", "values": {"People reached": 190}, "files": {"Attendance list or photos": "malindi-youth-centre.jpg"}},
-        {"c": "reach", "title": "Youth day, Kilifi town (October)", "due": "2026-10-16", "owner": "baraka", "kind": "outreach"},
-        {"c": "reach", "title": "Outreach, Watamu", "due": "2026-11-07", "owner": "neema", "kind": "outreach"},
-        {"c": "reach", "title": "Outreach, Mariakani", "due": "2026-11-28", "owner": "juma", "kind": "outreach"},
-        {"c": "peers", "title": "Peer educator training, cohort 1", "due": "2026-08-14", "owner": "zawadi", "kind": "training", "status": "done", "values": {"Participants trained": 12}, "files": {"Signed attendance sheet": "peer-cohort-1.pdf"}},
-        {"c": "peers", "title": "Peer educator training, cohort 2", "due": "2026-09-11", "owner": "zawadi", "kind": "training", "status": "done", "values": {"Participants trained": 10}, "files": {"Signed attendance sheet": "peer-cohort-2.pdf"}},
-        {"c": "peers", "title": "Peer educator training, cohort 3", "due": "2026-10-10", "owner": "neema", "kind": "training", "status": "in_progress", "done_on": "2026-10-10", "refused_on": "2026-10-10", "values": {"Participants trained": 14}},
-        {"c": "peers", "title": "Peer educator training, cohort 4", "due": "2026-10-29", "owner": "neema", "kind": "training"}
-      ]
+     "key": "reach",
+     "title": "Reach 1,500 young people with SRH information",
+     "unit": "young people",
+     "measure": "sum",
+     "target": 1500,
+     "due": "2026-12-15"
     },
     {
-      "name": "Gender, Peace and Security", "stakeholder": "fund", "manager": "zawadi", "starts_on": "2026-07-01", "ends_on": "2026-12-31",
-      "description": "Ward-level community dialogues on gender-based violence and peace, with referrals to support services. No personal details of survivors are recorded.",
-      "commitments": [
-        {"key": "dialogues", "title": "Hold 12 community dialogues on GBV", "unit": "dialogues", "measure": "activities", "target": 12, "due": "2026-12-10"},
-        {"key": "referrals", "title": "Refer 60 people to support services", "unit": "referrals", "measure": "sum", "target": 60, "due": "2026-12-10"}
-      ],
-      "activities": [
-        {"c": "dialogues", "title": "Dialogue, Sokoni ward", "due": "2026-07-24", "owner": "juma", "kind": "dialogue", "status": "done", "values": {"Participants": 46}, "files": {"Signed attendance list": "sokoni-dialogue.pdf"}, "notes": {"Key resolutions": "Ward administrator to host a monthly safety forum."}},
-        {"c": "dialogues", "title": "Dialogue, Mnarani ward", "due": "2026-08-21", "owner": "juma", "kind": "dialogue", "status": "done", "values": {"Participants": 38}, "files": {"Signed attendance list": "mnarani-dialogue.pdf"}, "notes": {"Key resolutions": "Chiefs agreed to publicise the GBV hotline at barazas."}},
-        {"c": "dialogues", "title": "Dialogue, Tezo ward", "due": "2026-09-04", "owner": "baraka", "kind": "dialogue", "status": "done", "values": {"Participants": 41}, "files": {"Signed attendance list": "tezo-dialogue.pdf"}, "notes": {"Key resolutions": "Youth group to run a follow-up drama session."}},
-        {"c": "dialogues", "title": "Dialogue, Matsangoni ward", "due": "2026-09-18", "owner": "juma", "kind": "dialogue", "status": "done", "values": {"Participants": 33}, "files": {"Signed attendance list": "matsangoni-dialogue.pdf"}, "notes": {"Key resolutions": "Request for a women-only follow-up session."}},
-        {"c": "dialogues", "title": "Dialogue, Watamu ward", "due": "2026-10-02", "owner": "baraka", "kind": "dialogue", "status": "done", "values": {"Participants": 52}, "files": {"Signed attendance list": "watamu-dialogue.pdf"}, "notes": {"Key resolutions": "Boda boda association to join the referral network."}},
-        {"c": "dialogues", "title": "Dialogue, Jaribuni ward", "due": "2026-10-09", "owner": "juma", "kind": "dialogue", "status": "done", "values": {"Participants": 29}, "files": {"Signed attendance list": "jaribuni-dialogue.pdf"}, "notes": {"Key resolutions": "Schools to invite the team for a session."}},
-        {"key": "guides", "c": "dialogues", "title": "Print dialogue facilitation guides", "due": "2026-10-08", "owner": "baraka", "kind": "task"},
-        {"c": "dialogues", "title": "Dialogue, Ganze ward", "due": "2026-10-23", "owner": "juma", "kind": "dialogue", "depends_on": "guides"},
-        {"c": "dialogues", "title": "Dialogue, Bamba ward", "due": "2026-11-06", "owner": "juma", "kind": "dialogue"},
-        {"c": "referrals", "title": "Referral log, July", "due": "2026-07-31", "owner": "zawadi", "kind": "referral", "status": "done", "values": {"Referrals": 9}, "notes": {"Partner summary (no names)": "Referred to the Gender Violence Recovery Center and county health facilities."}},
-        {"c": "referrals", "title": "Referral log, August", "due": "2026-08-31", "owner": "zawadi", "kind": "referral", "status": "done", "values": {"Referrals": 11}, "notes": {"Partner summary (no names)": "Mostly health referrals; two legal-aid referrals."}},
-        {"c": "referrals", "title": "Referral log, September", "due": "2026-09-30", "owner": "zawadi", "kind": "referral", "status": "done", "values": {"Referrals": 12}, "notes": {"Partner summary (no names)": "Increase after the Tezo and Matsangoni dialogues."}},
-        {"c": "referrals", "title": "Referral log, October", "due": "2026-10-31", "owner": "zawadi", "kind": "referral"}
-      ]
-    },
-    {
-      "name": "Disability Inclusion", "stakeholder": "fund", "manager": "zawadi", "starts_on": "2026-07-01", "ends_on": "2026-12-31",
-      "description": "Accessibility audits of public facilities with the county, and inclusion training for youth leaders.",
-      "commitments": [
-        {"key": "audits", "title": "Assess accessibility of 20 public facilities", "unit": "facilities", "measure": "sum", "target": 20, "due": "2026-11-30"},
-        {"key": "leaders", "title": "Train 30 youth leaders in inclusive practice", "unit": "youth leaders", "measure": "sum", "target": 30, "due": "2026-12-05"}
-      ],
-      "activities": [
-        {"c": "audits", "title": "Audit, Kilifi county offices", "due": "2026-08-20", "owner": "neema", "kind": "audit", "status": "done", "values": {"Facilities assessed": 4}, "files": {"Audit forms": "audit-county-offices.pdf"}},
-        {"c": "audits", "title": "Audit, health centres in Kilifi North", "due": "2026-09-10", "owner": "neema", "kind": "audit", "status": "done", "values": {"Facilities assessed": 5}, "files": {"Audit forms": "audit-health-centres.pdf"}},
-        {"c": "audits", "title": "Audit, schools in Kaloleni", "due": "2026-09-30", "owner": "juma", "kind": "audit", "status": "done", "values": {"Facilities assessed": 3}, "files": {"Audit forms": "audit-kaloleni-schools.pdf"}},
-        {"c": "audits", "title": "Audit, markets and bus stages", "due": "2026-10-22", "owner": "neema", "kind": "audit"},
-        {"c": "audits", "title": "Share audit findings with the county", "due": "2026-11-25", "owner": "zawadi", "kind": "deliverable"},
-        {"c": "leaders", "title": "Inclusion training, Kilifi North", "due": "2026-09-25", "owner": "neema", "kind": "training", "status": "done", "values": {"Participants trained": 14}, "files": {"Signed attendance sheet": "inclusion-training-1.pdf"}},
-        {"c": "leaders", "title": "Inclusion training, Malindi", "due": "2026-11-12", "owner": "neema", "kind": "training"}
-      ]
-    },
-    {
-      "name": "Climate Change", "stakeholder": "fund", "manager": "zawadi", "starts_on": "2026-07-01", "ends_on": "2026-12-31",
-      "description": "Indigenous tree planting before the short rains and school climate clubs.",
-      "commitments": [
-        {"key": "trees", "title": "Plant 5,000 indigenous seedlings", "unit": "seedlings", "measure": "sum", "target": 5000, "due": "2026-11-20"},
-        {"key": "clubs", "title": "Launch 8 school climate clubs", "unit": "clubs", "measure": "activities", "target": 8, "due": "2026-12-18"}
-      ],
-      "activities": [
-        {"c": "trees", "title": "Planting, Kilifi creek", "due": "2026-07-12", "owner": "juma", "kind": "planting", "status": "done", "values": {"Seedlings planted": 600}, "files": {"Photos": "kilifi-creek-planting.jpg"}},
-        {"c": "trees", "title": "Planting, Mnarani school grounds", "due": "2026-08-09", "owner": "baraka", "kind": "planting", "status": "done", "values": {"Seedlings planted": 900}, "files": {"Photos": "mnarani-planting.jpg"}},
-        {"c": "trees", "title": "Planting, Arabuko-Sokoke edge", "due": "2026-09-13", "owner": "juma", "kind": "planting", "status": "done", "values": {"Seedlings planted": 1100}, "files": {"Photos": "sokoke-planting.jpg"}},
-        {"c": "trees", "title": "Planting, Kaloleni water point", "due": "2026-10-04", "owner": "baraka", "kind": "planting", "status": "done", "values": {"Seedlings planted": 850}, "files": {"Photos": "kaloleni-planting.jpg"}},
-        {"c": "trees", "title": "Buy 1,500 seedlings from the county nursery", "due": "2026-10-12", "owner": "zawadi", "kind": "purchase", "status": "done", "files": {"Receipt": "nursery-receipt.pdf"}, "values": {"Amount spent": 45000}},
-        {"c": "trees", "title": "School planting day, Kaloleni", "due": "2026-10-15", "owner": "baraka", "kind": "planting"},
-        {"c": "trees", "title": "Planting, Ganze before the short rains", "due": "2026-11-05", "owner": "juma", "kind": "planting"},
-        {"c": "clubs", "title": "Launch climate club, Kilifi Township Secondary", "due": "2026-08-18", "owner": "baraka", "kind": "deliverable", "status": "done", "files": {"Final document": "club-charter-kilifi-township.pdf"}},
-        {"c": "clubs", "title": "Launch climate club, Mnarani Primary", "due": "2026-09-15", "owner": "baraka", "kind": "deliverable", "status": "done", "files": {"Final document": "club-charter-mnarani.pdf"}},
-        {"c": "clubs", "title": "Launch climate club, Kaloleni Secondary", "due": "2026-10-06", "owner": "baraka", "kind": "deliverable", "status": "done", "files": {"Final document": "club-charter-kaloleni.pdf"}},
-        {"c": "clubs", "title": "Launch climate club, Ganze Secondary", "due": "2026-10-27", "owner": "baraka", "kind": "deliverable"}
-      ]
+     "key": "peers",
+     "title": "Train 40 peer educators",
+     "unit": "peer educators",
+     "measure": "sum",
+     "target": 40,
+     "due": "2026-10-31"
     }
+   ],
+   "activities": [
+    {
+     "c": "reach",
+     "title": "Youth health day, Kilifi town",
+     "due": "2026-07-18",
+     "owner": "baraka",
+     "kind": "outreach",
+     "status": "done",
+     "values": {
+      "People reached": 210
+     },
+     "files": {
+      "Attendance list or photos": "kilifi-town-youth-day.jpg"
+     }
+    },
+    {
+     "c": "reach",
+     "title": "School outreach, Mnarani",
+     "due": "2026-08-08",
+     "owner": "neema",
+     "kind": "outreach",
+     "status": "done",
+     "values": {
+      "People reached": 180
+     },
+     "files": {
+      "Attendance list or photos": "mnarani-outreach.jpg"
+     }
+    },
+    {
+     "c": "reach",
+     "title": "Market outreach, Mtwapa",
+     "due": "2026-08-29",
+     "owner": "baraka",
+     "kind": "outreach",
+     "status": "done",
+     "values": {
+      "People reached": 260
+     },
+     "files": {
+      "Attendance list or photos": "mtwapa-market.jpg"
+     }
+    },
+    {
+     "c": "reach",
+     "title": "Youth football tournament health desk, Kaloleni",
+     "due": "2026-09-19",
+     "owner": "juma",
+     "kind": "outreach",
+     "status": "done",
+     "values": {
+      "People reached": 150
+     },
+     "files": {
+      "Attendance list or photos": "kaloleni-tournament.jpg"
+     }
+    },
+    {
+     "c": "reach",
+     "title": "Outreach, Malindi youth centre",
+     "due": "2026-10-03",
+     "owner": "neema",
+     "kind": "outreach",
+     "status": "done",
+     "values": {
+      "People reached": 190
+     },
+     "files": {
+      "Attendance list or photos": "malindi-youth-centre.jpg"
+     }
+    },
+    {
+     "c": "reach",
+     "title": "Youth day, Kilifi town (October)",
+     "due": "2026-10-16",
+     "owner": "baraka",
+     "kind": "outreach"
+    },
+    {
+     "c": "reach",
+     "title": "Outreach, Watamu",
+     "due": "2026-11-07",
+     "owner": "neema",
+     "kind": "outreach"
+    },
+    {
+     "c": "reach",
+     "title": "Outreach, Mariakani",
+     "due": "2026-11-28",
+     "owner": "juma",
+     "kind": "outreach"
+    },
+    {
+     "c": "peers",
+     "title": "Peer educator training, cohort 1",
+     "due": "2026-08-14",
+     "owner": "zawadi",
+     "kind": "training",
+     "status": "done",
+     "values": {
+      "Participants trained": 12
+     },
+     "files": {
+      "Signed attendance sheet": "peer-cohort-1.pdf"
+     }
+    },
+    {
+     "c": "peers",
+     "title": "Peer educator training, cohort 2",
+     "due": "2026-09-11",
+     "owner": "zawadi",
+     "kind": "training",
+     "status": "done",
+     "values": {
+      "Participants trained": 10
+     },
+     "files": {
+      "Signed attendance sheet": "peer-cohort-2.pdf"
+     }
+    },
+    {
+     "c": "peers",
+     "title": "Peer educator training, cohort 3",
+     "due": "2026-10-10",
+     "owner": "neema",
+     "kind": "training",
+     "status": "in_progress",
+     "done_on": "2026-10-10",
+     "refused_on": "2026-10-10",
+     "values": {
+      "Participants trained": 14
+     }
+    },
+    {
+     "c": "peers",
+     "title": "Peer educator training, cohort 4",
+     "due": "2026-10-29",
+     "owner": "neema",
+     "kind": "training"
+    }
+   ]
+  },
+  {
+   "name": "Gender, Peace and Security",
+   "stakeholder": "fund",
+   "manager": "zawadi",
+   "starts_on": "2026-07-01",
+   "ends_on": "2026-12-31",
+   "description": "Ward-level community dialogues on gender-based violence and peace, with referrals to support services. No personal details of survivors are recorded.",
+   "commitments": [
+    {
+     "key": "dialogues",
+     "title": "Hold 12 community dialogues on GBV",
+     "unit": "dialogues",
+     "measure": "activities",
+     "target": 12,
+     "due": "2026-12-10"
+    },
+    {
+     "key": "referrals",
+     "title": "Refer 60 people to support services",
+     "unit": "referrals",
+     "measure": "sum",
+     "target": 60,
+     "due": "2026-12-10"
+    }
+   ],
+   "activities": [
+    {
+     "c": "dialogues",
+     "title": "Dialogue, Sokoni ward",
+     "due": "2026-07-24",
+     "owner": "juma",
+     "kind": "dialogue",
+     "status": "done",
+     "values": {
+      "Participants": 46
+     },
+     "files": {
+      "Signed attendance list": "sokoni-dialogue.pdf"
+     },
+     "notes": {
+      "Key resolutions": "Ward administrator to host a monthly safety forum."
+     }
+    },
+    {
+     "c": "dialogues",
+     "title": "Dialogue, Mnarani ward",
+     "due": "2026-08-21",
+     "owner": "juma",
+     "kind": "dialogue",
+     "status": "done",
+     "values": {
+      "Participants": 38
+     },
+     "files": {
+      "Signed attendance list": "mnarani-dialogue.pdf"
+     },
+     "notes": {
+      "Key resolutions": "Chiefs agreed to publicise the GBV hotline at barazas."
+     }
+    },
+    {
+     "c": "dialogues",
+     "title": "Dialogue, Tezo ward",
+     "due": "2026-09-04",
+     "owner": "baraka",
+     "kind": "dialogue",
+     "status": "done",
+     "values": {
+      "Participants": 41
+     },
+     "files": {
+      "Signed attendance list": "tezo-dialogue.pdf"
+     },
+     "notes": {
+      "Key resolutions": "Youth group to run a follow-up drama session."
+     }
+    },
+    {
+     "c": "dialogues",
+     "title": "Dialogue, Matsangoni ward",
+     "due": "2026-09-18",
+     "owner": "juma",
+     "kind": "dialogue",
+     "status": "done",
+     "values": {
+      "Participants": 33
+     },
+     "files": {
+      "Signed attendance list": "matsangoni-dialogue.pdf"
+     },
+     "notes": {
+      "Key resolutions": "Request for a women-only follow-up session."
+     }
+    },
+    {
+     "c": "dialogues",
+     "title": "Dialogue, Watamu ward",
+     "due": "2026-10-02",
+     "owner": "baraka",
+     "kind": "dialogue",
+     "status": "done",
+     "values": {
+      "Participants": 52
+     },
+     "files": {
+      "Signed attendance list": "watamu-dialogue.pdf"
+     },
+     "notes": {
+      "Key resolutions": "Boda boda association to join the referral network."
+     }
+    },
+    {
+     "c": "dialogues",
+     "title": "Dialogue, Jaribuni ward",
+     "due": "2026-10-09",
+     "owner": "juma",
+     "kind": "dialogue",
+     "status": "done",
+     "values": {
+      "Participants": 29
+     },
+     "files": {
+      "Signed attendance list": "jaribuni-dialogue.pdf"
+     },
+     "notes": {
+      "Key resolutions": "Schools to invite the team for a session."
+     }
+    },
+    {
+     "key": "guides",
+     "c": "dialogues",
+     "title": "Print dialogue facilitation guides",
+     "due": "2026-10-08",
+     "owner": "baraka",
+     "kind": "task"
+    },
+    {
+     "c": "dialogues",
+     "title": "Dialogue, Ganze ward",
+     "due": "2026-10-23",
+     "owner": "juma",
+     "kind": "dialogue",
+     "depends_on": "guides"
+    },
+    {
+     "c": "dialogues",
+     "title": "Dialogue, Bamba ward",
+     "due": "2026-11-06",
+     "owner": "juma",
+     "kind": "dialogue"
+    },
+    {
+     "c": "referrals",
+     "title": "Referral log, July",
+     "due": "2026-07-31",
+     "owner": "zawadi",
+     "kind": "referral",
+     "status": "done",
+     "values": {
+      "Referrals": 9
+     },
+     "notes": {
+      "Partner summary (no names)": "Referred to the Gender Violence Recovery Center and county health facilities."
+     }
+    },
+    {
+     "c": "referrals",
+     "title": "Referral log, August",
+     "due": "2026-08-31",
+     "owner": "zawadi",
+     "kind": "referral",
+     "status": "done",
+     "values": {
+      "Referrals": 11
+     },
+     "notes": {
+      "Partner summary (no names)": "Mostly health referrals; two legal-aid referrals."
+     }
+    },
+    {
+     "c": "referrals",
+     "title": "Referral log, September",
+     "due": "2026-09-30",
+     "owner": "zawadi",
+     "kind": "referral",
+     "status": "done",
+     "values": {
+      "Referrals": 12
+     },
+     "notes": {
+      "Partner summary (no names)": "Increase after the Tezo and Matsangoni dialogues."
+     }
+    },
+    {
+     "c": "referrals",
+     "title": "Referral log, October",
+     "due": "2026-10-31",
+     "owner": "zawadi",
+     "kind": "referral"
+    }
+   ]
+  },
+  {
+   "name": "Disability Inclusion",
+   "stakeholder": "fund",
+   "manager": "zawadi",
+   "starts_on": "2026-07-01",
+   "ends_on": "2026-12-31",
+   "description": "Accessibility audits of public facilities with the county, and inclusion training for youth leaders.",
+   "commitments": [
+    {
+     "key": "audits",
+     "title": "Assess accessibility of 20 public facilities",
+     "unit": "facilities",
+     "measure": "sum",
+     "target": 20,
+     "due": "2026-11-30"
+    },
+    {
+     "key": "leaders",
+     "title": "Train 30 youth leaders in inclusive practice",
+     "unit": "youth leaders",
+     "measure": "sum",
+     "target": 30,
+     "due": "2026-12-05"
+    }
+   ],
+   "activities": [
+    {
+     "c": "audits",
+     "title": "Audit, Kilifi county offices",
+     "due": "2026-08-20",
+     "owner": "neema",
+     "kind": "audit",
+     "status": "done",
+     "values": {
+      "Facilities assessed": 4
+     },
+     "files": {
+      "Audit forms": "audit-county-offices.pdf"
+     }
+    },
+    {
+     "c": "audits",
+     "title": "Audit, health centres in Kilifi North",
+     "due": "2026-09-10",
+     "owner": "neema",
+     "kind": "audit",
+     "status": "done",
+     "values": {
+      "Facilities assessed": 5
+     },
+     "files": {
+      "Audit forms": "audit-health-centres.pdf"
+     }
+    },
+    {
+     "c": "audits",
+     "title": "Audit, schools in Kaloleni",
+     "due": "2026-09-30",
+     "owner": "juma",
+     "kind": "audit",
+     "status": "done",
+     "values": {
+      "Facilities assessed": 3
+     },
+     "files": {
+      "Audit forms": "audit-kaloleni-schools.pdf"
+     }
+    },
+    {
+     "c": "audits",
+     "title": "Audit, markets and bus stages",
+     "due": "2026-10-22",
+     "owner": "neema",
+     "kind": "audit"
+    },
+    {
+     "c": "audits",
+     "title": "Share audit findings with the county",
+     "due": "2026-11-25",
+     "owner": "zawadi",
+     "kind": "deliverable"
+    },
+    {
+     "c": "leaders",
+     "title": "Inclusion training, Kilifi North",
+     "due": "2026-09-25",
+     "owner": "neema",
+     "kind": "training",
+     "status": "done",
+     "values": {
+      "Participants trained": 14
+     },
+     "files": {
+      "Signed attendance sheet": "inclusion-training-1.pdf"
+     }
+    },
+    {
+     "c": "leaders",
+     "title": "Inclusion training, Malindi",
+     "due": "2026-11-12",
+     "owner": "neema",
+     "kind": "training"
+    }
+   ]
+  },
+  {
+   "name": "Climate Change",
+   "stakeholder": "fund",
+   "manager": "zawadi",
+   "starts_on": "2026-07-01",
+   "ends_on": "2026-12-31",
+   "description": "Indigenous tree planting before the short rains and school climate clubs.",
+   "commitments": [
+    {
+     "key": "trees",
+     "title": "Plant 5,000 indigenous seedlings",
+     "unit": "seedlings",
+     "measure": "sum",
+     "target": 5000,
+     "due": "2026-11-20"
+    },
+    {
+     "key": "clubs",
+     "title": "Launch 8 school climate clubs",
+     "unit": "clubs",
+     "measure": "activities",
+     "target": 8,
+     "due": "2026-12-18"
+    }
+   ],
+   "activities": [
+    {
+     "c": "trees",
+     "title": "Planting, Kilifi creek",
+     "due": "2026-07-12",
+     "owner": "juma",
+     "kind": "planting",
+     "status": "done",
+     "values": {
+      "Seedlings planted": 600
+     },
+     "files": {
+      "Photos": "kilifi-creek-planting.jpg"
+     }
+    },
+    {
+     "c": "trees",
+     "title": "Planting, Mnarani school grounds",
+     "due": "2026-08-09",
+     "owner": "baraka",
+     "kind": "planting",
+     "status": "done",
+     "values": {
+      "Seedlings planted": 900
+     },
+     "files": {
+      "Photos": "mnarani-planting.jpg"
+     }
+    },
+    {
+     "c": "trees",
+     "title": "Planting, Arabuko-Sokoke edge",
+     "due": "2026-09-13",
+     "owner": "juma",
+     "kind": "planting",
+     "status": "done",
+     "values": {
+      "Seedlings planted": 1100
+     },
+     "files": {
+      "Photos": "sokoke-planting.jpg"
+     }
+    },
+    {
+     "c": "trees",
+     "title": "Planting, Kaloleni water point",
+     "due": "2026-10-04",
+     "owner": "baraka",
+     "kind": "planting",
+     "status": "done",
+     "values": {
+      "Seedlings planted": 850
+     },
+     "files": {
+      "Photos": "kaloleni-planting.jpg"
+     }
+    },
+    {
+     "c": "trees",
+     "title": "Buy 1,500 seedlings from the county nursery",
+     "due": "2026-10-12",
+     "owner": "zawadi",
+     "kind": "purchase",
+     "status": "done",
+     "files": {
+      "Receipt": "nursery-receipt.pdf"
+     },
+     "values": {
+      "Amount spent": 45000
+     }
+    },
+    {
+     "c": "trees",
+     "title": "School planting day, Kaloleni",
+     "due": "2026-10-15",
+     "owner": "baraka",
+     "kind": "planting"
+    },
+    {
+     "c": "trees",
+     "title": "Planting, Ganze before the short rains",
+     "due": "2026-11-05",
+     "owner": "juma",
+     "kind": "planting"
+    },
+    {
+     "c": "clubs",
+     "title": "Launch climate club, Kilifi Township Secondary",
+     "due": "2026-08-18",
+     "owner": "baraka",
+     "kind": "deliverable",
+     "status": "done",
+     "files": {
+      "Final document": "club-charter-kilifi-township.pdf"
+     }
+    },
+    {
+     "c": "clubs",
+     "title": "Launch climate club, Mnarani Primary",
+     "due": "2026-09-15",
+     "owner": "baraka",
+     "kind": "deliverable",
+     "status": "done",
+     "files": {
+      "Final document": "club-charter-mnarani.pdf"
+     }
+    },
+    {
+     "c": "clubs",
+     "title": "Launch climate club, Kaloleni Secondary",
+     "due": "2026-10-06",
+     "owner": "baraka",
+     "kind": "deliverable",
+     "status": "done",
+     "files": {
+      "Final document": "club-charter-kaloleni.pdf"
+     }
+    },
+    {
+     "c": "clubs",
+     "title": "Launch climate club, Ganze Secondary",
+     "due": "2026-10-27",
+     "owner": "baraka",
+     "kind": "deliverable"
+    }
+   ]
+  }
+ ],
+ "erp": {
+  "site_settings": [
+   {
+    "slug": "timiza",
+    "tagline": "Empowering communities, transforming lives",
+    "intro": "We are a community-based organization in Kilifi, Kenya, advocating for health, gender, peace and security, climate action and disability inclusion for a healthy and safe Kilifi County.",
+    "about": "We work through young people: peer educators, ward dialogues, school clubs and volunteers who know their communities. We champion comprehensive sexual health education, work against gender-based violence, plant and protect indigenous trees, and push for public spaces everyone can use.",
+    "location": "Kilifi County, Kenya",
+    "contact_email": "youthtimiza@gmail.com",
+    "phone": "",
+    "facebook": "Timiza Youth Initiative",
+    "twitter": "@TimizaYouth",
+    "instagram": "@timizayouth",
+    "show_impact": true
+   }
+  ],
+  "site_programmes": [
+   {
+    "title": "Health Advocacy",
+    "project_id": "Health Advocacy",
+    "order": 1,
+    "published": true,
+    "focus": "SRH information, peer educators, youth-friendly services",
+    "summary": "Young people get accurate sexual and reproductive health information from trained peers, at schools, markets and youth centres across Kilifi."
+   },
+   {
+    "title": "Gender, Peace and Security",
+    "project_id": "Gender, Peace and Security",
+    "order": 2,
+    "published": true,
+    "focus": "Ward dialogues, GBV referrals, safety forums",
+    "summary": "Ward-level dialogues bring chiefs, parents and youth together on gender-based violence, and survivors are referred to trusted support services."
+   },
+   {
+    "title": "Disability Inclusion",
+    "project_id": "Disability Inclusion",
+    "order": 3,
+    "published": true,
+    "focus": "Accessibility audits, inclusive youth leadership",
+    "summary": "We audit public facilities for accessibility with the county and train youth leaders to make every programme open to people with disabilities."
+   },
+   {
+    "title": "Climate Change",
+    "project_id": "Climate Change",
+    "order": 4,
+    "published": true,
+    "focus": "Indigenous trees, school climate clubs",
+    "summary": "Young people plant and protect indigenous trees before the rains and run climate clubs in schools across the county."
+   }
+  ],
+  "site_team": [
+   {
+    "name": "Brian Mundia",
+    "role": "Executive Director",
+    "order": 1,
+    "published": true
+   },
+   {
+    "name": "Violet Maangi",
+    "role": "Finance",
+    "order": 2,
+    "published": true
+   },
+   {
+    "name": "Joel Baariu",
+    "role": "Human Resource",
+    "order": 3,
+    "published": true
+   }
+  ],
+  "grants": [
+   {
+    "_key": "g_srh",
+    "title": "Youth SRH outreach 2026",
+    "funder_id": "fund",
+    "project_id": "Health Advocacy",
+    "amount": 1800000,
+    "starts_on": "2026-07-01",
+    "ends_on": "2026-12-31",
+    "next_report_due": "2026-10-20",
+    "owner_id": "zawadi",
+    "_status": "reporting"
+   },
+   {
+    "_key": "g_gbv",
+    "title": "Community dialogues on GBV",
+    "funder_id": "fund",
+    "project_id": "Gender, Peace and Security",
+    "amount": 1200000,
+    "starts_on": "2026-07-01",
+    "ends_on": "2026-12-31",
+    "next_report_due": "2026-11-15",
+    "owner_id": "zawadi",
+    "_status": "awarded"
+   },
+   {
+    "_key": "g_dis",
+    "title": "Inclusive Kilifi accessibility audits",
+    "funder_id": "fund",
+    "project_id": "Disability Inclusion",
+    "amount": 650000,
+    "starts_on": "2026-07-01",
+    "ends_on": "2026-12-31",
+    "next_report_due": "2026-12-05",
+    "owner_id": "amani",
+    "_status": "awarded"
+   },
+   {
+    "_key": "g_green",
+    "title": "Green Kilifi tree planting",
+    "funder_id": "county",
+    "project_id": "Climate Change",
+    "amount": 400000,
+    "starts_on": "2026-07-01",
+    "ends_on": "2026-12-31",
+    "next_report_due": "2026-11-30",
+    "owner_id": "zawadi",
+    "_status": "awarded"
+   },
+   {
+    "title": "Youth climate resilience fund 2027",
+    "funder_id": "fund",
+    "project_id": "Climate Change",
+    "amount": 2500000,
+    "deadline": "2026-10-20",
+    "owner_id": "amani",
+    "_status": "drafting",
+    "notes": "Concept note drafted; budget and letters of support outstanding."
+   },
+   {
+    "title": "Disability rights advocacy call",
+    "funder_id": "ticah",
+    "project_id": "Disability Inclusion",
+    "amount": 900000,
+    "deadline": "2026-11-10",
+    "owner_id": "zawadi",
+    "_status": "prospect"
+   },
+   {
+    "title": "Peace-building small grant",
+    "funder_id": "kesco",
+    "project_id": "Gender, Peace and Security",
+    "amount": 300000,
+    "owner_id": "amani",
+    "_status": "declined",
+    "notes": "Declined: funder prioritised urban projects this round."
+   }
+  ],
+  "income": [
+   {
+    "source": "Pwani Community Fund, tranche 1",
+    "grant_id": "g_srh",
+    "amount": 900000,
+    "received_on": "2026-07-03",
+    "method": "bank",
+    "reference": "PCF-0703"
+   },
+   {
+    "source": "Pwani Community Fund, tranche 1",
+    "grant_id": "g_gbv",
+    "amount": 600000,
+    "received_on": "2026-07-10",
+    "method": "bank",
+    "reference": "PCF-0710"
+   },
+   {
+    "source": "Pwani Community Fund",
+    "grant_id": "g_dis",
+    "amount": 650000,
+    "received_on": "2026-08-01",
+    "method": "bank",
+    "reference": "PCF-0801"
+   },
+   {
+    "source": "Kilifi County Government",
+    "grant_id": "g_green",
+    "amount": 400000,
+    "received_on": "2026-07-20",
+    "method": "bank",
+    "reference": "KCG-ENV-114"
+   },
+   {
+    "source": "Community fundraising walk",
+    "amount": 45000,
+    "received_on": "2026-09-15",
+    "method": "mpesa",
+    "reference": "Paybill collections"
+   },
+   {
+    "source": "Pwani Community Fund, tranche 2",
+    "grant_id": "g_srh",
+    "amount": 600000,
+    "received_on": "2026-10-02",
+    "method": "bank",
+    "reference": "PCF-1002"
+   }
+  ],
+  "budget_lines": [
+   {
+    "_key": "b_peer",
+    "name": "Peer educator stipends",
+    "grant_id": "g_srh",
+    "project_id": "Health Advocacy",
+    "category": "personnel",
+    "amount": 360000
+   },
+   {
+    "_key": "b_outreach",
+    "name": "Outreach events",
+    "grant_id": "g_srh",
+    "project_id": "Health Advocacy",
+    "category": "activities",
+    "amount": 520000
+   },
+   {
+    "_key": "b_iec",
+    "name": "IEC materials",
+    "grant_id": "g_srh",
+    "project_id": "Health Advocacy",
+    "category": "materials",
+    "amount": 180000
+   },
+   {
+    "_key": "b_srh_tr",
+    "name": "Transport, health outreach",
+    "grant_id": "g_srh",
+    "project_id": "Health Advocacy",
+    "category": "transport",
+    "amount": 140000
+   },
+   {
+    "_key": "b_dialogue",
+    "name": "Dialogue facilitation",
+    "grant_id": "g_gbv",
+    "project_id": "Gender, Peace and Security",
+    "category": "activities",
+    "amount": 420000
+   },
+   {
+    "_key": "b_refresh",
+    "name": "Dialogue refreshments",
+    "grant_id": "g_gbv",
+    "project_id": "Gender, Peace and Security",
+    "category": "activities",
+    "amount": 180000
+   },
+   {
+    "_key": "b_gbv_tr",
+    "name": "Transport, dialogues",
+    "grant_id": "g_gbv",
+    "project_id": "Gender, Peace and Security",
+    "category": "transport",
+    "amount": 120000
+   },
+   {
+    "_key": "b_audit",
+    "name": "Audit team allowances",
+    "grant_id": "g_dis",
+    "project_id": "Disability Inclusion",
+    "category": "personnel",
+    "amount": 210000
+   },
+   {
+    "_key": "b_print",
+    "name": "Audit report printing",
+    "grant_id": "g_dis",
+    "project_id": "Disability Inclusion",
+    "category": "materials",
+    "amount": 60000
+   },
+   {
+    "_key": "b_seed",
+    "name": "Seedlings",
+    "grant_id": "g_green",
+    "project_id": "Climate Change",
+    "category": "materials",
+    "amount": 150000
+   },
+   {
+    "_key": "b_plant",
+    "name": "Planting day logistics",
+    "grant_id": "g_green",
+    "project_id": "Climate Change",
+    "category": "activities",
+    "amount": 90000
+   }
+  ],
+  "expenses": [
+   {
+    "description": "Peer educator stipends, cohort 1",
+    "budget_line_id": "b_peer",
+    "payee": "12 peer educators",
+    "amount": 96000,
+    "spent_on": "2026-08-15",
+    "method": "mpesa",
+    "receipt": {
+     "name": "stipends-cohort1.pdf"
+    },
+    "_status": "paid",
+    "_by": "zawadi"
+   },
+   {
+    "description": "Peer educator stipends, cohort 2",
+    "budget_line_id": "b_peer",
+    "payee": "10 peer educators",
+    "amount": 80000,
+    "spent_on": "2026-09-12",
+    "method": "mpesa",
+    "receipt": {
+     "name": "stipends-cohort2.pdf"
+    },
+    "_status": "paid",
+    "_by": "zawadi"
+   },
+   {
+    "description": "Youth health day, Kilifi town: tents and sound",
+    "budget_line_id": "b_outreach",
+    "payee": "Coast Events",
+    "amount": 68000,
+    "spent_on": "2026-07-18",
+    "method": "bank",
+    "receipt": {
+     "name": "coast-events-0718.pdf"
+    },
+    "_status": "paid",
+    "_by": "baraka"
+   },
+   {
+    "description": "Market outreach, Mtwapa",
+    "budget_line_id": "b_outreach",
+    "payee": "Mtwapa market committee",
+    "amount": 42000,
+    "spent_on": "2026-08-29",
+    "method": "mpesa",
+    "receipt": {
+     "name": "mtwapa-0829.jpg"
+    },
+    "_status": "paid",
+    "_by": "baraka"
+   },
+   {
+    "description": "Malindi youth centre outreach",
+    "budget_line_id": "b_outreach",
+    "payee": "Malindi youth centre",
+    "amount": 51000,
+    "spent_on": "2026-10-03",
+    "method": "mpesa",
+    "receipt": {
+     "name": "malindi-1003.jpg"
+    },
+    "_status": "approved",
+    "_by": "neema"
+   },
+   {
+    "description": "SRH flyers, first print run",
+    "budget_line_id": "b_iec",
+    "payee": "Kilifi Print Hub",
+    "amount": 64000,
+    "spent_on": "2026-07-10",
+    "method": "bank",
+    "receipt": {
+     "name": "printhub-0710.pdf"
+    },
+    "_status": "paid",
+    "_by": "zawadi"
+   },
+   {
+    "description": "Matatu hire, July and August outreach",
+    "budget_line_id": "b_srh_tr",
+    "payee": "Coast Shuttles",
+    "amount": 78000,
+    "spent_on": "2026-08-30",
+    "method": "bank",
+    "receipt": {
+     "name": "shuttles-aug.pdf"
+    },
+    "_status": "paid",
+    "_by": "baraka"
+   },
+   {
+    "description": "Matatu hire, September and October outreach",
+    "budget_line_id": "b_srh_tr",
+    "payee": "Coast Shuttles",
+    "amount": 74000,
+    "spent_on": "2026-10-04",
+    "method": "bank",
+    "receipt": {
+     "name": "shuttles-oct.pdf"
+    },
+    "_status": "approved",
+    "_by": "baraka"
+   },
+   {
+    "description": "Dialogue facilitators, July to September",
+    "budget_line_id": "b_dialogue",
+    "payee": "4 facilitators",
+    "amount": 168000,
+    "spent_on": "2026-09-30",
+    "method": "mpesa",
+    "receipt": {
+     "name": "facilitators-q3.pdf"
+    },
+    "_status": "paid",
+    "_by": "juma"
+   },
+   {
+    "description": "Refreshments for six dialogues",
+    "budget_line_id": "b_refresh",
+    "payee": "Mnarani Catering",
+    "amount": 166000,
+    "spent_on": "2026-10-09",
+    "method": "bank",
+    "receipt": {
+     "name": "catering-dialogues.pdf"
+    },
+    "_status": "approved",
+    "_by": "juma"
+   },
+   {
+    "description": "Boda transport, Jaribuni dialogue",
+    "budget_line_id": "b_gbv_tr",
+    "payee": "Jaribuni riders",
+    "amount": 9500,
+    "spent_on": "2026-10-09",
+    "method": "mpesa",
+    "_status": "submitted",
+    "_by": "juma",
+    "_age_days": 4
+   },
+   {
+    "description": "Audit team allowances, August and September",
+    "budget_line_id": "b_audit",
+    "payee": "Audit team",
+    "amount": 96000,
+    "spent_on": "2026-09-30",
+    "method": "mpesa",
+    "receipt": {
+     "name": "audit-allowances.pdf"
+    },
+    "_status": "paid",
+    "_by": "neema"
+   },
+   {
+    "description": "Seedlings, July and August plantings",
+    "budget_line_id": "b_seed",
+    "payee": "County Tree Nursery",
+    "amount": 75000,
+    "spent_on": "2026-07-08",
+    "method": "bank",
+    "receipt": {
+     "name": "nursery-july.pdf"
+    },
+    "_status": "paid",
+    "_by": "juma"
+   },
+   {
+    "description": "Seedlings, 1,500 for October",
+    "budget_line_id": "b_seed",
+    "payee": "County Tree Nursery",
+    "amount": 45000,
+    "spent_on": "2026-10-12",
+    "method": "bank",
+    "receipt": {
+     "name": "nursery-receipt.pdf"
+    },
+    "_status": "approved",
+    "_by": "zawadi"
+   },
+   {
+    "description": "Planting day water and lunch, Kaloleni",
+    "budget_line_id": "b_plant",
+    "payee": "Kaloleni women group",
+    "amount": 18000,
+    "spent_on": "2026-10-04",
+    "method": "mpesa",
+    "_status": "submitted",
+    "_by": "baraka",
+    "_age_days": 1
+   }
+  ],
+  "vendors": [
+   {
+    "_key": "v_print",
+    "name": "Kilifi Print Hub",
+    "category": "Printing, IEC materials",
+    "phone": "0722 000 101",
+    "rating": "4"
+   },
+   {
+    "_key": "v_cater",
+    "name": "Mnarani Catering",
+    "category": "Catering",
+    "phone": "0733 000 202",
+    "rating": "5"
+   },
+   {
+    "_key": "v_nursery",
+    "name": "County Tree Nursery",
+    "category": "Indigenous seedlings",
+    "phone": "0711 000 303",
+    "rating": "4"
+   },
+   {
+    "_key": "v_shuttle",
+    "name": "Coast Shuttles",
+    "category": "Transport",
+    "phone": "0700 000 404",
+    "rating": "3"
+   },
+   {
+    "_key": "v_tech",
+    "name": "Malindi Tech Supplies",
+    "category": "Electronics, projectors",
+    "phone": "0720 000 505",
+    "rating": "4"
+   }
+  ],
+  "purchase_requests": [
+   {
+    "item": "SRH flyers, second print run of 2,000",
+    "quantity": 2000,
+    "estimated_cost": 58000,
+    "budget_line_id": "b_iec",
+    "vendor_id": "v_print",
+    "needed_by": "2026-10-24",
+    "justification": "Stock is below the reorder level and two outreach days are coming.",
+    "_status": "submitted",
+    "_by": "neema",
+    "_age_days": 4
+   },
+   {
+    "item": "Gloves, jembes and watering cans",
+    "quantity": 30,
+    "estimated_cost": 24000,
+    "budget_line_id": "b_plant",
+    "needed_by": "2026-11-01",
+    "justification": "Ganze planting before the short rains.",
+    "_status": "approved",
+    "_by": "juma"
+   },
+   {
+    "item": "Replacement projector lamp",
+    "quantity": 1,
+    "estimated_cost": 12500,
+    "budget_line_id": "b_outreach",
+    "vendor_id": "v_tech",
+    "needed_by": "2026-10-20",
+    "_status": "ordered",
+    "_by": "zawadi"
+   },
+   {
+    "item": "Refreshments, Jaribuni dialogue",
+    "quantity": 60,
+    "estimated_cost": 21000,
+    "budget_line_id": "b_refresh",
+    "vendor_id": "v_cater",
+    "needed_by": "2026-10-09",
+    "_status": "received",
+    "_by": "juma"
+   }
+  ],
+  "items": [
+   {
+    "_key": "i_condoms",
+    "name": "Condoms",
+    "category": "health",
+    "unit": "boxes",
+    "reorder_level": 20,
+    "location": "Kilifi office store"
+   },
+   {
+    "_key": "i_flyers",
+    "name": "SRH flyers",
+    "category": "iec",
+    "unit": "copies",
+    "reorder_level": 300,
+    "location": "Kilifi office store"
+   },
+   {
+    "_key": "i_seedlings",
+    "name": "Indigenous seedlings",
+    "category": "seedlings",
+    "unit": "seedlings",
+    "reorder_level": 200,
+    "location": "Mnarani nursery bed"
+   },
+   {
+    "_key": "i_pads",
+    "name": "Sanitary pads",
+    "category": "health",
+    "unit": "packs",
+    "reorder_level": 50,
+    "location": "Kilifi office store"
+   },
+   {
+    "_key": "i_books",
+    "name": "Notebooks and pens",
+    "category": "stationery",
+    "unit": "sets",
+    "reorder_level": 50,
+    "location": "Kilifi office store"
+   }
+  ],
+  "stock_moves": [
+   {
+    "item_id": "i_condoms",
+    "direction": "in",
+    "quantity": 60,
+    "moved_on": "2026-07-05",
+    "note": "From county health office"
+   },
+   {
+    "item_id": "i_condoms",
+    "direction": "out",
+    "quantity": 22,
+    "moved_on": "2026-08-29",
+    "project_id": "Health Advocacy",
+    "note": "Mtwapa market outreach"
+   },
+   {
+    "item_id": "i_condoms",
+    "direction": "out",
+    "quantity": 26,
+    "moved_on": "2026-10-03",
+    "project_id": "Health Advocacy",
+    "note": "Malindi youth centre"
+   },
+   {
+    "item_id": "i_flyers",
+    "direction": "in",
+    "quantity": 2000,
+    "moved_on": "2026-07-12",
+    "note": "First print run"
+   },
+   {
+    "item_id": "i_flyers",
+    "direction": "out",
+    "quantity": 1850,
+    "moved_on": "2026-10-03",
+    "project_id": "Health Advocacy",
+    "note": "Five outreach days"
+   },
+   {
+    "item_id": "i_seedlings",
+    "direction": "in",
+    "quantity": 1500,
+    "moved_on": "2026-10-12",
+    "note": "County Tree Nursery delivery"
+   },
+   {
+    "item_id": "i_seedlings",
+    "direction": "out",
+    "quantity": 650,
+    "moved_on": "2026-10-12",
+    "project_id": "Climate Change",
+    "note": "Sent ahead to Kaloleni school"
+   },
+   {
+    "item_id": "i_pads",
+    "direction": "in",
+    "quantity": 300,
+    "moved_on": "2026-07-05",
+    "note": "Donation"
+   },
+   {
+    "item_id": "i_pads",
+    "direction": "out",
+    "quantity": 120,
+    "moved_on": "2026-09-04",
+    "project_id": "Health Advocacy",
+    "note": "Tezo girls session"
+   },
+   {
+    "item_id": "i_books",
+    "direction": "in",
+    "quantity": 200,
+    "moved_on": "2026-07-01",
+    "note": "Opening stock"
+   },
+   {
+    "item_id": "i_books",
+    "direction": "out",
+    "quantity": 80,
+    "moved_on": "2026-08-14",
+    "project_id": "Health Advocacy",
+    "note": "Peer educator training"
+   }
+  ],
+  "assets": [
+   {
+    "name": "Laptop, Dell Latitude",
+    "tag": "TYI-IT-001",
+    "category": "it",
+    "value": 85000,
+    "purchased_on": "2025-02-10",
+    "custodian_id": "zawadi",
+    "_status": "good"
+   },
+   {
+    "name": "Laptop, HP ProBook",
+    "tag": "TYI-IT-002",
+    "category": "it",
+    "value": 78000,
+    "purchased_on": "2025-02-10",
+    "custodian_id": "amani",
+    "_status": "good"
+   },
+   {
+    "name": "Projector, Epson",
+    "tag": "TYI-AV-001",
+    "category": "av",
+    "value": 62000,
+    "purchased_on": "2024-11-04",
+    "custodian_id": "baraka",
+    "_status": "repair"
+   },
+   {
+    "name": "Camera, Canon EOS",
+    "tag": "TYI-AV-002",
+    "category": "av",
+    "value": 70000,
+    "purchased_on": "2026-07-15",
+    "custodian_id": "neema",
+    "grant_id": "g_srh",
+    "_status": "good"
+   },
+   {
+    "name": "PA system",
+    "tag": "TYI-AV-003",
+    "category": "av",
+    "value": 45000,
+    "purchased_on": "2025-06-01",
+    "custodian_id": "juma",
+    "_status": "good"
+   },
+   {
+    "name": "Plastic chairs (50)",
+    "tag": "TYI-FN-001",
+    "category": "furniture",
+    "value": 40000,
+    "purchased_on": "2025-06-01",
+    "_status": "good"
+   }
+  ],
+  "volunteers": [
+   {
+    "_key": "vol1",
+    "name": "Halima Said",
+    "phone": "0712 345 001",
+    "ward": "Sokoni",
+    "interest": "health",
+    "skills": "Peer education, Swahili and Giriama",
+    "source": "event",
+    "_status": "active"
+   },
+   {
+    "_key": "vol2",
+    "name": "Kenga Mwaro",
+    "phone": "0712 345 002",
+    "ward": "Mnarani",
+    "interest": "climate",
+    "skills": "Tree nursery work",
+    "source": "referral",
+    "_status": "active"
+   },
+   {
+    "_key": "vol3",
+    "name": "Mercy Dama",
+    "phone": "0712 345 003",
+    "ward": "Tezo",
+    "interest": "gps",
+    "skills": "Counselling, community mobilisation",
+    "source": "event",
+    "_status": "active"
+   },
+   {
+    "_key": "vol4",
+    "name": "Ali Bakari",
+    "phone": "0712 345 004",
+    "ward": "Watamu",
+    "interest": "disability",
+    "skills": "Sign language",
+    "source": "referral",
+    "_status": "active"
+   },
+   {
+    "_key": "vol5",
+    "name": "Grace Kadzo",
+    "phone": "0712 345 005",
+    "ward": "Kaloleni",
+    "interest": "climate",
+    "skills": "Photography",
+    "source": "website",
+    "_status": "active"
+   },
+   {
+    "_key": "vol6",
+    "name": "Peter Ngala",
+    "phone": "0712 345 006",
+    "ward": "Matsangoni",
+    "interest": "gps",
+    "skills": "Drama, MC",
+    "source": "event",
+    "_status": "active"
+   },
+   {
+    "name": "Fatuma Rashid",
+    "phone": "0712 345 007",
+    "ward": "Jaribuni",
+    "interest": "health",
+    "skills": "Nursing student",
+    "source": "website",
+    "_status": "applicant"
+   },
+   {
+    "name": "David Charo",
+    "phone": "0712 345 008",
+    "ward": "Ganze",
+    "interest": "any",
+    "skills": "Driving, logistics",
+    "source": "website",
+    "_status": "applicant"
+   },
+   {
+    "name": "Rehema Tsuma",
+    "phone": "0712 345 009",
+    "ward": "Sokoni",
+    "interest": "health",
+    "skills": "Social media",
+    "source": "referral",
+    "_status": "inactive"
+   }
+  ],
+  "volunteer_hours": [
+   {
+    "volunteer_id": "vol1",
+    "worked_on": "2026-07-18",
+    "hours": 6,
+    "project_id": "Health Advocacy",
+    "task": "Youth health day, Kilifi town"
+   },
+   {
+    "volunteer_id": "vol1",
+    "worked_on": "2026-08-29",
+    "hours": 5,
+    "project_id": "Health Advocacy",
+    "task": "Mtwapa market outreach"
+   },
+   {
+    "volunteer_id": "vol1",
+    "worked_on": "2026-10-03",
+    "hours": 5,
+    "project_id": "Health Advocacy",
+    "task": "Malindi youth centre"
+   },
+   {
+    "volunteer_id": "vol2",
+    "worked_on": "2026-08-09",
+    "hours": 7,
+    "project_id": "Climate Change",
+    "task": "Mnarani planting"
+   },
+   {
+    "volunteer_id": "vol2",
+    "worked_on": "2026-09-13",
+    "hours": 8,
+    "project_id": "Climate Change",
+    "task": "Arabuko-Sokoke planting"
+   },
+   {
+    "volunteer_id": "vol2",
+    "worked_on": "2026-10-04",
+    "hours": 6,
+    "project_id": "Climate Change",
+    "task": "Kaloleni planting"
+   },
+   {
+    "volunteer_id": "vol3",
+    "worked_on": "2026-09-04",
+    "hours": 4,
+    "project_id": "Gender, Peace and Security",
+    "task": "Tezo dialogue"
+   },
+   {
+    "volunteer_id": "vol3",
+    "worked_on": "2026-10-09",
+    "hours": 4,
+    "project_id": "Gender, Peace and Security",
+    "task": "Jaribuni dialogue"
+   },
+   {
+    "volunteer_id": "vol4",
+    "worked_on": "2026-09-10",
+    "hours": 6,
+    "project_id": "Disability Inclusion",
+    "task": "Health centre audits"
+   },
+   {
+    "volunteer_id": "vol5",
+    "worked_on": "2026-10-04",
+    "hours": 5,
+    "project_id": "Climate Change",
+    "task": "Photographed planting day"
+   },
+   {
+    "volunteer_id": "vol6",
+    "worked_on": "2026-10-02",
+    "hours": 4,
+    "project_id": "Gender, Peace and Security",
+    "task": "Drama at Watamu dialogue"
+   },
+   {
+    "volunteer_id": "vol6",
+    "worked_on": "2026-10-09",
+    "hours": 3,
+    "project_id": "Gender, Peace and Security",
+    "task": "MC, Jaribuni dialogue"
+   }
+  ],
+  "leave_requests": [
+   {
+    "user_id": "neema",
+    "kind": "annual",
+    "starts_on": "2026-11-16",
+    "ends_on": "2026-11-20",
+    "reason": "Family event in Voi",
+    "_status": "pending",
+    "_by": "neema",
+    "_age_days": 4
+   },
+   {
+    "user_id": "juma",
+    "kind": "sick",
+    "starts_on": "2026-09-21",
+    "ends_on": "2026-09-22",
+    "reason": "Malaria",
+    "_status": "approved",
+    "_by": "juma"
+   },
+   {
+    "user_id": "baraka",
+    "kind": "study",
+    "starts_on": "2026-10-26",
+    "ends_on": "2026-10-27",
+    "reason": "Diploma exams",
+    "_status": "pending",
+    "_by": "baraka",
+    "_age_days": 1
+   }
+  ],
+  "events": [
+   {
+    "title": "Youth health day, Kilifi town",
+    "kind": "outreach",
+    "project_id": "Health Advocacy",
+    "date": "2026-07-18",
+    "venue": "Kilifi town grounds",
+    "expected": 200,
+    "attended": 210,
+    "lead_id": "baraka",
+    "_status": "held"
+   },
+   {
+    "title": "Dialogue, Watamu ward",
+    "kind": "dialogue",
+    "project_id": "Gender, Peace and Security",
+    "date": "2026-10-02",
+    "venue": "Watamu social hall",
+    "expected": 45,
+    "attended": 52,
+    "lead_id": "baraka",
+    "_status": "held"
+   },
+   {
+    "title": "Planting, Kaloleni water point",
+    "kind": "campaign",
+    "project_id": "Climate Change",
+    "date": "2026-10-04",
+    "venue": "Kaloleni water point",
+    "expected": 60,
+    "attended": 48,
+    "lead_id": "baraka",
+    "_status": "held"
+   },
+   {
+    "title": "School planting day, Kaloleni",
+    "kind": "campaign",
+    "project_id": "Climate Change",
+    "date": "2026-10-15",
+    "time": "9:00",
+    "venue": "Kaloleni Secondary",
+    "expected": 120,
+    "lead_id": "baraka",
+    "_status": "planned"
+   },
+   {
+    "title": "Youth day, Kilifi town (October)",
+    "kind": "outreach",
+    "project_id": "Health Advocacy",
+    "date": "2026-10-16",
+    "time": "10:00",
+    "venue": "Kilifi town grounds",
+    "expected": 250,
+    "lead_id": "baraka",
+    "_status": "planned"
+   },
+   {
+    "title": "Dialogue, Ganze ward",
+    "kind": "dialogue",
+    "project_id": "Gender, Peace and Security",
+    "date": "2026-10-23",
+    "time": "14:00",
+    "venue": "Ganze chief's camp",
+    "expected": 40,
+    "lead_id": "juma",
+    "_status": "planned"
+   },
+   {
+    "title": "Peer educator training, cohort 4",
+    "kind": "training",
+    "project_id": "Health Advocacy",
+    "date": "2026-10-29",
+    "time": "9:00",
+    "venue": "Timiza office",
+    "expected": 12,
+    "lead_id": "neema",
+    "_status": "planned"
+   },
+   {
+    "title": "Board meeting, Q4",
+    "kind": "meeting",
+    "date": "2026-10-30",
+    "time": "15:00",
+    "venue": "Timiza office",
+    "expected": 7,
+    "lead_id": "amani",
+    "_status": "planned"
+   },
+   {
+    "title": "Outreach, Watamu",
+    "kind": "outreach",
+    "project_id": "Health Advocacy",
+    "date": "2026-11-07",
+    "venue": "Watamu beach front",
+    "expected": 200,
+    "lead_id": "neema",
+    "_status": "planned"
+   }
+  ],
+  "documents": [
+   {
+    "title": "CBO registration certificate",
+    "category": "registration",
+    "owner_id": "amani",
+    "expires_on": "2026-11-05",
+    "file": {
+     "name": "cbo-registration.pdf"
+    }
+   },
+   {
+    "title": "MoU, Kilifi County Government (environment)",
+    "category": "mou",
+    "owner_id": "amani",
+    "expires_on": "2027-06-30",
+    "stakeholder_id": "county",
+    "file": {
+     "name": "mou-county-environment.pdf"
+    }
+   },
+   {
+    "title": "MoU, Gender Violence Recovery Center (referrals)",
+    "category": "mou",
+    "owner_id": "zawadi",
+    "expires_on": "2026-10-01",
+    "stakeholder_id": "gvrc",
+    "file": {
+     "name": "mou-gvrc.pdf"
+    }
+   },
+   {
+    "title": "Safeguarding policy",
+    "category": "policy",
+    "owner_id": "amani",
+    "file": {
+     "name": "safeguarding-policy.pdf"
+    }
+   },
+   {
+    "title": "Data protection policy",
+    "category": "policy",
+    "owner_id": "amani",
+    "file": {
+     "name": "data-protection-policy.pdf"
+    }
+   },
+   {
+    "title": "Audited accounts 2025",
+    "category": "report",
+    "owner_id": "amani",
+    "file": {
+     "name": "audited-accounts-2025.pdf"
+    }
+   }
+  ],
+  "inquiries": [
+   {
+    "name": "Coast Youth Network",
+    "contact": "info@coastyouth.example",
+    "kind": "partner",
+    "message": "We would like to co-host a youth climate summit in Mombasa next year. Can we meet?",
+    "_status": "new"
+   },
+   {
+    "name": "Bahari Hotel CSR team",
+    "contact": "csr@bahari.example",
+    "kind": "donate",
+    "message": "Our staff want to sponsor 500 seedlings and join a planting day.",
+    "_status": "contacted",
+    "assignee_id": "zawadi"
+   },
+   {
+    "name": "Pwani FM",
+    "contact": "0720 111 222",
+    "kind": "media",
+    "message": "Interview request about the GBV dialogues for our morning show.",
+    "_status": "new"
+   }
+  ],
+  "meetings": [
+   {
+    "_key": "m_board",
+    "title": "Board meeting, Q3 review",
+    "kind": "board",
+    "held_on": "2026-09-26",
+    "attendees": "Board chair, 4 members, executive director, finance",
+    "minutes": "Reviewed Q3 progress. Training target behind; agreed to add a peer educator cohort. Approved registration renewal process. Asked for a climate fund proposal before the October deadline."
+   },
+   {
+    "_key": "m_staff",
+    "title": "Staff meeting",
+    "kind": "staff",
+    "held_on": "2026-10-06",
+    "attendees": "All staff",
+    "minutes": "Planned October events. Projector needs repair. Transport costs running above budget on health outreach."
+   },
+   {
+    "_key": "m_county",
+    "title": "Meeting with county environment department",
+    "kind": "partner",
+    "held_on": "2026-10-02",
+    "attendees": "County environment officer, programme manager",
+    "minutes": "County to supply 1,500 seedlings. Joint planting before the short rains."
+   }
+  ],
+  "decisions": [
+   {
+    "decision": "Add peer educator cohort 4 in October",
+    "meeting_id": "m_board",
+    "owner_id": "neema",
+    "due_on": "2026-10-29",
+    "_status": "open"
+   },
+   {
+    "decision": "Start CBO registration renewal",
+    "meeting_id": "m_board",
+    "owner_id": "amani",
+    "due_on": "2026-10-15",
+    "_status": "open"
+   },
+   {
+    "decision": "Submit climate resilience proposal",
+    "meeting_id": "m_board",
+    "owner_id": "amani",
+    "due_on": "2026-10-20",
+    "_status": "open"
+   },
+   {
+    "decision": "Get projector repaired before cohort 4 training",
+    "meeting_id": "m_staff",
+    "owner_id": "baraka",
+    "due_on": "2026-10-25",
+    "_status": "open"
+   },
+   {
+    "decision": "Request budget reallocation for outreach transport",
+    "meeting_id": "m_staff",
+    "owner_id": "zawadi",
+    "due_on": "2026-10-16",
+    "_status": "open"
+   },
+   {
+    "decision": "Confirm seedling delivery date with county",
+    "meeting_id": "m_county",
+    "owner_id": "zawadi",
+    "due_on": "2026-10-10",
+    "_status": "done"
+   }
   ]
+ },
+ "participants": {
+  "Health Advocacy": 64,
+  "Gender, Peace and Security": 38,
+  "Disability Inclusion": 22,
+  "Climate Change": 30
+ }
 }

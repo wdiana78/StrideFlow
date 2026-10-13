@@ -5,6 +5,7 @@
 Every person and organization here is invented. Demo password for all accounts: kept-demo-2026
 """
 import json
+import uuid
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 
@@ -258,9 +259,83 @@ def seed_case_study(db, pw):
                              depends_on=keyed.get(a.get("depends_on")), refused_on=d(a.get("refused_on")))
             if a.get("key"):
                 keyed[a["key"]] = act
+    projects_by_name = {pp.name: pp for pp in db.scalars(select(Project).where(Project.organization_id == org.id)).all()}
+    seed_erp(db, org, people, stakes, projects_by_name, data)
     log(db, org.id, people["amani"].id, "organization_created", "organization", org.id, "Case study data loaded")
     db.commit()
     rules.evaluate_org(db, org.id, today())
+
+
+WARDS = ["Sokoni", "Mnarani", "Tezo", "Matsangoni", "Watamu", "Jaribuni", "Ganze", "Kaloleni", "Malindi Town", "Mtwapa"]
+
+
+class Lcg:
+    """Tiny deterministic generator, mirrored in the web preview so both produce the same registry."""
+    def __init__(self, seed=20261013):
+        self.s = seed
+
+    def next(self):
+        self.s = (self.s * 1103515245 + 12345) % 2147483648
+        return self.s / 2147483648
+
+
+def participants_for(spec: dict) -> list[dict]:
+    rng, out, n = Lcg(), [], 0
+    for project, count in spec.items():
+        for _ in range(count):
+            n += 1
+            r1, r2, r3, r4, r5 = (rng.next() for _ in range(5))
+            gender = "female" if r1 < 0.58 else "male" if r1 < 0.97 else "other"
+            ages = ["15-19", "20-24", "25-35", "10-14", "36+"] if project != "Climate Change" else ["10-14", "15-19", "20-24", "25-35", "36+"]
+            age = ages[0] if r2 < 0.4 else ages[1] if r2 < 0.7 else ages[2] if r2 < 0.88 else ages[3] if r2 < 0.96 else ages[4]
+            disability = r3 < (0.6 if project == "Disability Inclusion" else 0.06)
+            enrolled = date(2026, 7, 1) + timedelta(days=int(r5 * 100))
+            out.append({"code": f"TYI-{n:04d}", "project_id": project, "gender": gender, "age_band": age, "ward": WARDS[int(r4 * len(WARDS))],
+                        "disability": disability, "consent": True, "enrolled_on": enrolled.isoformat()})
+    return out
+
+
+def seed_erp(db, org, people, stakes, projects, data):
+    """Insert the case study's ERP records, resolving references by key."""
+    from app import erp
+
+    keys: dict[str, uuid.UUID] = {}
+    order = ["site_settings", "site_programmes", "site_team", "grants", "income", "budget_lines", "expenses", "vendors", "purchase_requests",
+             "items", "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests", "events", "documents", "inquiries",
+             "meetings", "decisions"]
+    records = dict(data["erp"])
+    records["participants"] = participants_for(data["participants"])
+    order.append("participants")
+    order.sort(key=lambda k: ["site_settings", "site_programmes", "site_team", "grants", "income", "budget_lines", "vendors", "expenses",
+                              "purchase_requests", "items", "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests",
+                              "events", "documents", "inquiries", "meetings", "decisions", "participants"].index(k))
+    stamp = datetime.now(timezone.utc)
+    for key in order:
+        m, t = erp.MODULES[key], erp.TABLES[key]
+        fields = {f["key"]: f for f in m["fields"]}
+        for rec in records.get(key, []):
+            values = {}
+            for k, v in rec.items():
+                if k.startswith("_") or k not in fields:
+                    continue
+                f = fields[k]
+                if f["type"] == "ref":
+                    ref = f["ref"]
+                    v = (people[v].id if ref == "users" else stakes[v].id if ref == "stakeholders" else projects[v].id if ref == "projects" else keys[v])
+                elif f["type"] == "date":
+                    v = date.fromisoformat(v)
+                elif f["type"] == "file":
+                    v = {"name": v["name"], "url": "", "size": None}
+                values[k] = v
+            rid = uuid.uuid4()
+            created = stamp - timedelta(days=rec.get("_age_days", 6))
+            by = people[rec["_by"]].id if rec.get("_by") else people["zawadi"].id
+            if m.get("status"):
+                values[m["status"]["field"]] = rec.get("_status", m["status"]["default"])
+            db.execute(t.insert().values(id=rid, organization_id=org.id, created_by_id=by, created_at=created, updated_at=created, **values))
+            if rec.get("_key"):
+                keys[rec["_key"]] = rid
+    db.flush()
 
 
 if __name__ == "__main__":
