@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { NAV } from "../modules";
+import { NAV, GROUP_COLOR } from "../modules";
+import { applyBrand } from "../theme";
 import { useEffect, useState } from "react";
 import { api, PREVIEW } from "../api";
 import { useAuth } from "../auth";
@@ -22,6 +23,8 @@ export const Logo = ({ size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 22 22" aria-hidden="true"><path d="M3 11.5 L8.5 17 L19 5" fill="none" stroke="#2C3D9B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
 );
 
+export const SITE_HOME = import.meta.env.VITE_SITE_SLUG ? "/" : "/site/timiza";
+
 function Links({ openFlags, approvals, admin, onNavigate }) {
   const loc = useLocation();
   const cls = ({ isActive }) => "nav-link" + (isActive ? " active" : "");
@@ -37,6 +40,8 @@ function Links({ openFlags, approvals, admin, onNavigate }) {
       <div className="nav-section">Programmes and M&amp;E</div>
       <L to="/app/projects"><Icon d={I.projects} />Programmes</L>
       <L to="/app/work"><Icon d={I.work} />Work</L>
+      <L to="/app/analytics"><Icon d="M4 20V10M10 20V4M16 20v-7M22 20H2" />M&amp;E analytics</L>
+      <L to="/app/forms"><Icon d="M6 3h12v18H6zM9 8h6M9 12h6M9 16h3" />Data collection</L>
       <L to="/app/reports"><Icon d={I.reports} />Reports</L>
       <div className="nav-section">Operations</div>
       {NAV.map((g) => {
@@ -44,10 +49,10 @@ function Links({ openFlags, approvals, admin, onNavigate }) {
         return (
           <div key={g.label}>
             <button className="nav-group" aria-expanded={isOpen} onClick={() => setOpen({ ...open, [g.label]: !isOpen })}>
-              <span>{g.label}</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style={{ transform: isOpen ? "rotate(90deg)" : "none", transition: "transform .15s" }}><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
+              <span className="row" style={{ gap: 8 }}><span className="dot" style={{ background: GROUP_COLOR[g.label] }} />{g.label}</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style={{ transform: isOpen ? "rotate(90deg)" : "none", transition: "transform .15s" }}><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
             </button>
             {isOpen && g.items.map(([k, label]) => k === "@site" ? (
-              <Link key={k} to="/site/timiza" className="nav-link nav-sub" onClick={onNavigate}>{label} ↗</Link>
+              <Link key={k} to={SITE_HOME} className="nav-link nav-sub" onClick={onNavigate}>{label} ↗</Link>
             ) : (
               <L key={k} to={k === "@finance" ? "/app/finance" : `/app/m/${k}`} end={k !== "@finance"}><span className="nav-sub-label">{label}</span></L>
             ))}
@@ -66,6 +71,7 @@ export default function Shell() {
   const [approvals, setApprovals] = useState(0);
   const [menu, setMenu] = useState(false);
   useEffect(() => {
+    api("/m/site_settings", { params: { page_size: 1 } }).then((d) => { const st = d.items[0]; applyBrand(st?.brand_primary, st?.brand_accent); }).catch(() => applyBrand());
     const load = () => {
       api("/flags").then((d) => setOpenFlags(d.items.length)).catch(() => {});
       api("/approvals").then((d) => setApprovals(d.length)).catch(() => {});
@@ -119,8 +125,8 @@ function PreviewBar() {
   };
   const switchUser = () => { signOut(); nav("/login"); };
   return (
-    <div className="notice no-print" style={{ background: "var(--cobalt-tint)", color: "var(--cobalt-dark)", border: "1px solid #c3caeb", display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-      <span style={{ flex: 1, minWidth: 240 }}><b>Live preview.</b> Everything works; your changes are saved in this browser. "Today" is fixed at 13 Oct 2026 so the scenario stays the same.</span>
+    <div className="notice no-print" style={{ background: "var(--accent-tint)", color: "var(--accent-ink)", border: "0", display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", padding: "8px 14px" }}>
+      <span style={{ flex: 1, minWidth: 200 }}><b>Live demo</b> · saved in this browser · today is 13 Oct 2026</span>
       <button className="btn" onClick={switchUser}>Switch account</button>
       <button className="btn btn-quiet" onClick={reset}>Reset data</button>
     </div>

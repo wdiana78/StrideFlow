@@ -174,6 +174,7 @@ export function SEED() {
     }
   }
   seedErp(db, id, tz, ppl, sk, projByName);
+  seedForms(db, id, tz, ppl, projByName);
   return db;
 }
 
@@ -196,7 +197,7 @@ function participantsFor(spec) {
 function seedErp(db, id, org, ppl, sk, projects) {
   const mods = Object.fromEntries(SPEC.modules.map((m) => [m.key, m]));
   const keys = {};
-  const order = ["site_settings", "site_programmes", "site_team", "grants", "income", "budget_lines", "vendors", "expenses", "purchase_requests", "items",
+  const order = ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "grants", "donations", "income", "budget_lines", "vendors", "expenses", "purchase_requests", "items",
     "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests", "events", "documents", "inquiries", "meetings", "decisions", "participants"];
   const records = { ...TIMIZA.erp, participants: participantsFor(TIMIZA.participants) };
   const stampDays = (n2) => new Date(Date.UTC(2026, 9, 13, 9) - n2 * 86400000).toISOString();
@@ -213,6 +214,31 @@ function seedErp(db, id, org, ppl, sk, projects) {
       const r = { id: id(key.slice(0, 3)), organization_id: org.id, created_by_id: (rec._by ? ppl[rec._by] : ppl.zawadi).id, created_at: created, updated_at: created, ...row };
       if (m.status) r[m.status.field] = rec._status || m.status.default;
       db.m[key].push(r); if (rec._key) keys[rec._key] = r.id;
+    }
+  }
+}
+
+function lcg(seed) { let st = BigInt(seed); return () => { st = (st * 1103515245n + 12345n) % 2147483648n; return Number(st) / 2147483648; }; }
+function seedForms(db, id, org, ppl, projects) {
+  const next = lcg(77); db.forms = []; db.form_submissions = [];
+  const pick = (w) => { const r = next() * w.reduce((a, b) => a + b, 0); let acc = 0; for (let k = 0; k < w.length; k++) { acc += w[k]; if (r < acc) return k; } return w.length - 1; };
+  for (const spec of TIMIZA.forms) {
+    const fields = spec.fields.map((f) => ({ id: f.id, label: f.label, type: f.type, required: !!f.required, options: f.options || [], min: f.min ?? null, max: f.max ?? null }));
+    const form = { id: id("frm"), organization_id: org.id, project_id: projects[spec.project].id, title: spec.title, description: spec.description, fields, is_public: spec.is_public, status: "open", created_by_id: ppl.zawadi.id, created_at: "2026-07-01T08:00:00.000Z" };
+    db.forms.push(form);
+    const submitters = [ppl.baraka.id, ppl.neema.id, ppl.juma.id];
+    for (let i = 0; i < spec.n; i++) {
+      const data = {};
+      for (const f of spec.fields) {
+        if (f.type === "select") data[f.id] = f.options[pick(f.w)];
+        else if (f.type === "rating") data[f.id] = pick(f.w) + 1;
+        else if (f.type === "yesno") data[f.id] = next() < f.p;
+        else if (f.type === "multi") data[f.id] = f.options.filter((o, k) => next() < f.w[k]);
+        else if (f.type === "number") data[f.id] = Math.floor(f.min + next() * (f.max - f.min));
+        else if (f.type === "text" || f.type === "textarea") { const v = f.samples[i % f.samples.length]; if (v) data[f.id] = v; }
+      }
+      const day = new Date(Date.UTC(2026, 6, 1) + Math.floor(next() * 104) * 86400000).toISOString().slice(0, 10);
+      db.form_submissions.push({ id: id("sub"), form_id: form.id, organization_id: org.id, data, source: spec.is_public ? "public" : "app", submitted_by_id: spec.is_public ? null : submitters[i % 3], created_at: `${day}T10:00:00.000Z` });
     }
   }
 }

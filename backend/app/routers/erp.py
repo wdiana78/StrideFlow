@@ -14,6 +14,7 @@ from ..db import get_db
 from ..deps import get_current_user
 from ..models import Activity, ActivityStatus, Commitment, Flag, FlagStatus, Organization, Project, ProjectStatus, Stakeholder, StakeholderKind, User
 from ..services import pace, rules
+from ..hardening import check_upload, client_ip, rate_limit
 from ..services.audit import log
 
 router = APIRouter(tags=["erp"])
@@ -130,18 +131,17 @@ ALLOWED = {".jpg", ".jpeg", ".png", ".webp", ".pdf", ".doc", ".docx", ".xls", ".
 @router.post("/uploads", status_code=201)
 async def upload(file: UploadFile = File(...), user: User = Depends(get_current_user)):
     ext = Path(file.filename or "").suffix.lower()
-    if ext not in ALLOWED:
-        raise HTTPException(422, "Upload a photo, PDF, Word, Excel, CSV or text file.")
-    content = await file.read()
+    content = await file.read(10 * 1024 * 1024 + 1)
     if not content:
         raise HTTPException(422, "That file is empty.")
     if len(content) > 10 * 1024 * 1024:
         raise HTTPException(413, "Files must be 10 MB or smaller.")
+    check_upload(ext, content)
     folder = Path(get_settings().upload_dir)
     folder.mkdir(parents=True, exist_ok=True)
     stored = f"{uuid.uuid4().hex}{ext}"
     (folder / stored).write_bytes(content)
-    return {"name": file.filename, "url": f"/files/{stored}", "size": len(content)}
+    return {"name": Path(file.filename or "file").name[:200], "url": f"/files/{stored}", "size": len(content)}
 
 
 # ---------- organization overview ----------
@@ -290,7 +290,23 @@ def portfolio(slug: str, db: Session = Depends(get_db)):
             "evidence_items": evidence,
             "as_of": t0.isoformat(),
         }
+    ss, sst, dn = T["site_services"], T["site_stories"], T["donations"]
+    services = [{"title": r.title, "description": r.description, "icon": r.icon} for r in
+                db.execute(select(ss).where(ss.c.organization_id == org_id, ss.c.published.is_(True)).order_by(ss.c.order, ss.c.title)).all()]
+    proj_names = {str(p.id): p.name for p in db.scalars(select(Project).where(Project.organization_id == org_id)).all()}
+    stories = [{"id": str(r.id), "title": r.title, "programme": proj_names.get(str(r.project_id)), "summary": r.summary, "body": r.body, "quote": r.quote,
+                "quote_by": r.quote_by, "stat_value": r.stat_value, "stat_label": r.stat_label} for r in
+               db.execute(select(sst).where(sst.c.organization_id == org_id, sst.c.published.is_(True)).order_by(sst.c.order, sst.c.title)).all()]
+    raised = _sum(db, dn, "amount", dn.c.organization_id == org_id, dn.c.status == "confirmed")
+    donors = db.scalar(select(func.count()).where(dn.c.organization_id == org_id, dn.c.status == "confirmed"))
+    recent = [{"name": "Anonymous" if r.anonymous else r.donor_name.split()[0], "amount": float(r.amount)} for r in
+              db.execute(select(dn).where(dn.c.organization_id == org_id, dn.c.status == "confirmed").order_by(dn.c.updated_at.desc()).limit(5)).all()]
     return {"organization": org.name, "slug": site.slug, "tagline": site.tagline, "intro": site.intro, "about": site.about,
+            "mission": site.mission, "vision": site.vision, "founded": site.founded, "address": site.address,
+            "brand": {"primary": site.brand_primary or "#0E5E6F", "accent": site.brand_accent or "#F2B33D"},
+            "services": services, "stories": stories,
+            "donations": {"campaign": site.donation_campaign, "goal": float(site.donation_goal or 0), "raised": raised, "donors": donors, "recent": recent},
+            "projects": [{"id": k, "name": v} for k, v in proj_names.items()],
             "location": site.location, "contact_email": site.contact_email, "phone": site.phone,
             "social": {"facebook": site.facebook, "twitter": site.twitter, "instagram": site.instagram},
             "programmes": programmes, "team": team, "partners": partners, "impact": impact}
@@ -303,6 +319,7 @@ class VolunteerIn(BaseModel):
     ward: str = Field(default="", max_length=80)
     interest: str = "any"
     skills: str = Field(default="", max_length=300)
+    website: str = ""  # honeypot
 
 
 class InquiryIn(BaseModel):
@@ -310,6 +327,7 @@ class InquiryIn(BaseModel):
     contact: str = Field(min_length=5, max_length=120)
     kind: str = "partner"
     message: str = Field(min_length=10, max_length=3000)
+    website: str = ""  # honeypot
 
 
 def _public_insert(db: Session, site, key: str, values: dict, summary: str):
@@ -323,18 +341,178 @@ def _public_insert(db: Session, site, key: str, values: dict, summary: str):
 
 
 @public.post("/{slug}/volunteer", status_code=201)
-def volunteer_signup(slug: str, body: VolunteerIn, db: Session = Depends(get_db)):
+def volunteer_signup(slug: str, body: VolunteerIn, request: Request, db: Session = Depends(get_db)):
+    rate_limit(f"public-volunteer:{client_ip(request)}", 10, 600)
     site = _site(db, slug)
+    if body.website:
+        return {"ok": True, "message": "Thank you. The team will call you within a week."}  # silently drop bots
     if body.interest not in {"health", "gps", "disability", "climate", "any"}:
         raise HTTPException(422, "Choose a programme.")
-    _public_insert(db, site, "volunteers", {**body.model_dump(), "source": "website"}, f"Website: {body.name} applied to volunteer")
+    _public_insert(db, site, "volunteers", {**body.model_dump(exclude={"website"}), "source": "website"}, f"Website: {body.name} applied to volunteer")
     return {"ok": True, "message": "Thank you. The team will call you within a week."}
 
 
 @public.post("/{slug}/inquiry", status_code=201)
-def inquiry(slug: str, body: InquiryIn, db: Session = Depends(get_db)):
+def inquiry(slug: str, body: InquiryIn, request: Request, db: Session = Depends(get_db)):
+    rate_limit(f"public-inquiry:{client_ip(request)}", 10, 600)
     site = _site(db, slug)
+    if body.website:
+        return {"ok": True, "message": "Thank you. We have your message and will reply soon."}
     if body.kind not in {"partner", "donate", "media", "other"}:
         raise HTTPException(422, "Choose what your message is about.")
-    _public_insert(db, site, "inquiries", body.model_dump(), f"Website: message from {body.name}")
+    _public_insert(db, site, "inquiries", body.model_dump(exclude={"website"}), f"Website: message from {body.name}")
     return {"ok": True, "message": "Thank you. We have your message and will reply soon."}
+
+
+# ---------- donations (public) ----------
+from ..services import payments  # noqa: E402
+
+
+class DonationIn(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    contact: str = Field(min_length=5, max_length=120)
+    amount: float = Field(ge=50, le=1_000_000)
+    method: str = "mpesa"
+    project_id: uuid.UUID | None = None
+    anonymous: bool = False
+    message: str = Field(default="", max_length=500)
+    website: str = ""  # honeypot: real people never see or fill this
+
+
+def _guard_public(request: Request, kind: str, slug: str, limit: int = 10):
+    rate_limit(f"public-{kind}:{client_ip(request)}", limit, 600)
+
+
+def _donation(db: Session, site, did: uuid.UUID, ref: str):
+    t = erp.TABLES["donations"]
+    row = db.execute(select(t).where(t.c.id == did, t.c.organization_id == site.organization_id)).first()
+    # The reference acts as a receipt code: without it a donation cannot be looked up, so ids cannot be enumerated.
+    if not row or row.reference != ref:
+        raise HTTPException(404, "Donation not found.")
+    return row
+
+
+def _donation_out(row) -> dict:
+    return {"id": str(row.id), "reference": row.reference, "status": row.status, "amount": float(row.amount), "method": row.method}
+
+
+@public.post("/{slug}/donations", status_code=201)
+def start_donation(slug: str, body: DonationIn, request: Request, db: Session = Depends(get_db)):
+    _guard_public(request, "donate", slug)
+    site = _site(db, slug)
+    if body.website:
+        raise HTTPException(422, "Something went wrong. Please try again.")
+    if body.method not in ("mpesa", "card"):
+        raise HTTPException(422, "Choose M-Pesa or card.")
+    if body.project_id and not db.scalar(select(Project.id).where(Project.id == body.project_id, Project.organization_id == site.organization_id)):
+        raise HTTPException(422, "Choose one of our programmes.")
+    t = erp.TABLES["donations"]
+    did = uuid.uuid4()
+    ref = f"DN-{uuid.uuid4().hex[:8].upper()}"
+    try:
+        pay = payments.start_payment(body.method, body.contact, body.amount, ref)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    db.execute(t.insert().values(id=did, organization_id=site.organization_id, created_by_id=None, created_at=erp.now(), updated_at=erp.now(),
+                                 donor_name=body.name.strip(), contact=body.contact.strip(), amount=body.amount, method=body.method,
+                                 project_id=body.project_id, anonymous=body.anonymous, reference=ref, provider_ref=pay["provider_ref"],
+                                 message=body.message.strip() or None, status="pending"))
+    log(db, site.organization_id, None, "donations_created", "donations", did, f"Website: donation of {body.amount:,.0f} started ({body.method})")
+    db.commit()
+    return {"id": str(did), "reference": ref, "status": "pending", "mode": pay["mode"], "instructions": pay["instructions"]}
+
+
+@public.get("/{slug}/donations/{did}")
+def donation_status(slug: str, did: uuid.UUID, ref: str, request: Request, db: Session = Depends(get_db)):
+    rate_limit(f"public-donation-status:{client_ip(request)}", 120, 600)
+    return _donation_out(_donation(db, _site(db, slug), did, ref))
+
+
+class SimulateIn(BaseModel):
+    ref: str
+    outcome: str = Field(pattern="^(success|cancel)$")
+
+
+def _settle(db: Session, row, ok: bool, note: str):
+    t = erp.TABLES["donations"]
+    if row.status != "pending":
+        return
+    db.execute(t.update().where(t.c.id == row.id).values(status="confirmed" if ok else "failed", updated_at=erp.now()))
+    if ok:
+        erp.post_donation_income(db, dict(row._mapping))
+    log(db, row.organization_id, None, f"donations_{'confirmed' if ok else 'failed'}", "donations", row.id, note)
+    db.commit()
+
+
+@public.post("/{slug}/donations/{did}/simulate")
+def simulate_payment(slug: str, did: uuid.UUID, body: SimulateIn, request: Request, db: Session = Depends(get_db)):
+    if get_settings().payments_mode != "sandbox":
+        raise HTTPException(404, "Not found.")
+    _guard_public(request, "simulate", slug, 20)
+    site = _site(db, slug)
+    row = _donation(db, site, did, body.ref)
+    _settle(db, row, body.outcome == "success", f"Sandbox payment {'completed' if body.outcome == 'success' else 'cancelled'} for {row.reference}")
+    return _donation_out(_donation(db, site, did, body.ref))
+
+
+@router.post("/payments/mpesa/callback/{token}", include_in_schema=False)
+def mpesa_callback(token: str, payload: dict, db: Session = Depends(get_db)):
+    import hmac
+
+    s = get_settings()
+    if not s.mpesa_callback_token or not hmac.compare_digest(token, s.mpesa_callback_token):
+        raise HTTPException(404, "Not found.")
+    cb = payments.parse_mpesa_callback(payload)
+    t = erp.TABLES["donations"]
+    row = db.execute(select(t).where(t.c.provider_ref == cb["checkout_id"])).first()
+    if row:
+        ok = cb["ok"] and cb["amount"] is not None and abs(float(cb["amount"]) - float(row.amount)) < 1
+        _settle(db, row, ok, f"M-Pesa {'confirmed, receipt ' + str(cb['receipt']) if ok else 'failed or amount mismatch'}")
+    return {"ResultCode": 0, "ResultDesc": "Accepted"}
+
+
+# ---------- grouped stats for charts ----------
+@router.get("/m/{key}/stats")
+def module_stats(key: str, by: str, request: Request, sum: str | None = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):  # noqa: A002
+    _module(key)
+    return _run(lambda: erp.stats(db, user, key, by, sum, dict(request.query_params)))
+
+
+# ---------- M&E analytics ----------
+@router.get("/analytics")
+def analytics(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    org, t0, T = user.organization_id, today(), erp.TABLES
+    series = []
+    for p in db.scalars(select(Project).where(Project.organization_id == org, Project.status == ProjectStatus.active).order_by(Project.name)).all():
+        for c in p.commitments:
+            if c.measure.value != "sum":
+                continue
+            pts, d = [], p.starts_on
+            while d < t0:
+                pts.append({"date": d.isoformat(), "value": pace.actual_value(c, d)})
+                d += timedelta(days=14)
+            pts.append({"date": t0.isoformat(), "value": pace.actual_value(c, t0)})
+            series.append({"programme": p.name, "title": c.title, "unit": c.unit, "target": float(c.target_value),
+                           "start": p.starts_on.isoformat(), "due_on": c.due_on.isoformat(), "points": pts, "pace": pace.compute(c, t0).as_dict()})
+    pt = T["participants"]
+
+    def grp(col):
+        return [{"label": str(k) if k is not None else "None", "count": n} for k, n in db.execute(
+            select(pt.c[col], func.count()).where(pt.c.organization_id == org).group_by(pt.c[col]).order_by(func.count().desc())).all()]
+    by_prog = [{"label": n or "None", "female": f, "male": m, "other": o} for n, f, m, o in db.execute(
+        select(Project.name, func.count().filter(pt.c.gender == "female"), func.count().filter(pt.c.gender == "male"), func.count().filter(pt.c.gender == "other"))
+        .select_from(pt).join(Project, Project.id == pt.c.project_id, isouter=True).where(pt.c.organization_id == org).group_by(Project.name)).all()]
+    vh, e, b, ev = T["volunteer_hours"], T["expenses"], T["budget_lines"], T["events"]
+    hours = [{"label": n or "Not linked", "value": float(h)} for n, h in db.execute(
+        select(Project.name, func.sum(vh.c.hours)).select_from(vh).join(Project, Project.id == vh.c.project_id, isouter=True)
+        .where(vh.c.organization_id == org).group_by(Project.name)).all()]
+    spend = [{"label": c or "Other", "value": float(v)} for c, v in db.execute(
+        select(b.c.category, func.sum(e.c.amount)).select_from(e).join(b, b.c.id == e.c.budget_line_id)
+        .where(e.c.organization_id == org, e.c.status.in_(["approved", "paid"])).group_by(b.c.category)).all()]
+    events = [{"title": r.title, "date": r.date.isoformat(), "expected": float(r.expected or 0), "attended": float(r.attended or 0)}
+              for r in db.execute(select(ev).where(ev.c.organization_id == org, ev.c.status == "held").order_by(ev.c.date)).all()]
+    disab = grp("disability")
+    return {"today": t0.isoformat(), "series": series,
+            "participants": {"gender": grp("gender"), "age_band": grp("age_band"), "ward": grp("ward"),
+                             "disability": [{"label": "Yes" if d["label"] == "True" else "No", "count": d["count"]} for d in disab], "by_programme": by_prog},
+            "volunteer_hours": hours, "spending_by_category": spend, "events": events}

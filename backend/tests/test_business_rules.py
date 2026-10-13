@@ -13,7 +13,7 @@ def training(client, h, c, title, due, values=None, done=False, owner=None):
         client.post(f"/api/activities/{a['id']}/evidence", headers=h, json={"requirement_id": req["Attendance count"], "kind": "value", "value_number": values})
     if done:
         client.post(f"/api/activities/{a['id']}/evidence/file", headers=h, data={"requirement_id": req["Signed attendance sheet"]},
-                    files={"file": ("sheet.jpg", b"fake-image-bytes", "image/jpeg")})
+                    files={"file": ("sheet.jpg", b"\xff\xd8\xff\xe0fake-jpeg-body", "image/jpeg")})
         r = client.post(f"/api/activities/{a['id']}/complete", headers=h)
         assert r.status_code == 200, r.text
     return a, req

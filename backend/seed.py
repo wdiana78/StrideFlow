@@ -261,6 +261,7 @@ def seed_case_study(db, pw):
                 keyed[a["key"]] = act
     projects_by_name = {pp.name: pp for pp in db.scalars(select(Project).where(Project.organization_id == org.id)).all()}
     seed_erp(db, org, people, stakes, projects_by_name, data)
+    seed_forms(db, org, people, projects_by_name, data["forms"])
     log(db, org.id, people["amani"].id, "organization_created", "organization", org.id, "Case study data loaded")
     db.commit()
     rules.evaluate_org(db, org.id, today())
@@ -300,13 +301,13 @@ def seed_erp(db, org, people, stakes, projects, data):
     from app import erp
 
     keys: dict[str, uuid.UUID] = {}
-    order = ["site_settings", "site_programmes", "site_team", "grants", "income", "budget_lines", "expenses", "vendors", "purchase_requests",
+    order = ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "donations", "grants", "income", "budget_lines", "expenses", "vendors", "purchase_requests",
              "items", "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests", "events", "documents", "inquiries",
              "meetings", "decisions"]
     records = dict(data["erp"])
     records["participants"] = participants_for(data["participants"])
     order.append("participants")
-    order.sort(key=lambda k: ["site_settings", "site_programmes", "site_team", "grants", "income", "budget_lines", "vendors", "expenses",
+    order.sort(key=lambda k: ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "grants", "donations", "income", "budget_lines", "vendors", "expenses",
                               "purchase_requests", "items", "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests",
                               "events", "documents", "inquiries", "meetings", "decisions", "participants"].index(k))
     stamp = datetime.now(timezone.utc)
@@ -335,6 +336,58 @@ def seed_erp(db, org, people, stakes, projects, data):
             db.execute(t.insert().values(id=rid, organization_id=org.id, created_by_id=by, created_at=created, updated_at=created, **values))
             if rec.get("_key"):
                 keys[rec["_key"]] = rid
+    db.flush()
+
+
+def answers_for(form: dict, rng: "Lcg", i: int) -> tuple[dict, str]:
+    """Deterministic, realistic responses (mirrored in the web preview)."""
+    def pick(weights):
+        r, acc = rng.next() * sum(weights), 0.0
+        for k, w in enumerate(weights):
+            acc += w
+            if r < acc:
+                return k
+        return len(weights) - 1
+    out = {}
+    for f in form["fields"]:
+        t = f["type"]
+        if t == "select":
+            out[f["id"]] = f["options"][pick(f["w"])]
+        elif t == "rating":
+            out[f["id"]] = pick(f["w"]) + 1
+        elif t == "yesno":
+            out[f["id"]] = rng.next() < f["p"]
+        elif t == "multi":
+            out[f["id"]] = [o for o, w in zip(f["options"], f["w"]) if rng.next() < w]
+        elif t == "number":
+            out[f["id"]] = int(f["min"] + rng.next() * (f["max"] - f["min"]))
+        elif t in ("text", "textarea"):
+            v = f["samples"][i % len(f["samples"])]
+            if v:
+                out[f["id"]] = v
+    day = (date(2026, 7, 1) + timedelta(days=int(rng.next() * 104))).isoformat()
+    return out, day
+
+
+def seed_forms(db, org, people, projects, forms):
+    from app.models import Form, FormSubmission
+
+    rng = Lcg(77)
+    for spec in forms:
+        fields = [{k: v for k, v in f.items() if k in ("id", "label", "type", "required", "options", "min", "max")} for f in spec["fields"]]
+        for f in fields:
+            f.setdefault("required", False)
+            f.setdefault("options", [])
+        form = Form(organization_id=org.id, project_id=projects[spec["project"]].id, title=spec["title"], description=spec["description"],
+                    fields=fields, is_public=spec["is_public"], status="open", created_by_id=people["zawadi"].id)
+        db.add(form)
+        db.flush()
+        submitters = [people["baraka"].id, people["neema"].id, people["juma"].id]
+        for i in range(spec["n"]):
+            data, day = answers_for(spec, rng, i)
+            when = datetime.fromisoformat(day + "T10:00:00+00:00")
+            db.add(FormSubmission(form_id=form.id, organization_id=org.id, data=data, source="public" if spec["is_public"] else "app",
+                                  submitted_by_id=None if spec["is_public"] else submitters[i % 3], created_at=when))
     db.flush()
 
 

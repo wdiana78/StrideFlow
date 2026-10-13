@@ -14,6 +14,8 @@ from app.main import app  # noqa: E402
 
 @pytest.fixture()
 def client():
+    from app.hardening import reset_rate_limits
+    reset_rate_limits()
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     with TestClient(app) as c:
@@ -22,16 +24,16 @@ def client():
 
 def register(client, org="Test Org", email="admin@test.example"):
     r = client.post("/api/auth/register", json={
-        "organization_name": org, "full_name": "Ada Admin", "email": email, "password": "password123"})
+        "organization_name": org, "full_name": "Ada Admin", "email": email, "password": "Coastal-Breeze-2026"})
     assert r.status_code == 201, r.text
     return {"Authorization": f"Bearer {r.json()['access_token']}"}
 
 
 def add_user(client, admin_h, email, role, name="Someone"):
     r = client.post("/api/users", headers=admin_h, json={
-        "full_name": name, "email": email, "role": role, "temporary_password": "password123"})
+        "full_name": name, "email": email, "role": role, "temporary_password": "Coastal-Breeze-2026"})
     assert r.status_code == 201, r.text
-    tok = client.post("/api/auth/login", json={"email": email, "password": "password123"}).json()["access_token"]
+    tok = client.post("/api/auth/login", json={"email": email, "password": "Coastal-Breeze-2026"}).json()["access_token"]
     return r.json()["id"], {"Authorization": f"Bearer {tok}"}
 
 

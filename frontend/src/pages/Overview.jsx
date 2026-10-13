@@ -1,62 +1,73 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth";
+import { Columns, Donut, PALETTE } from "../components/charts";
 import { ErrorNotice, Loading, PaceLine, Status } from "../components/ui";
 import { fmtDate, fmtNum } from "../format";
 import { useApi } from "../hooks";
-import { money, moneyShort } from "../modules";
+import { moneyShort } from "../modules";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const Ico = ({ d }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
 
-function Kpi({ label, value, sub, to, tone }) {
-  const body = (
-    <div className="stack-sm" style={{ gap: 4, padding: "16px 18px", height: "100%" }}>
-      <span className="small muted">{label}</span>
-      <b style={{ fontSize: 26, lineHeight: "32px", letterSpacing: "-0.3px", color: tone }}>{value}</b>
-      {sub && <span className="small" style={{ color: "var(--ink-2)" }}>{sub}</span>}
-    </div>
+function Kpi({ label, value, sub, to, bg, icon }) {
+  return (
+    <Link to={to} className="kpi" style={{ background: bg }}>
+      <span className="kpi-icon"><Ico d={icon} /></span>
+      <span className="kpi-label">{label}</span>
+      <span className="kpi-value">{value}</span>
+      <span className="kpi-sub">{sub}</span>
+    </Link>
   );
-  return to ? <Link to={to} className="panel" style={{ textDecoration: "none", color: "inherit" }}>{body}</Link> : <div className="panel">{body}</div>;
 }
 
 export default function Overview() {
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const { data: d, error, loading, reload } = useApi("/dashboard");
   if (loading && !d) return <Loading rows={10} />;
   if (error) return <ErrorNotice error={error} onRetry={reload} />;
-  const f = d.finance, p = d.people;
-  const maxMonth = Math.max(1, ...f.months.map((x) => x.spent));
-  const g = p.participants_by_gender || {};
+  const f = d.finance, p = d.people, g = p.participants_by_gender || {};
   return (
     <>
-      <div className="spread" style={{ alignItems: "flex-end" }}>
-        <div className="stack-sm" style={{ gap: 4 }}>
-          <span className="small muted">{fmtDate(d.today, true)}</span>
-          <h1 className="page-title">{user.organization.name}</h1>
+      <div className="page-hero">
+        <div className="stack-sm" style={{ gap: 2 }}>
+          <span className="muted small">{fmtDate(d.today, true)}</span>
+          <h1>Habari, {user.full_name.split(" ")[0]}</h1>
+          <span className="muted">{user.organization.name}</span>
         </div>
         <div className="row wrap">
-          <Link className="btn" to="/app/attention">{d.open_flags} need attention</Link>
-          <Link className="btn btn-primary" to="/app/approvals">{d.approvals_waiting} waiting for your approval</Link>
+          <Link className="btn btn-accent" to="/app/attention">{d.open_flags} need attention</Link>
+          <Link className="btn" style={{ background: "rgba(255,255,255,.12)", color: "#fff" }} to="/app/approvals">{d.approvals_waiting} to approve</Link>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(165px, 1fr))", gap: 12 }}>
-        <Kpi label="Commitments on track" value={`${d.commitments.on_track} of ${d.commitments.total}`} sub={`${d.commitments.at_risk} at risk · ${d.commitments.overdue} overdue`} to="/app/projects" tone={d.commitments.at_risk + d.commitments.overdue ? "var(--risk)" : "var(--ok)"} />
-        <Kpi label="Funding secured" value={moneyShort(f.awarded)} sub={`${moneyShort(f.pipeline)} in the pipeline`} to="/app/m/grants" />
-        <Kpi label="Budget used" value={`${f.used_pct}%`} sub={`${moneyShort(f.spent)} of ${moneyShort(f.budget)}`} to="/app/finance" tone={f.used_pct > 90 ? "var(--risk)" : undefined} />
-        <Kpi label="Cash received" value={moneyShort(f.received)} sub={`${moneyShort(f.received - f.spent)} after spending`} to="/app/m/income" />
-        <Kpi label="Participants registered" value={fmtNum(p.participants)} sub={`${g.female || 0} female · ${g.male || 0} male · ${g.other || 0} other`} to="/app/m/participants" />
-        <Kpi label="Active volunteers" value={p.volunteers_active} sub={`${fmtNum(p.hours_this_month)} hours this month · ${p.volunteer_applicants} applicants`} to="/app/m/volunteers" />
+      <div className="quick" aria-label="Quick actions">
+        {can.manage && <Link className="btn btn-primary" to="/app/m/expenses?new=1">+ Expense</Link>}
+        <Link className="btn" to="/app/m/participants?new=1">+ Participant</Link>
+        {can.manage && <Link className="btn" to="/app/m/events?new=1">+ Event</Link>}
+        {can.manage && <Link className="btn" to="/app/m/donations?new=1">+ Donation</Link>}
+        {can.manage && <Link className="btn" to="/app/forms/new">+ New survey</Link>}
+        <Link className="btn" to="/app/m/volunteer_hours?new=1">+ Volunteer hours</Link>
+        <Link className="btn" to="/app/m/purchase_requests?new=1">+ Purchase request</Link>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(148px, 1fr))", gap: 12 }}>
+        <Kpi label="On track" value={`${d.commitments.on_track}/${d.commitments.total}`} sub={`${d.commitments.at_risk} at risk`} to="/app/projects" bg="linear-gradient(135deg,#0E5E6F,#127A8F)" icon="M4 12l5 5L20 6" />
+        <Kpi label="Funding secured" value={moneyShort(f.awarded)} sub={`${moneyShort(f.pipeline)} in pipeline`} to="/app/m/grants" bg="linear-gradient(135deg,#2F8F5B,#3FAE72)" icon="M12 3v18M17 7H9.5a3 3 0 000 6h5a3 3 0 010 6H7" />
+        <Kpi label="Budget used" value={`${f.used_pct}%`} sub={`${moneyShort(f.spent)} of ${moneyShort(f.budget)}`} to="/app/finance" bg="linear-gradient(135deg,#2E6FAB,#3F8FD0)" icon="M4 20V10M10 20V4M16 20v-7" />
+        <Kpi label="Participants" value={fmtNum(p.participants)} sub={`${g.female || 0} female · ${g.male || 0} male`} to="/app/analytics" bg="linear-gradient(135deg,#6B5BA8,#8676C6)" icon="M16 20v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8" />
+        <Kpi label="Volunteers" value={p.volunteers_active} sub={`${fmtNum(p.hours_this_month)} hrs this month`} to="/app/m/volunteers" bg="linear-gradient(135deg,#C2477D,#D9649A)" icon="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" />
+        <Kpi label="Cash received" value={moneyShort(f.received)} sub={`${moneyShort(f.received - f.spent)} unspent`} to="/app/m/income" bg="linear-gradient(135deg,#D17B0F,#EE9B2C)" icon="M3 7h18v10H3zM7 12h.01M17 12h.01M12 15a3 3 0 100-6 3 3 0 000 6" />
       </div>
 
       <div className="two-col">
         <section className="wide panel" aria-labelledby="prog-h">
-          <div className="panel-head"><h2 id="prog-h">Programmes</h2><Link to="/app/projects" className="small">All programmes</Link></div>
-          {d.programmes.map((pr) => (
-            <div key={pr.id} style={{ padding: "16px 22px", borderTop: "1px solid var(--rule-soft)" }} className="stack-sm">
-              <Link to={`/app/projects/${pr.id}`} className="row-link strong" style={{ color: "var(--ink)", textDecoration: "none", fontSize: 16 }}>{pr.name}</Link>
+          <div className="panel-head"><h2 id="prog-h">Programmes</h2><Link to="/app/analytics" className="btn btn-ghost">Analytics</Link></div>
+          {d.programmes.map((pr, i) => (
+            <div key={pr.id} style={{ padding: "14px 22px", borderTop: "1px solid var(--rule-soft)" }} className="stack-sm">
+              <Link to={`/app/projects/${pr.id}`} className="row strong" style={{ color: "var(--ink)", textDecoration: "none", fontSize: 16, gap: 8 }}><span className="dot" style={{ background: PALETTE[i % PALETTE.length], width: 12, height: 12 }} />{pr.name}</Link>
               {pr.commitments.map((c) => (
-                <div key={c.id} style={{ display: "grid", gridTemplateColumns: "minmax(160px, 1.2fr) minmax(140px, 1fr) 110px", gap: 16, alignItems: "center" }}>
-                  <span style={{ fontSize: 14 }}>{c.title}<span className="small muted"> · {fmtNum(c.pace.actual)} of {fmtNum(c.pace.target)}</span></span>
+                <div key={c.id} style={{ display: "grid", gridTemplateColumns: "minmax(150px, 1.2fr) minmax(120px, 1fr) 100px", gap: 14, alignItems: "center" }}>
+                  <span style={{ fontSize: 14 }}>{c.title}<span className="small muted"> · {fmtNum(c.pace.actual)}/{fmtNum(c.pace.target)}</span></span>
                   <PaceLine pace={c.pace} />
                   <Status kind={c.pace.status} />
                 </div>
@@ -65,34 +76,19 @@ export default function Overview() {
           ))}
         </section>
         <aside className="narrow stack">
-          <section className="panel panel-body stack-sm" aria-labelledby="spend-h">
-            <div className="spread"><h2 id="spend-h" style={{ fontSize: 17, fontWeight: 600 }}>Spending by month</h2><Link to="/app/finance" className="small">Budget against actual</Link></div>
-            <svg viewBox="0 0 320 150" style={{ width: "100%", height: "auto" }} role="img" aria-label={`Approved spending per month: ${f.months.map((x) => `${MONTHS[Number(x.month.slice(5, 7)) - 1]} ${money(x.spent)}`).join(", ")}`}>
-              {f.months.map((x, i) => {
-                const h = (x.spent / maxMonth) * 100;
-                return (
-                  <g key={x.month}>
-                    <rect x={10 + i * 52} y={115 - h} width="34" height={h} rx="3" fill={i === f.months.length - 1 ? "#2C3D9B" : "#9AA7E3"} />
-                    <text x={27 + i * 52} y="132" textAnchor="middle" fontSize="11" fill="#56625E">{MONTHS[Number(x.month.slice(5, 7)) - 1]}</text>
-                    {x.spent > 0 && <text x={27 + i * 52} y={110 - h} textAnchor="middle" fontSize="10" fill="#3B4643">{Math.round(x.spent / 1000)}k</text>}
-                  </g>
-                );
-              })}
-            </svg>
+          <section className="panel panel-body stack-sm">
+            <div className="spread"><h2 className="card-title">Spending by month</h2><Link to="/app/finance" className="small">Budget vs actual</Link></div>
+            <Columns data={f.months.map((x) => ({ label: MONTHS[Number(x.month.slice(5, 7)) - 1], value: x.spent }))} highlightLast />
           </section>
-          <section className="panel panel-body stack-sm" aria-labelledby="ev-h">
-            <div className="spread"><h2 id="ev-h" style={{ fontSize: 17, fontWeight: 600 }}>Coming up</h2><Link to="/app/calendar" className="small">Calendar</Link></div>
-            {d.upcoming_events.length === 0 ? <span className="small muted">Nothing planned.</span> : d.upcoming_events.map((e) => (
-              <Link key={e.id} to={`/app/m/events/${e.id}`} className="history-item" style={{ gridTemplateColumns: "56px 1fr", textDecoration: "none", color: "inherit", fontSize: 14 }}>
-                <span className="strong" style={{ color: "var(--cobalt)" }}>{fmtDate(e.date)}</span><span>{e.title}<span className="small muted"> · {e.venue}</span></span>
-              </Link>
-            ))}
+          <section className="panel panel-body stack-sm">
+            <h2 className="card-title">Participants by gender</h2>
+            <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: g[k] || 0 }))} size={140} colors={["#C2477D", "#2E86AB", "#F2B33D"]} />
           </section>
-          <section className="panel panel-body stack-sm" aria-labelledby="rep-h">
-            <h2 id="rep-h" style={{ fontSize: 17, fontWeight: 600 }}>Funder reports due</h2>
-            {d.reports_due.length === 0 ? <span className="small muted">None scheduled.</span> : d.reports_due.map((g2) => (
-              <Link key={g2.id} to={`/app/m/grants/${g2.id}`} className="history-item" style={{ gridTemplateColumns: "56px 1fr", textDecoration: "none", color: "inherit", fontSize: 14 }}>
-                <span className="strong" style={{ color: g2.next_report_due <= d.today ? "var(--bad)" : "var(--ink)" }}>{fmtDate(g2.next_report_due)}</span><span>{g2.title}<span className="small muted"> · {g2.funder_id_label}</span></span>
+          <section className="panel panel-body stack-sm">
+            <div className="spread"><h2 className="card-title">Coming up</h2><Link to="/app/calendar" className="small">Calendar</Link></div>
+            {d.upcoming_events.map((e) => (
+              <Link key={e.id} to={`/app/m/events/${e.id}`} className="row" style={{ textDecoration: "none", color: "inherit", gap: 12, fontSize: 14 }}>
+                <span style={{ background: "var(--accent-tint)", color: "var(--accent-ink)", borderRadius: 8, padding: "4px 8px", fontWeight: 700, fontSize: 12, minWidth: 54, textAlign: "center" }}>{fmtDate(e.date)}</span>{e.title}
               </Link>
             ))}
           </section>

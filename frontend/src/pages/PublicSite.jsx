@@ -1,192 +1,446 @@
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { createContext, useContext, useEffect, useState } from "react";
+import { Link, NavLink, Route, Routes, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../auth";
+import { Meter } from "../components/charts";
 import { ErrorNotice, Field, Loading } from "../components/ui";
 import { fmtDate, fmtNum, initials } from "../format";
 import { useApi } from "../hooks";
 
-// The organization's public portfolio. Content comes from the Website module; numbers come live from verified records.
-const C = { teal: "#0E5E6F", tealDark: "#0A4552", sand: "#F7F3EA", sun: "#F2B33D", ink: "#1C2B2D" };
-const go = (id) => (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
+// The organization's public website. Content is edited in Website; numbers come live from verified records.
+const Site = createContext(null);
+const useSite = () => useContext(Site);
+const PROG_COLORS = ["#0E5E6F", "#E4572E", "#6B5BA8", "#3F9E6B", "#2E86AB", "#C2477D"];
+const ICONS = {
+  outreach: "M3 11l18-8-8 18-2-8-8-2z", training: "M12 3l10 5-10 5L2 8l10-5zM6 10v5c3 2 9 2 12 0v-5",
+  dialogue: "M4 5h12v8H8l-4 4V5zM20 9v8l-3-3h-5", research: "M11 4a7 7 0 100 14 7 7 0 000-14zM21 21l-5-5",
+  advocacy: "M3 11v3l12 5V6L3 11zM15 9h3a3 3 0 010 6h-3", environment: "M12 22V12M12 12C12 6 7 3 3 3c0 5 3 9 9 9zM12 14c0-5 4-8 9-8 0 5-4 8-9 8z",
+};
+const kes = (n) => `KES ${Math.round(n).toLocaleString()}`;
+const H2 = ({ eyebrow, title, light }) => (
+  <div className="stack-sm" style={{ gap: 4 }}>
+    <span style={{ color: light ? "var(--s-accent)" : "var(--s-primary)", fontWeight: 800, fontSize: 13, letterSpacing: ".08em", textTransform: "uppercase" }}>{eyebrow}</span>
+    <h2 style={{ fontSize: "clamp(28px, 3.4vw, 42px)", lineHeight: 1.1, fontWeight: 800, letterSpacing: "-.8px", color: light ? "#fff" : "var(--s-ink)" }}>{title}</h2>
+  </div>
+);
 
-export default function PublicSite() {
-  const { slug } = useParams();
-  const { user } = useAuth();
-  const { data: s, error, loading, reload } = useApi(`/public/${slug}`);
-  if (loading && !s) return <div style={{ padding: 40 }}><Loading rows={8} /></div>;
+export default function PublicSite({ slugOverride }) {
+  const params = useParams();
+  const slug = slugOverride || params.slug;
+  const base = slugOverride ? "" : `/site/${slug}`;
+  const { data, error, loading, reload } = useApi(`/public/${slug}`);
+  const loc = useLocation();
+  const [menu, setMenu] = useState(false);
+  useEffect(() => { window.scrollTo(0, 0); setMenu(false); }, [loc.pathname]);
+  useEffect(() => { if (data) document.title = data.organization; }, [data]);
+  if (loading && !data) return <div style={{ padding: 40 }}><Loading rows={8} /></div>;
   if (error) return <div style={{ padding: 40 }}><ErrorNotice error={error} onRetry={reload} /></div>;
-  const imp = s.impact;
+  const vars = { "--s-primary": data.brand.primary, "--s-accent": data.brand.accent, "--s-ink": "#14262A", "--s-sand": "#F7F3EA" };
+  const links = [["", "Home"], ["/about", "About"], ["/programmes", "Programmes"], ["/services", "Services"], ["/stories", "Stories"], ["/impact", "Impact"], ["/get-involved", "Get involved"], ["/contact", "Contact"]];
   return (
-    <div style={{ background: "#fff", color: C.ink, minHeight: "100%" }}>
-      {user && (
-        <div className="no-print" style={{ background: "var(--cobalt-tint)", color: "var(--cobalt-dark)", padding: "8px 24px", display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", fontSize: 14 }}>
-          <span>You are viewing the public page. Everything here is edited in Website and updated from your records.</span>
-          <span className="row"><Link to="/app/m/site_settings">Edit site</Link><Link to="/app">Back to the app</Link></span>
-        </div>
-      )}
-      <header style={{ background: C.sand, borderBottom: "1px solid #e8e1cf" }}>
-        <div className="container spread" style={{ padding: "18px 32px" }}>
-          <a href="#top" onClick={go("top")} className="row" style={{ textDecoration: "none", color: C.ink, gap: 12 }}>
-            <span style={{ width: 40, height: 40, borderRadius: "50%", background: C.teal, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 15 }}>{initials(s.organization)}</span>
-            <b style={{ fontSize: 18 }}>{s.organization}</b>
-          </a>
-          <nav className="row wrap" style={{ gap: 20, fontSize: 15 }} aria-label="Site">
-            {[["about", "About"], ["programmes", "Programmes"], ["impact", "Impact"], ["team", "Team"], ["involved", "Get involved"]].map(([id, l]) =>
-              <a key={id} href={`#${id}`} onClick={go(id)} style={{ color: C.ink, textDecoration: "none" }}>{l}</a>)}
-            <a href="#involved" onClick={go("involved")} className="btn" style={{ background: C.teal, borderColor: C.teal, color: "#fff" }}>Volunteer with us</a>
-          </nav>
-        </div>
-      </header>
+    <Site.Provider value={{ ...data, base, reload }}>
+      <div className="site" style={{ ...vars, background: "#fff", color: "var(--s-ink)", minHeight: "100%" }}>
+        <StaffBar />
+        <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(255,255,255,.96)", backdropFilter: "blur(6px)", borderBottom: "1px solid #ECE6D6" }}>
+          <div className="container spread" style={{ padding: "12px 32px" }}>
+            <Link to={base || "/"} className="row" style={{ textDecoration: "none", color: "var(--s-ink)", gap: 12 }}>
+              <span style={{ width: 42, height: 42, borderRadius: 12, background: "var(--s-primary)", color: "var(--s-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16 }}>{initials(data.organization)}</span>
+              <span className="stack-sm" style={{ gap: 0 }}><b style={{ fontSize: 17, lineHeight: "20px" }}>{data.organization}</b><span className="small" style={{ color: "#5b6b6d" }}>{data.location}</span></span>
+            </Link>
+            <nav className={"site-nav" + (menu ? " open" : "")} aria-label="Site">
+              {links.map(([p, l]) => <NavLink key={l} to={`${base}${p}` || "/"} end={p === ""} className="site-link">{l}</NavLink>)}
+              <Link to={`${base}/donate`} className="btn" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "var(--s-ink)", fontWeight: 800 }}>♥ Donate</Link>
+            </nav>
+            <button className="btn btn-quiet site-menu" aria-label="Menu" aria-expanded={menu} onClick={() => setMenu(!menu)}>☰</button>
+          </div>
+        </header>
+        <main>
+          <Routes>
+            <Route index element={<Home />} />
+            <Route path="about" element={<About />} />
+            <Route path="programmes" element={<Programmes />} />
+            <Route path="services" element={<Services />} />
+            <Route path="stories" element={<Stories />} />
+            <Route path="stories/:sid" element={<Story />} />
+            <Route path="impact" element={<Impact />} />
+            <Route path="get-involved" element={<GetInvolved />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="donate" element={<Donate />} />
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </main>
+        <Footer links={links} />
+      </div>
+    </Site.Provider>
+  );
+}
 
-      <section id="top" style={{ background: C.teal, color: "#fff" }}>
-        <div className="container" style={{ padding: "88px 32px 96px", display: "flex", flexWrap: "wrap", gap: 48, alignItems: "center" }}>
+function StaffBar() {
+  const { user } = useAuth();
+  return (
+    <div className="no-print" style={{ background: "var(--s-ink)", color: "#cfd9da", fontSize: 13 }}>
+      <div className="container spread" style={{ padding: "6px 32px" }}>
+        <span>{user ? `Signed in as ${user.full_name}` : "Youth-led change in Kilifi County"}</span>
+        <span className="row" style={{ gap: 16 }}>
+          {user ? <><Link to="/app/m/site_settings" style={{ color: "var(--s-accent)" }}>Edit website</Link><Link to="/app" style={{ color: "#fff" }}>Open ERP →</Link></> : <Link to="/login" style={{ color: "#fff" }}>Staff login →</Link>}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function Home() {
+  const s = useSite();
+  const imp = s.impact, d = s.donations;
+  return (
+    <>
+      <section style={{ background: "radial-gradient(circle at 85% 20%, rgba(255,255,255,.12), transparent 40%), linear-gradient(135deg, var(--s-primary) 0%, #0A3F4A 100%)", color: "#fff" }}>
+        <div className="container" style={{ padding: "84px 32px 92px", display: "flex", flexWrap: "wrap", gap: 48, alignItems: "center" }}>
           <div className="stack" style={{ flex: "1 1 520px", gap: 22 }}>
-            <span style={{ color: C.sun, fontWeight: 700, letterSpacing: "0.02em" }}>{s.location}</span>
-            <h1 style={{ fontSize: "clamp(40px, 5.5vw, 68px)", lineHeight: 1.03, fontWeight: 800, letterSpacing: "-1.5px", textTransform: "capitalize" }}>{s.tagline}</h1>
-            <p style={{ fontSize: 20, lineHeight: "31px", color: "#d6ebee", maxWidth: 620 }}>{s.intro}</p>
+            <span className="chip-tone" style={{ background: "rgba(255,255,255,.14)", color: "var(--s-accent)", alignSelf: "flex-start" }}>● {s.location}</span>
+            <h1 style={{ fontSize: "clamp(42px, 5.6vw, 72px)", lineHeight: 1.02, fontWeight: 900, letterSpacing: "-2px", textTransform: "capitalize" }}>{s.tagline}</h1>
+            <p style={{ fontSize: 19, lineHeight: "30px", color: "#d6ebee", maxWidth: 580 }}>{s.intro}</p>
             <div className="row wrap">
-              <a href="#programmes" onClick={go("programmes")} className="btn btn-lg" style={{ background: C.sun, borderColor: C.sun, color: C.ink }}>Our programmes</a>
-              <a href="#involved" onClick={go("involved")} className="btn btn-lg" style={{ background: "transparent", borderColor: "#7fb3bd", color: "#fff" }}>Partner with us</a>
+              <Link to={`${s.base}/donate`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "var(--s-ink)", fontWeight: 800 }}>♥ Donate now</Link>
+              <Link to={`${s.base}/get-involved`} className="btn btn-lg" style={{ background: "transparent", borderColor: "rgba(255,255,255,.5)", color: "#fff" }}>Get involved</Link>
             </div>
           </div>
           {imp && (
-            <div style={{ flex: "1 1 320px", background: C.tealDark, borderRadius: 12, padding: 28 }} className="stack">
-              <span className="small" style={{ color: "#9cc8d0" }}>So far this year</span>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22 }}>
-                {[[imp.people_reached, "young people reached"], [imp.participants_registered, "participants registered"], [imp.activities_done, "activities delivered"], [imp.volunteer_hours, "volunteer hours"]].map(([n, l]) => (
-                  <div key={l} className="stack-sm" style={{ gap: 2 }}><b style={{ fontSize: 36, lineHeight: "40px", color: C.sun }}>{fmtNum(n)}</b><span style={{ color: "#d6ebee", fontSize: 14 }}>{l}</span></div>
-                ))}
-              </div>
-              <span className="small" style={{ color: "#9cc8d0" }}>Counted from {fmtNum(imp.evidence_items)} pieces of evidence: attendance sheets, photos and reports. Updated {fmtDate(imp.as_of, true)}.</span>
+            <div style={{ flex: "1 1 340px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              {[[imp.people_reached, "young people reached", "#F2B33D"], [imp.participants_registered, "participants registered", "#7FD1C1"], [imp.activities_done, "activities delivered", "#F59A7C"], [imp.volunteer_hours, "volunteer hours", "#B9A8F0"]].map(([n, l, c]) => (
+                <div key={l} style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.16)", borderRadius: 16, padding: 20 }}>
+                  <b style={{ fontSize: 38, lineHeight: "42px", color: c, display: "block" }}>{fmtNum(n)}</b><span style={{ color: "#d6ebee", fontSize: 14 }}>{l}</span>
+                </div>
+              ))}
+              <span className="small" style={{ gridColumn: "1 / -1", color: "#9cc8d0" }}>✓ Counted from {fmtNum(imp.evidence_items)} verified records · {fmtDate(imp.as_of, true)}</span>
             </div>
           )}
         </div>
       </section>
 
-      <section id="about" className="container" style={{ padding: "88px 32px", display: "flex", flexWrap: "wrap", gap: 48 }}>
-        <h2 style={{ flex: "1 1 300px", fontSize: 40, lineHeight: "46px", fontWeight: 800, letterSpacing: "-0.8px" }}>All communities deserve a chance to live in tranquility</h2>
-        <div className="stack" style={{ flex: "1 1 460px" }}>
-          <b style={{ color: C.teal }}>How we work</b>
-          <p style={{ fontSize: 18, lineHeight: "30px", color: "#3c4a4c" }}>{s.about}</p>
+      <section className="container stack" style={{ padding: "80px 32px", gap: 30 }}>
+        <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="What we do" title="Our programmes" /><Link to={`${s.base}/programmes`} className="btn">All programmes →</Link></div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>
+          {s.programmes.map((p, i) => <ProgrammeCard key={p.id} p={p} color={PROG_COLORS[i % PROG_COLORS.length]} compact />)}
         </div>
       </section>
 
-      <section id="programmes" style={{ background: C.sand }}>
-        <div className="container stack" style={{ padding: "88px 32px", gap: 32 }}>
-          <div className="stack-sm"><b style={{ color: C.teal }}>What we focus on</b><h2 style={{ fontSize: 40, lineHeight: "46px", fontWeight: 800, letterSpacing: "-0.8px" }}>Our programmes</h2></div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
-            {s.programmes.map((p, i) => (
-              <article key={p.id} className="stack" style={{ background: "#fff", borderRadius: 10, padding: 26, borderTop: `4px solid ${[C.teal, "#B5543C", "#6B5BA8", "#3F7D3A"][i % 4]}` }}>
-                <h3 style={{ fontSize: 22, fontWeight: 700 }}>{p.title}</h3>
-                <p style={{ color: "#3c4a4c", lineHeight: "25px" }}>{p.summary}</p>
-                {p.focus && <span className="small" style={{ color: "#5b6b6d" }}>{p.focus}</span>}
-                {p.results.length > 0 && (
-                  <div className="stack-sm" style={{ borderTop: "1px solid #ece6d6", paddingTop: 14, marginTop: "auto" }}>
-                    {p.results.map((r) => (
-                      <div key={r.title} className="stack-sm" style={{ gap: 4 }}>
-                        <span className="small" style={{ fontWeight: 600 }}>{r.title}</span>
-                        <div style={{ height: 6, background: "#ece6d6", borderRadius: 3 }}><div style={{ height: 6, borderRadius: 3, background: C.teal, width: `${Math.min(100, (r.actual / r.target) * 100)}%` }} /></div>
-                        <span className="small" style={{ color: "#5b6b6d" }}>{fmtNum(r.actual)} of {fmtNum(r.target)} {r.unit}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </article>
-            ))}
-          </div>
+      {d.goal > 0 && <DonationBand />}
+
+      <section className="container stack" style={{ padding: "80px 32px", gap: 30 }}>
+        <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="How we help" title="Services" /><Link to={`${s.base}/services`} className="btn">All services →</Link></div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>
+          {s.services.slice(0, 3).map((x, i) => <ServiceCard key={x.title} x={x} color={PROG_COLORS[i % PROG_COLORS.length]} />)}
         </div>
       </section>
 
-      {imp && (
-        <section id="impact" className="container stack" style={{ padding: "88px 32px", gap: 28 }}>
-          <div className="stack-sm"><b style={{ color: C.teal }}>Accountability</b><h2 style={{ fontSize: 40, lineHeight: "46px", fontWeight: 800, letterSpacing: "-0.8px" }}>Results you can check</h2>
-            <p style={{ fontSize: 18, lineHeight: "28px", color: "#3c4a4c", maxWidth: 760 }}>These figures are not typed into this page. They are counted from the attendance sheets, photos and reports our team records when the work happens, so they are always current.</p></div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 0, borderTop: `3px solid ${C.ink}` }}>
-            {[[imp.people_reached, "young people reached"], [imp.activities_done, "activities delivered"], [imp.events_held, "community events held"], [imp.volunteer_hours, "volunteer hours given"], [imp.participants_registered, "participants registered"], [imp.evidence_items, "pieces of evidence on file"]].map(([n, l]) => (
-              <div key={l} className="stack-sm" style={{ padding: "20px 20px 20px 0", gap: 4 }}><b style={{ fontSize: 40, lineHeight: "44px", color: C.teal }}>{fmtNum(n)}</b><span style={{ color: "#3c4a4c" }}>{l}</span></div>
-            ))}
+      {s.stories[0] && (
+        <section style={{ background: "var(--s-sand)" }}>
+          <div className="container" style={{ padding: "80px 32px", display: "flex", flexWrap: "wrap", gap: 40, alignItems: "center" }}>
+            <div className="stack" style={{ flex: "1 1 420px" }}>
+              <H2 eyebrow="Case study" title={s.stories[0].title} />
+              <p style={{ fontSize: 18, lineHeight: "29px", color: "#3c4a4c" }}>{s.stories[0].summary}</p>
+              <Link to={`${s.base}/stories/${s.stories[0].id}`} className="btn btn-lg" style={{ background: "var(--s-primary)", borderColor: "var(--s-primary)", color: "#fff", alignSelf: "flex-start" }}>Read the story</Link>
+            </div>
+            <figure style={{ flex: "1 1 340px", margin: 0, background: "#fff", borderRadius: 20, padding: 32, borderLeft: "8px solid var(--s-accent)" }}>
+              <b style={{ fontSize: 64, lineHeight: 1, color: "var(--s-primary)" }}>{s.stories[0].stat_value}</b>
+              <p style={{ color: "#5b6b6d", marginTop: 6 }}>{s.stories[0].stat_label}</p>
+              {s.stories[0].quote && <blockquote style={{ margin: "20px 0 0", fontSize: 20, lineHeight: "30px", fontWeight: 600 }}>“{s.stories[0].quote}”<footer className="small" style={{ fontWeight: 400, color: "#5b6b6d", marginTop: 8 }}>{s.stories[0].quote_by}</footer></blockquote>}
+            </figure>
           </div>
         </section>
       )}
 
-      <section id="team" style={{ background: C.sand }}>
-        <div className="container stack" style={{ padding: "88px 32px", gap: 28 }}>
-          <div className="stack-sm"><b style={{ color: C.teal }}>Our team</b><h2 style={{ fontSize: 40, lineHeight: "46px", fontWeight: 800, letterSpacing: "-0.8px" }}>Meet the team</h2></div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 }}>
-            {s.team.map((t) => (
-              <div key={t.name} className="row" style={{ background: "#fff", borderRadius: 10, padding: 20, gap: 16 }}>
-                {t.photo?.url ? <img src={t.photo.url} alt="" style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover" }} /> :
-                  <span style={{ width: 64, height: 64, borderRadius: "50%", background: C.teal, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 20, flex: "0 0 64px" }}>{initials(t.name)}</span>}
-                <span className="stack-sm" style={{ gap: 2 }}><b style={{ fontSize: 18 }}>{t.name}</b><span style={{ color: "#5b6b6d" }}>{t.role}</span></span>
-              </div>
-            ))}
-          </div>
-          <div className="stack-sm" style={{ paddingTop: 28 }}>
-            <b style={{ color: C.teal }}>We are credible</b><h3 style={{ fontSize: 26, fontWeight: 800 }}>Our partners</h3>
-            <div className="row wrap" style={{ gap: 12, marginTop: 8 }}>
-              {s.partners.map((p) => <span key={p} style={{ background: "#fff", border: "1px solid #e8e1cf", borderRadius: 8, padding: "14px 18px", fontWeight: 600 }}>{p}</span>)}
-            </div>
-          </div>
-        </div>
-      </section>
+      <Partners />
+      <CallToAction />
+    </>
+  );
+}
 
-      <section id="involved" className="container" style={{ padding: "88px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32 }}>
-        <VolunteerForm slug={slug} />
-        <InquiryForm slug={slug} />
-      </section>
-
-      <footer style={{ background: C.ink, color: "#c9d3d4" }}>
-        <div className="container spread" style={{ padding: "32px", fontSize: 14 }}>
-          <span className="stack-sm" style={{ gap: 4 }}><b style={{ color: "#fff" }}>{s.organization}</b><span>{s.location}{s.contact_email ? ` · ${s.contact_email}` : ""}</span></span>
-          <span className="row wrap" style={{ gap: 16 }}>{Object.entries(s.social).filter(([, v]) => v).map(([k, v]) => <span key={k} style={{ textTransform: "capitalize" }}>{k}: {v}</span>)}</span>
-          <span>Results powered by Kept</span>
+function ProgrammeCard({ p, color, compact }) {
+  const s = useSite();
+  return (
+    <article className="stack" style={{ background: "#fff", borderRadius: 18, padding: 24, border: "1px solid #ECE6D6", boxShadow: "0 10px 30px rgba(20,38,42,.06)", position: "relative", overflow: "hidden" }}>
+      <span style={{ position: "absolute", inset: "0 0 auto 0", height: 6, background: color }} />
+      <span style={{ width: 48, height: 48, borderRadius: 14, background: `${color}1A`, color, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18 }}>{initials(p.title)}</span>
+      <h3 style={{ fontSize: 21, fontWeight: 800 }}>{p.title}</h3>
+      <p style={{ color: "#3c4a4c", lineHeight: "24px", fontSize: 15 }}>{p.summary}</p>
+      {!compact && p.focus && <span className="small" style={{ color: "#5b6b6d" }}>Focus: {p.focus}</span>}
+      {p.results.slice(0, compact ? 1 : 4).map((r) => (
+        <div key={r.title} className="stack-sm" style={{ gap: 4 }}>
+          <span className="small" style={{ fontWeight: 700 }}>{r.title}</span>
+          <Meter value={r.actual} max={r.target} color={color} />
+          <span className="small" style={{ color: "#5b6b6d" }}>{fmtNum(r.actual)} of {fmtNum(r.target)} {r.unit}</span>
         </div>
-      </footer>
+      ))}
+      {!compact && <Link to={`${s.base}/donate?programme=${encodeURIComponent(p.title)}`} className="btn" style={{ borderColor: color, color, alignSelf: "flex-start" }}>Support this programme</Link>}
+    </article>
+  );
+}
+
+function ServiceCard({ x, color }) {
+  return (
+    <div className="stack" style={{ borderRadius: 18, padding: 24, background: `linear-gradient(160deg, ${color}12, #fff 60%)`, border: `1px solid ${color}33` }}>
+      <span style={{ width: 52, height: 52, borderRadius: 16, background: color, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={ICONS[x.icon] || ICONS.outreach} /></svg>
+      </span>
+      <h3 style={{ fontSize: 19, fontWeight: 800 }}>{x.title}</h3>
+      <p style={{ color: "#3c4a4c", lineHeight: "24px" }}>{x.description}</p>
     </div>
   );
 }
 
-function VolunteerForm({ slug }) {
-  const [f, setF] = useState({ name: "", phone: "", email: "", ward: "", interest: "any", skills: "" });
+function DonationBand() {
+  const s = useSite(); const d = s.donations;
+  return (
+    <section style={{ background: "linear-gradient(120deg, var(--s-accent), #F7C966)" }}>
+      <div className="container" style={{ padding: "56px 32px", display: "flex", flexWrap: "wrap", gap: 32, alignItems: "center" }}>
+        <div className="stack-sm" style={{ flex: "1 1 420px" }}>
+          <b style={{ fontSize: 13, letterSpacing: ".08em", textTransform: "uppercase" }}>Campaign</b>
+          <h2 style={{ fontSize: 34, fontWeight: 900, letterSpacing: "-.6px" }}>{d.campaign}</h2>
+          <Meter value={d.raised} max={d.goal} color="var(--s-ink)" height={14} />
+          <span><b>{kes(d.raised)}</b> raised of {kes(d.goal)} · {d.donors} donors</span>
+        </div>
+        <Link to={`${s.base}/donate`} className="btn btn-lg" style={{ background: "var(--s-ink)", borderColor: "var(--s-ink)", color: "#fff", fontWeight: 800 }}>♥ Give with M-Pesa or card</Link>
+      </div>
+    </section>
+  );
+}
+
+function Partners() {
+  const s = useSite();
+  return (
+    <section className="container stack" style={{ padding: "64px 32px", gap: 22 }}>
+      <H2 eyebrow="We are credible" title="Our partners" />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+        {s.partners.map((p, i) => <div key={p} className="row" style={{ border: "1px solid #ECE6D6", borderRadius: 14, padding: "16px 18px", gap: 12, fontWeight: 700 }}><span style={{ width: 36, height: 36, borderRadius: 10, background: `${PROG_COLORS[i % 6]}1F`, color: PROG_COLORS[i % 6], display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>{initials(p)}</span>{p}</div>)}
+      </div>
+    </section>
+  );
+}
+
+function CallToAction() {
+  const s = useSite();
+  return (
+    <section style={{ background: "var(--s-primary)", color: "#fff" }}>
+      <div className="container spread" style={{ padding: "56px 32px" }}>
+        <h2 style={{ fontSize: 32, fontWeight: 900, maxWidth: 620 }}>Join the young people changing Kilifi.</h2>
+        <div className="row wrap"><Link to={`${s.base}/get-involved`} className="btn btn-lg" style={{ background: "#fff", color: "var(--s-primary)", borderColor: "#fff" }}>Volunteer</Link><Link to={`${s.base}/contact`} className="btn btn-lg" style={{ background: "transparent", color: "#fff", borderColor: "rgba(255,255,255,.5)" }}>Partner with us</Link></div>
+      </div>
+    </section>
+  );
+}
+
+const PageHead = ({ eyebrow, title, sub }) => (
+  <section style={{ background: "linear-gradient(135deg, var(--s-primary), #0A3F4A)", color: "#fff" }}>
+    <div className="container stack-sm" style={{ padding: "64px 32px" }}>
+      <span style={{ color: "var(--s-accent)", fontWeight: 800, fontSize: 13, letterSpacing: ".08em", textTransform: "uppercase" }}>{eyebrow}</span>
+      <h1 style={{ fontSize: "clamp(34px, 4.5vw, 54px)", fontWeight: 900, letterSpacing: "-1.2px", lineHeight: 1.05 }}>{title}</h1>
+      {sub && <p style={{ fontSize: 18, color: "#d6ebee", maxWidth: 680 }}>{sub}</p>}
+    </div>
+  </section>
+);
+
+function About() {
+  const s = useSite();
+  return (
+    <>
+      <PageHead eyebrow="About us" title={s.organization} sub={s.intro} />
+      <section className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+        {[["Mission", s.mission, "#0E5E6F"], ["Vision", s.vision, "#E4572E"], ["How we work", s.about, "#6B5BA8"]].map(([t, x, c]) => x && (
+          <div key={t} className="stack-sm" style={{ borderRadius: 18, padding: 26, background: `${c}10`, borderTop: `6px solid ${c}` }}><b style={{ color: c, fontSize: 14, textTransform: "uppercase", letterSpacing: ".06em" }}>{t}</b><p style={{ fontSize: 17, lineHeight: "28px" }}>{x}</p></div>
+        ))}
+      </section>
+      <section style={{ background: "var(--s-sand)" }}>
+        <div className="container stack" style={{ padding: "64px 32px", gap: 24 }}>
+          <H2 eyebrow="Our team" title="Meet the team" />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 18 }}>
+            {s.team.map((t, i) => (
+              <div key={t.name} className="stack-sm" style={{ background: "#fff", borderRadius: 18, padding: 24, alignItems: "center", textAlign: "center" }}>
+                <span style={{ width: 88, height: 88, borderRadius: "50%", background: `linear-gradient(135deg, ${PROG_COLORS[i % 6]}, var(--s-accent))`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 28 }}>{initials(t.name)}</span>
+                <b style={{ fontSize: 19 }}>{t.name}</b><span style={{ color: "#5b6b6d" }}>{t.role}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <Partners />
+    </>
+  );
+}
+
+function Programmes() {
+  const s = useSite();
+  return (
+    <>
+      <PageHead eyebrow="Programmes" title="Four programmes, one Kilifi" sub="Live progress against every promise we have made to partners and funders." />
+      <section className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 22 }}>
+        {s.programmes.map((p, i) => <ProgrammeCard key={p.id} p={p} color={PROG_COLORS[i % 6]} />)}
+      </section>
+    </>
+  );
+}
+
+function Services() {
+  const s = useSite();
+  return (
+    <>
+      <PageHead eyebrow="Services" title="What we offer" sub="For schools, the county, partners and community groups." />
+      <section className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+        {s.services.map((x, i) => <ServiceCard key={x.title} x={x} color={PROG_COLORS[i % 6]} />)}
+      </section>
+      <CallToAction />
+    </>
+  );
+}
+
+function Stories() {
+  const s = useSite();
+  return (
+    <>
+      <PageHead eyebrow="Case studies" title="Stories from the field" />
+      <section className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 22 }}>
+        {s.stories.map((x, i) => (
+          <Link key={x.id} to={`${s.base}/stories/${x.id}`} className="stack" style={{ textDecoration: "none", color: "inherit", borderRadius: 18, overflow: "hidden", border: "1px solid #ECE6D6" }}>
+            <div style={{ background: `linear-gradient(135deg, ${PROG_COLORS[i % 6]}, #0A3F4A)`, color: "#fff", padding: 26 }}><b style={{ fontSize: 52, lineHeight: 1 }}>{x.stat_value}</b><div style={{ opacity: .9 }}>{x.stat_label}</div></div>
+            <div className="stack-sm" style={{ padding: "0 24px 24px" }}><span className="small" style={{ color: PROG_COLORS[i % 6], fontWeight: 800 }}>{x.programme}</span><h3 style={{ fontSize: 20, fontWeight: 800 }}>{x.title}</h3><p style={{ color: "#3c4a4c" }}>{x.summary}</p><span style={{ color: "var(--s-primary)", fontWeight: 700 }}>Read story →</span></div>
+          </Link>
+        ))}
+      </section>
+    </>
+  );
+}
+
+function Story() {
+  const s = useSite(); const { sid } = useParams();
+  const x = s.stories.find((y) => y.id === sid) || s.stories[0];
+  if (!x) return <Stories />;
+  return (
+    <>
+      <PageHead eyebrow={x.programme || "Case study"} title={x.title} sub={x.summary} />
+      <article className="container" style={{ padding: "56px 32px", maxWidth: 820 }}>
+        <div className="row wrap" style={{ gap: 24, marginBottom: 24 }}><div style={{ background: "var(--s-sand)", borderRadius: 16, padding: "18px 24px" }}><b style={{ fontSize: 44, color: "var(--s-primary)" }}>{x.stat_value}</b><div>{x.stat_label}</div></div></div>
+        <p style={{ fontSize: 19, lineHeight: "32px" }}>{x.body}</p>
+        {x.quote && <blockquote style={{ margin: "32px 0", padding: "8px 0 8px 24px", borderLeft: "6px solid var(--s-accent)", fontSize: 24, lineHeight: "34px", fontWeight: 700 }}>“{x.quote}”<footer className="small" style={{ fontWeight: 400, color: "#5b6b6d", marginTop: 8 }}>{x.quote_by}</footer></blockquote>}
+        <Link to={`${s.base}/donate`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "var(--s-ink)", fontWeight: 800 }}>♥ Fund more stories like this</Link>
+      </article>
+    </>
+  );
+}
+
+function Impact() {
+  const s = useSite(); const imp = s.impact;
+  if (!imp) return <Home />;
+  return (
+    <>
+      <PageHead eyebrow="Impact" title="Results you can check" sub="Counted automatically from attendance sheets, photos and reports recorded when the work happens." />
+      <section className="container" style={{ padding: "56px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 16 }}>
+        {[[imp.people_reached, "young people reached"], [imp.activities_done, "activities delivered"], [imp.events_held, "community events"], [imp.volunteer_hours, "volunteer hours"], [imp.participants_registered, "participants registered"], [imp.evidence_items, "evidence records"]].map(([n, l], i) => (
+          <div key={l} style={{ borderRadius: 18, padding: 22, background: `${PROG_COLORS[i % 6]}12`, borderBottom: `5px solid ${PROG_COLORS[i % 6]}` }}><b style={{ fontSize: 40, color: PROG_COLORS[i % 6] }}>{fmtNum(n)}</b><div>{l}</div></div>
+        ))}
+      </section>
+      <section className="container" style={{ padding: "0 32px 64px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 22 }}>
+        {s.programmes.map((p, i) => <ProgrammeCard key={p.id} p={p} color={PROG_COLORS[i % 6]} />)}
+      </section>
+    </>
+  );
+}
+
+function GetInvolved() {
+  const s = useSite();
+  return (
+    <>
+      <PageHead eyebrow="Get involved" title="Give your time, skills or money" />
+      <section className="container" style={{ padding: "56px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
+        <VolunteerForm />
+        <div className="stack">
+          {[["♥", "Donate", "M-Pesa or card, from KES 50.", `${s.base}/donate`, "#E4572E"], ["🤝", "Partner with us", "Co-fund a programme or host an event.", `${s.base}/contact`, "#6B5BA8"], ["📣", "Spread the word", "Share our stories and impact.", `${s.base}/stories`, "#3F9E6B"]].map(([i, t, d, to, c]) => (
+            <Link key={t} to={to} className="row" style={{ textDecoration: "none", color: "inherit", gap: 16, borderRadius: 16, padding: 20, border: `1px solid ${c}44`, background: `${c}0D` }}>
+              <span aria-hidden="true" style={{ fontSize: 28, width: 52, height: 52, borderRadius: 14, background: c, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{i}</span>
+              <span className="stack-sm" style={{ gap: 2 }}><b style={{ fontSize: 18 }}>{t}</b><span style={{ color: "#5b6b6d" }}>{d}</span></span>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function Contact() {
+  const s = useSite();
+  return (
+    <>
+      <PageHead eyebrow="Contact" title="Talk to us" />
+      <section className="container" style={{ padding: "56px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
+        <div className="stack">
+          {[["Email", s.contact_email, "#0E5E6F"], ["Location", s.address || s.location, "#E4572E"], ["Social", Object.values(s.social).filter(Boolean).join(" · "), "#6B5BA8"]].map(([t, v, c]) => v && (
+            <div key={t} style={{ borderRadius: 16, padding: 20, borderLeft: `6px solid ${c}`, background: `${c}0D` }}><b style={{ color: c }}>{t}</b><div style={{ fontSize: 17, marginTop: 4 }}>{v}</div></div>
+          ))}
+        </div>
+        <InquiryForm />
+      </section>
+    </>
+  );
+}
+
+function Footer({ links }) {
+  const s = useSite();
+  return (
+    <footer style={{ background: "var(--s-ink)", color: "#c9d3d4" }}>
+      <div className="container" style={{ padding: "48px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 28 }}>
+        <div className="stack-sm"><b style={{ color: "#fff", fontSize: 18 }}>{s.organization}</b><span>{s.location}</span><span>{s.contact_email}</span></div>
+        <div className="stack-sm">{links.map(([p, l]) => <Link key={l} to={`${s.base}${p}` || "/"} style={{ color: "#c9d3d4" }}>{l}</Link>)}</div>
+        <div className="stack-sm"><Link to={`${s.base}/donate`} className="btn" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "var(--s-ink)", alignSelf: "flex-start", fontWeight: 800 }}>♥ Donate</Link><Link to="/login" style={{ color: "#c9d3d4" }}>Staff login</Link></div>
+      </div>
+      <div className="container small" style={{ padding: "0 32px 24px", color: "#8fa1a3" }}>© 2026 {s.organization} · Results powered by Kept</div>
+    </footer>
+  );
+}
+
+// ---------- forms ----------
+function useSubmit(path) {
   const [state, setState] = useState({ busy: false, error: null, ok: null });
-  const submit = async (e) => {
-    e.preventDefault(); setState({ busy: true, error: null, ok: null });
-    try { const r = await api(`/public/${slug}/volunteer`, { method: "POST", body: { ...f, email: f.email || null } }); setState({ busy: false, error: null, ok: r.message }); setF({ name: "", phone: "", email: "", ward: "", interest: "any", skills: "" }); }
-    catch (er) { setState({ busy: false, error: er, ok: null }); }
+  const send = async (body, reset) => {
+    setState({ busy: true, error: null, ok: null });
+    try { const r = await api(path, { method: "POST", body: { ...body, website: "" } }); setState({ busy: false, error: null, ok: r.message }); reset(); }
+    catch (e) { setState({ busy: false, error: e, ok: null }); }
   };
+  return [state, send];
+}
+
+function VolunteerForm() {
+  const s = useSite();
+  const empty = { name: "", phone: "", email: "", ward: "", interest: "any", skills: "" };
+  const [f, setF] = useState(empty);
+  const [state, send] = useSubmit(`/public/${s.slug}/volunteer`);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   return (
-    <form onSubmit={submit} className="stack" style={{ background: C.sand, borderRadius: 12, padding: 28 }} noValidate>
-      <div className="stack-sm"><b style={{ color: C.teal }}>Get involved</b><h2 style={{ fontSize: 28, fontWeight: 800 }}>Volunteer with us</h2><p style={{ color: "#3c4a4c" }}>Give a few hours a month in your ward. We train you first.</p></div>
-      {state.ok && <div className="notice notice-ok" role="status">{state.ok}</div>}
+    <form onSubmit={(e) => { e.preventDefault(); send({ ...f, email: f.email || null }, () => setF(empty)); }} className="stack" style={{ background: "var(--s-sand)", borderRadius: 20, padding: 28 }} noValidate>
+      <h2 style={{ fontSize: 26, fontWeight: 900 }}>Volunteer with us</h2>
+      {state.ok && <div className="notice notice-ok" role="status">✓ {state.ok}</div>}
       <ErrorNotice error={state.error} />
       <div className="form-grid">
-        <Field label="Your name"><input className="input" value={f.name} onChange={set("name")} autoComplete="name" /></Field>
-        <Field label="Phone"><input className="input" value={f.phone} onChange={set("phone")} inputMode="tel" autoComplete="tel" /></Field>
-        <Field label="Email" hint="Optional"><input className="input" type="email" value={f.email} onChange={set("email")} /></Field>
+        <Field label="Name"><input className="input" value={f.name} onChange={set("name")} autoComplete="name" /></Field>
+        <Field label="Phone"><input className="input" value={f.phone} onChange={set("phone")} inputMode="tel" /></Field>
         <Field label="Ward"><input className="input" value={f.ward} onChange={set("ward")} /></Field>
+        <Field label="Programme"><select className="select" value={f.interest} onChange={set("interest")}><option value="any">Any</option><option value="health">Health Advocacy</option><option value="gps">Gender, Peace and Security</option><option value="disability">Disability Inclusion</option><option value="climate">Climate Change</option></select></Field>
       </div>
-      <Field label="Programme you care about"><select className="select" value={f.interest} onChange={set("interest")}><option value="any">Any</option><option value="health">Health Advocacy</option><option value="gps">Gender, Peace and Security</option><option value="disability">Disability Inclusion</option><option value="climate">Climate Change</option></select></Field>
-      <Field label="Skills" hint="Optional"><input className="input" value={f.skills} onChange={set("skills")} placeholder="Languages, photography, counselling…" /></Field>
-      <button className="btn btn-lg" style={{ background: C.teal, borderColor: C.teal, color: "#fff", alignSelf: "flex-start" }} disabled={state.busy}>{state.busy ? "Sending…" : "Send application"}</button>
+      <Field label="Skills" hint="Optional"><input className="input" value={f.skills} onChange={set("skills")} /></Field>
+      <button className="btn btn-lg" style={{ background: "var(--s-primary)", borderColor: "var(--s-primary)", color: "#fff", alignSelf: "flex-start" }} disabled={state.busy}>{state.busy ? "Sending…" : "Apply to volunteer"}</button>
     </form>
   );
 }
 
-function InquiryForm({ slug }) {
-  const [f, setF] = useState({ name: "", contact: "", kind: "partner", message: "" });
-  const [state, setState] = useState({ busy: false, error: null, ok: null });
-  const submit = async (e) => {
-    e.preventDefault(); setState({ busy: true, error: null, ok: null });
-    try { const r = await api(`/public/${slug}/inquiry`, { method: "POST", body: f }); setState({ busy: false, error: null, ok: r.message }); setF({ name: "", contact: "", kind: "partner", message: "" }); }
-    catch (er) { setState({ busy: false, error: er, ok: null }); }
-  };
+function InquiryForm() {
+  const s = useSite();
+  const empty = { name: "", contact: "", kind: "partner", message: "" };
+  const [f, setF] = useState(empty);
+  const [state, send] = useSubmit(`/public/${s.slug}/inquiry`);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   return (
-    <form onSubmit={submit} className="stack" style={{ border: "1px solid #e8e1cf", borderRadius: 12, padding: 28 }} noValidate>
-      <div className="stack-sm"><b style={{ color: C.teal }}>Partners and donors</b><h2 style={{ fontSize: 28, fontWeight: 800 }}>Work with us</h2><p style={{ color: "#3c4a4c" }}>Fund a programme, sponsor an event or partner on a project. We reply within three working days.</p></div>
-      {state.ok && <div className="notice notice-ok" role="status">{state.ok}</div>}
+    <form onSubmit={(e) => { e.preventDefault(); send(f, () => setF(empty)); }} className="stack" style={{ border: "1px solid #ECE6D6", borderRadius: 20, padding: 28 }} noValidate>
+      <h2 style={{ fontSize: 26, fontWeight: 900 }}>Send a message</h2>
+      {state.ok && <div className="notice notice-ok" role="status">✓ {state.ok}</div>}
       <ErrorNotice error={state.error} />
       <div className="form-grid">
         <Field label="Name or organization"><input className="input" value={f.name} onChange={set("name")} /></Field>
@@ -194,7 +448,132 @@ function InquiryForm({ slug }) {
       </div>
       <Field label="About"><select className="select" value={f.kind} onChange={set("kind")}><option value="partner">Partnership</option><option value="donate">Donation or sponsorship</option><option value="media">Media</option><option value="other">Something else</option></select></Field>
       <Field label="Message"><textarea className="textarea" rows={4} value={f.message} onChange={set("message")} /></Field>
-      <button className="btn btn-lg" style={{ background: C.ink, borderColor: C.ink, color: "#fff", alignSelf: "flex-start" }} disabled={state.busy}>{state.busy ? "Sending…" : "Send message"}</button>
+      <button className="btn btn-lg" style={{ background: "var(--s-ink)", borderColor: "var(--s-ink)", color: "#fff", alignSelf: "flex-start" }} disabled={state.busy}>{state.busy ? "Sending…" : "Send message"}</button>
     </form>
+  );
+}
+
+// ---------- donate ----------
+const PRESETS = [500, 1000, 2500, 5000, 10000];
+
+function Donate() {
+  const s = useSite();
+  const [sp] = useSearchParams();
+  const initialProg = s.projects.find((p) => p.name === sp.get("programme"))?.id || "";
+  const [f, setF] = useState({ amount: 1000, custom: "", project_id: initialProg, method: "mpesa", name: "", contact: "", anonymous: false, message: "" });
+  const [stage, setStage] = useState("form"); // form | pending | done | failed
+  const [don, setDon] = useState(null);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const amount = f.custom ? Number(f.custom) : f.amount;
+  const d = s.donations;
+
+  useEffect(() => {
+    if (stage !== "pending" || !don) return undefined;
+    const t = setInterval(async () => {
+      try {
+        const st = await api(`/public/${s.slug}/donations/${don.id}`, { params: { ref: don.reference } });
+        if (st.status === "confirmed") { setStage("done"); s.reload(); }
+        if (st.status === "failed") setStage("failed");
+      } catch { /* keep polling */ }
+    }, 2500);
+    return () => clearInterval(t);
+  }, [stage, don, s]);
+
+  const start = async (e) => {
+    e.preventDefault(); setBusy(true); setError(null);
+    try {
+      const r = await api(`/public/${s.slug}/donations`, { method: "POST", body: { name: f.name, contact: f.contact, amount, method: f.method, project_id: f.project_id || null, anonymous: f.anonymous, message: f.message, website: "" } });
+      setDon({ ...r, amount }); setStage("pending");
+    } catch (er) { setError(er); } finally { setBusy(false); }
+  };
+  const simulate = async (outcome) => {
+    setBusy(true);
+    try { const st = await api(`/public/${s.slug}/donations/${don.id}/simulate`, { method: "POST", body: { ref: don.reference, outcome } }); setStage(st.status === "confirmed" ? "done" : "failed"); s.reload(); }
+    catch (er) { setError(er); } finally { setBusy(false); }
+  };
+
+  return (
+    <>
+      <section style={{ background: "linear-gradient(135deg, var(--s-primary), #0A3F4A)", color: "#fff" }}>
+        <div className="container" style={{ padding: "56px 32px", display: "flex", flexWrap: "wrap", gap: 32, alignItems: "center" }}>
+          <div className="stack-sm" style={{ flex: "1 1 420px" }}>
+            <span style={{ color: "var(--s-accent)", fontWeight: 800, fontSize: 13, letterSpacing: ".08em", textTransform: "uppercase" }}>Donate</span>
+            <h1 style={{ fontSize: "clamp(32px, 4vw, 50px)", fontWeight: 900, letterSpacing: "-1px" }}>{d.campaign || "Support our work"}</h1>
+          </div>
+          {d.goal > 0 && (
+            <div className="stack-sm" style={{ flex: "1 1 320px", background: "rgba(255,255,255,.1)", borderRadius: 18, padding: 22 }}>
+              <span><b style={{ fontSize: 30, color: "var(--s-accent)" }}>{kes(d.raised)}</b> <span style={{ opacity: .85 }}>of {kes(d.goal)}</span></span>
+              <Meter value={d.raised} max={d.goal} color="var(--s-accent)" height={14} />
+              <span className="small" style={{ opacity: .85 }}>{d.donors} donors · {Math.round((d.raised / d.goal) * 100)}% funded</span>
+            </div>
+          )}
+        </div>
+      </section>
+      <section className="container" style={{ padding: "48px 32px 72px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 28, alignItems: "start" }}>
+        <div className="stack" style={{ background: "#fff", border: "1px solid #ECE6D6", borderRadius: 22, padding: 28, boxShadow: "0 18px 40px rgba(20,38,42,.08)" }}>
+          {stage === "form" && (
+            <form className="stack" onSubmit={start} noValidate>
+              <b style={{ fontSize: 18 }}>Choose an amount</b>
+              <div className="row wrap">{PRESETS.map((a) => <button type="button" key={a} className="chip" style={{ height: 46, padding: "0 18px", fontSize: 16, fontWeight: 700 }} aria-pressed={!f.custom && f.amount === a} onClick={() => setF({ ...f, amount: a, custom: "" })}>KES {a.toLocaleString()}</button>)}</div>
+              <Field label="Or enter another amount (KES)"><input className="input" inputMode="numeric" value={f.custom} onChange={(e) => setF({ ...f, custom: e.target.value.replace(/\D/g, "") })} placeholder="e.g. 750" /></Field>
+              <Field label="Where should it go?"><select className="select" value={f.project_id} onChange={(e) => setF({ ...f, project_id: e.target.value })}><option value="">Where it is needed most</option>{s.projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></Field>
+              <div className="seg" role="group" aria-label="Payment method" style={{ alignSelf: "flex-start" }}>
+                <button type="button" aria-pressed={f.method === "mpesa"} onClick={() => setF({ ...f, method: "mpesa", contact: "" })}>M-Pesa</button>
+                <button type="button" aria-pressed={f.method === "card"} onClick={() => setF({ ...f, method: "card", contact: "" })}>Card</button>
+              </div>
+              <div className="form-grid">
+                <Field label="Your name"><input className="input" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} autoComplete="name" /></Field>
+                <Field label={f.method === "mpesa" ? "M-Pesa number" : "Email for your receipt"}><input className="input" value={f.contact} onChange={(e) => setF({ ...f, contact: e.target.value })} inputMode={f.method === "mpesa" ? "tel" : "email"} placeholder={f.method === "mpesa" ? "0712 345 678" : "you@example.com"} /></Field>
+              </div>
+              <label className="row" style={{ gap: 8 }}><input type="checkbox" checked={f.anonymous} onChange={(e) => setF({ ...f, anonymous: e.target.checked })} />Give anonymously</label>
+              <ErrorNotice error={error} />
+              <button className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "var(--s-ink)", fontWeight: 900, height: 56, fontSize: 18 }} disabled={busy || !amount}>{busy ? "Starting…" : `♥ Donate KES ${(amount || 0).toLocaleString()}`}</button>
+              <span className="small muted">🔒 Secure. We never see your M-Pesa PIN or card details.</span>
+            </form>
+          )}
+          {stage === "pending" && (
+            <div className="stack" style={{ textAlign: "center", alignItems: "center" }}>
+              <div style={{ width: 72, height: 72, borderRadius: "50%", border: "6px solid var(--s-sand)", borderTopColor: "var(--s-primary)", animation: "spin 1s linear infinite" }} aria-hidden="true" />
+              <h2 style={{ fontSize: 24, fontWeight: 900 }}>{f.method === "mpesa" ? `Check your phone` : "Complete your card payment"}</h2>
+              <p className="muted">{f.method === "mpesa" ? `We sent a request for KES ${amount.toLocaleString()} to ${f.contact}. Enter your M-Pesa PIN to finish.` : `KES ${amount.toLocaleString()} · reference ${don.reference}`}</p>
+              {don.mode === "sandbox" && (
+                <div className="stack-sm" style={{ background: "var(--accent-tint, #FCEFD3)", borderRadius: 14, padding: 16, width: "100%" }}>
+                  <b className="small">Sandbox: no real money moves</b>
+                  <div className="row wrap" style={{ justifyContent: "center" }}>
+                    <button className="btn btn-primary" disabled={busy} onClick={() => simulate("success")}>{f.method === "mpesa" ? "Simulate PIN entered" : "Simulate card approved"}</button>
+                    <button className="btn" disabled={busy} onClick={() => simulate("cancel")}>Simulate cancel</button>
+                  </div>
+                </div>
+              )}
+              <ErrorNotice error={error} />
+            </div>
+          )}
+          {stage === "done" && (
+            <div className="stack" style={{ textAlign: "center", alignItems: "center" }}>
+              <div style={{ width: 80, height: 80, borderRadius: "50%", background: "#3F9E6B", color: "#fff", fontSize: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>✓</div>
+              <h2 style={{ fontSize: 28, fontWeight: 900 }}>Asante sana{f.anonymous ? "" : `, ${f.name.split(" ")[0]}`}!</h2>
+              <p>Your gift of <b>KES {amount.toLocaleString()}</b> was received.</p>
+              <div style={{ background: "var(--s-sand)", borderRadius: 12, padding: "12px 18px" }}>Receipt reference <b>{don.reference}</b></div>
+              <div className="row wrap" style={{ justifyContent: "center" }}><button className="btn" onClick={() => window.print()}>Print receipt</button><button className="btn btn-primary" onClick={() => { setStage("form"); setDon(null); }}>Give again</button></div>
+            </div>
+          )}
+          {stage === "failed" && (
+            <div className="stack" style={{ textAlign: "center", alignItems: "center" }}>
+              <h2 style={{ fontSize: 24, fontWeight: 900 }}>Payment not completed</h2><p className="muted">Nothing was charged. You can try again.</p>
+              <button className="btn btn-primary" onClick={() => { setStage("form"); setDon(null); }}>Try again</button>
+            </div>
+          )}
+        </div>
+        <aside className="stack">
+          <b style={{ fontSize: 18 }}>What your gift does</b>
+          {[["KES 500", "Prints SRH flyers for 50 young people", "#0E5E6F"], ["KES 2,500", "Trains one peer educator for a day", "#E4572E"], ["KES 5,000", "Plants and protects 150 indigenous trees", "#3F9E6B"], ["KES 10,000", "Runs a full ward dialogue on GBV", "#6B5BA8"]].map(([a, t, c]) => (
+            <div key={a} className="row" style={{ gap: 14, borderRadius: 14, padding: 16, background: `${c}0F`, borderLeft: `5px solid ${c}` }}><b style={{ color: c, minWidth: 92 }}>{a}</b><span>{t}</span></div>
+          ))}
+          {d.recent.length > 0 && <><b style={{ fontSize: 18, marginTop: 8 }}>Recent supporters</b>
+            {d.recent.map((r, i) => <div key={i} className="spread" style={{ borderBottom: "1px solid #ECE6D6", padding: "8px 0" }}><span>♥ {r.name}</span><b>{kes(r.amount)}</b></div>)}</>}
+        </aside>
+      </section>
+    </>
   );
 }

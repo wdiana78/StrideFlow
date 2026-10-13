@@ -7,7 +7,7 @@ def test_register_login_me(client):
     assert me["role"] == "admin" and me["organization"]["name"] == "Test Org"
     assert client.post("/api/auth/login", json={"email": "admin@test.example", "password": "wrong-pass"}).status_code == 401
     dup = client.post("/api/auth/register", json={"organization_name": "X Org", "full_name": "Y Z",
-                                                  "email": "ADMIN@test.example", "password": "password123"})
+                                                  "email": "ADMIN@test.example", "password": "Coastal-Breeze-2026"})
     assert dup.status_code == 409
 
 

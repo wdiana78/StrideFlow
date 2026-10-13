@@ -25,6 +25,8 @@ def get_current_user(
     user = db.get(User, user_id)
     if not user or not user.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "This account is no longer active.")
+    if payload.get("tv", 0) != (user.token_version or 0):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "You were signed out. Sign in again.")
     return user
 
 

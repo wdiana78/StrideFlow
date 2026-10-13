@@ -6,7 +6,7 @@
 import SPEC from "../modules.json";
 import { SEED } from "./seed";
 
-const KEY = "kept_preview_db_v3";
+const KEY = "kept_preview_db_v4";
 export const TODAY = "2026-10-13";
 const AT_RISK_GAP = 15, DUE_SOON = 3, ESCALATE = 2;
 
@@ -690,4 +690,168 @@ on("POST", "/public/:slug/inquiry", (_, { body }, slug) => {
   if ((body.message || "").trim().length < 10) E(422, "Write a little more so we can help.");
   publicInsert(site, "inquiries", { name: body.name.trim(), contact: body.contact.trim(), kind: body.kind || "other", message: body.message.trim() }, `Website: message from ${body.name.trim()}`);
   return { ok: true, message: "Thank you. We have your message and will reply soon." };
+});
+
+// =====================================================================================
+// Donations, stats, analytics, data collection, password change (mirror of backend)
+// =====================================================================================
+function postDonationIncome(d, actor) {
+  const method = ["mpesa", "bank", "cash"].includes(d.method) ? d.method : "bank";
+  mrows("income").push({ id: uid(), organization_id: d.organization_id, created_by_id: actor || null, created_at: nowIso(), updated_at: nowIso(),
+    source: `Donation: ${d.anonymous ? "Anonymous donor" : d.donor_name}`, amount: Number(d.amount), received_on: TODAY, method, reference: d.reference, notes: d.message || null });
+}
+const _transitionRoute = routes.find((r) => r.method === "POST" && String(r.re) === String(/^\/m\/([^/]+)\/([^/]+)\/transition$/));
+if (_transitionRoute) {
+  const inner = _transitionRoute.fn;
+  _transitionRoute.fn = (u, req, key, id) => {
+    const before = key === "donations" ? mrows("donations").find((x) => x.id === id)?.status : null;
+    const out = inner(u, req, key, id);
+    if (key === "donations" && before === "pending" && out.status === "confirmed") postDonationIncome(mrows("donations").find((x) => x.id === id), u.id);
+    return out;
+  };
+}
+on("GET", "/m/:key/stats", (u, { params }, key) => {
+  const m = needMod(key); const by = params.by, sumF = params.sum; const f = m.fields.find((x) => x.key === by);
+  if (!f && !(m.status && m.status.field === by)) E(422, "Choose a field to group by.");
+  let rs = mrows(key).filter((r) => r.organization_id === u.organization_id);
+  for (const ff of m.fields) { const v = params[ff.key]; if (ff.filter && v && ff.key !== by) rs = rs.filter((r) => String(r[ff.key] ?? "") === v); }
+  const g = {};
+  for (const r of rs) { const k = r[by] ?? null; const kk = JSON.stringify(k); (g[kk] ||= { key: k, count: 0, sum: 0 }); g[kk].count++; if (sumF) g[kk].sum += Number(r[sumF] || 0); }
+  const lab = (v) => {
+    if (v === null) return "None";
+    if (f?.type === "ref") return refLabel(f.ref, v) || "None";
+    if (f?.type === "select") return Object.fromEntries(f.options)[v] || v;
+    if (f?.type === "bool") return v ? "Yes" : "No";
+    if (!f && m.status) return Object.fromEntries(m.status.options)[v] || v;
+    return String(v);
+  };
+  return Object.values(g).map((x) => ({ ...x, label: lab(x.key), sum: sumF ? x.sum : x.count })).sort((a, b) => b.count - a.count);
+});
+routes.unshift(routes.pop()); // literal "/stats" must win over "/m/:key/:id"
+on("GET", "/analytics", (u) => {
+  const org = u.organization_id; const series = [];
+  for (const p of T("projects").filter((x) => x.organization_id === org && x.status === "active").sort((a, b) => a.name.localeCompare(b.name)))
+    for (const c of commitmentsOf(p.id)) {
+      if (c.measure !== "sum") continue;
+      const pts = []; for (let d = p.starts_on; d < TODAY; d = addDays(d, 14)) pts.push({ date: d, value: actualValue(c, d) });
+      pts.push({ date: TODAY, value: actualValue(c, TODAY) });
+      series.push({ programme: p.name, title: c.title, unit: c.unit, target: Number(c.target_value), start: p.starts_on, due_on: c.due_on, points: pts, pace: pace(c) });
+    }
+  const pts2 = mrows("participants").filter((r) => r.organization_id === org);
+  const grp = (k, map = (v) => String(v)) => { const g = {}; pts2.forEach((r) => { const kk = map(r[k]); g[kk] = (g[kk] || 0) + 1; }); return Object.entries(g).map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count); };
+  const byProg = {}; pts2.forEach((r) => { const n2 = byId("projects", r.project_id)?.name || "None"; (byProg[n2] ||= { label: n2, female: 0, male: 0, other: 0 })[r.gender]++; });
+  const sumBy = (rows, keyFn, valFn) => { const g = {}; rows.forEach((r) => { const k = keyFn(r); g[k] = (g[k] || 0) + valFn(r); }); return Object.entries(g).map(([label, value]) => ({ label, value })); };
+  const lines = Object.fromEntries(mrows("budget_lines").map((b) => [b.id, b]));
+  return {
+    today: TODAY, series,
+    participants: { gender: grp("gender"), age_band: grp("age_band"), ward: grp("ward"), disability: grp("disability", (v) => (v ? "Yes" : "No")), by_programme: Object.values(byProg) },
+    volunteer_hours: sumBy(mrows("volunteer_hours").filter((r) => r.organization_id === org), (r) => byId("projects", r.project_id)?.name || "Not linked", (r) => Number(r.hours)),
+    spending_by_category: sumBy(mrows("expenses").filter((r) => r.organization_id === org && ["approved", "paid"].includes(r.status)), (r) => lines[r.budget_line_id]?.category || "Other", (r) => Number(r.amount)),
+    events: mrows("events").filter((r) => r.organization_id === org && r.status === "held").sort((a, b) => a.date.localeCompare(b.date)).map((r) => ({ title: r.title, date: r.date, expected: Number(r.expected || 0), attended: Number(r.attended || 0) })),
+  };
+});
+// ---- public portfolio additions (services, stories, brand, donations progress)
+const _portfolioRoute = routes.find((r) => r.method === "GET" && String(r.re) === String(/^\/public\/([^/]+)$/));
+if (_portfolioRoute) {
+  const inner = _portfolioRoute.fn;
+  _portfolioRoute.fn = (u, req, slug) => {
+    const out = inner(u, req, slug); const site = siteFor(slug); const org = site.organization_id; const mine = (k) => mrows(k).filter((r) => r.organization_id === org);
+    const conf = mine("donations").filter((d) => d.status === "confirmed");
+    const names = Object.fromEntries(T("projects").filter((p) => p.organization_id === org).map((p) => [p.id, p.name]));
+    return { ...out, mission: site.mission, vision: site.vision, founded: site.founded, address: site.address,
+      brand: { primary: site.brand_primary || "#0E5E6F", accent: site.brand_accent || "#F2B33D" },
+      services: mine("site_services").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ title: r.title, description: r.description, icon: r.icon })),
+      stories: mine("site_stories").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ id: r.id, title: r.title, programme: names[r.project_id], summary: r.summary, body: r.body, quote: r.quote, quote_by: r.quote_by, stat_value: r.stat_value, stat_label: r.stat_label })),
+      donations: { campaign: site.donation_campaign, goal: Number(site.donation_goal || 0), raised: sumOf(conf, "amount"), donors: conf.length,
+        recent: [...conf].sort((a, b) => b.updated_at.localeCompare(a.updated_at)).slice(0, 5).map((d) => ({ name: d.anonymous ? "Anonymous" : d.donor_name.split(" ")[0], amount: Number(d.amount) })) },
+      projects: Object.entries(names).map(([id2, name]) => ({ id: id2, name })) };
+  };
+}
+const DREF = () => `DN-${Math.random().toString(16).slice(2, 10).toUpperCase()}`;
+on("POST", "/public/:slug/donations", (_, { body }, slug) => {
+  const site = siteFor(slug);
+  if (body.website) E(422, "Something went wrong. Please try again.");
+  if ((body.name || "").trim().length < 2) E(422, "Enter your name."); if ((body.contact || "").trim().length < 5) E(422, "Enter your phone number or email.");
+  const amt = Number(body.amount); if (!(amt >= 50 && amt <= 1000000)) E(422, "Donations are between KES 50 and KES 1,000,000.");
+  if (!["mpesa", "card"].includes(body.method)) E(422, "Choose M-Pesa or card.");
+  if (body.method === "mpesa") { const dg = String(body.contact).replace(/\D/g, ""); if (!/^(0[17]\d{8}|254[17]\d{8}|[17]\d{8})$/.test(dg)) E(422, "Enter a Safaricom number like 0712 345 678."); }
+  const d = { id: uid(), organization_id: site.organization_id, created_by_id: null, created_at: nowIso(), updated_at: nowIso(), donor_name: body.name.trim(), contact: body.contact.trim(),
+    amount: amt, method: body.method, project_id: body.project_id || null, anonymous: !!body.anonymous, reference: DREF(), provider_ref: null, message: (body.message || "").trim() || null, status: "pending" };
+  d.provider_ref = `SIM-${d.reference}`; mrows("donations").push(d);
+  log(site.organization_id, null, "donations_created", "donations", d.id, `Website: donation of ${amt.toLocaleString()} started (${body.method})`);
+  return { id: d.id, reference: d.reference, status: "pending", mode: "sandbox", instructions: "Sandbox payment: no money will move. Use the buttons to complete or cancel it." };
+});
+const findDonation = (slug, id2, ref) => { const site = siteFor(slug); const d = mrows("donations").find((x) => x.id === id2 && x.organization_id === site.organization_id); if (!d || d.reference !== ref) E(404, "Donation not found."); return d; };
+const dOut = (d) => ({ id: d.id, reference: d.reference, status: d.status, amount: Number(d.amount), method: d.method });
+on("GET", "/public/:slug/donations/:id", (_, { params }, slug, id2) => dOut(findDonation(slug, id2, params.ref)));
+on("POST", "/public/:slug/donations/:id/simulate", (_, { body }, slug, id2) => {
+  const d = findDonation(slug, id2, body.ref);
+  if (d.status === "pending") {
+    const ok = body.outcome === "success"; d.status = ok ? "confirmed" : "failed"; d.updated_at = nowIso();
+    if (ok) postDonationIncome(d);
+    log(d.organization_id, null, `donations_${d.status}`, "donations", d.id, `Sandbox payment ${ok ? "completed" : "cancelled"} for ${d.reference}`);
+  }
+  return dOut(d);
+});
+// ---- data collection
+const FTYPES = new Set(["text", "textarea", "number", "select", "multi", "yesno", "rating", "date"]);
+const forms = () => (db.forms ||= []); const subs = () => (db.form_submissions ||= []);
+function vErr(msg, field) { throw Object.assign(new HttpError(422, msg), { data: { detail: { message: msg, field }, errors: field ? [{ field, message: msg }] : [] } }); }
+function validateForm(b) {
+  if ((b.title || "").trim().length < 2) vErr("Give the form a title.", "title");
+  if (!Array.isArray(b.fields) || !b.fields.length) vErr("Add at least one question.");
+  if (b.fields.length > 60) vErr("Up to 60 questions.");
+  const ids = new Set();
+  for (const f of b.fields) {
+    if (!/^[a-z0-9_]{1,40}$/.test(f.id || "")) vErr("Question ids use lowercase letters, numbers and underscores.");
+    if (ids.has(f.id)) vErr("Each question needs a different id."); ids.add(f.id);
+    if (!(f.label || "").trim()) vErr("Every question needs a label.");
+    if (!FTYPES.has(f.type)) vErr("Unknown question type.");
+    if (["select", "multi"].includes(f.type) && (f.options || []).filter((o) => o.trim()).length < 2) vErr(`'${f.label}' needs at least two choices.`);
+  }
+  return { title: b.title.trim(), description: b.description || "", project_id: b.project_id || null, is_public: !!b.is_public, status: ["draft", "open", "closed"].includes(b.status) ? b.status : "open",
+    fields: b.fields.map((f) => ({ id: f.id, label: f.label.trim(), type: f.type, required: !!f.required, options: (f.options || []).map((o) => o.trim()).filter(Boolean), min: f.min ?? null, max: f.max ?? null })) };
+}
+function validateAnswers(fields, data) {
+  const out = {};
+  for (const f of fields) {
+    let v = data[f.id]; const empty = v === undefined || v === null || v === "" || (Array.isArray(v) && !v.length);
+    if (empty) { if (f.required) vErr(`Answer '${f.label}'.`, f.id); continue; }
+    const bad = () => vErr(`Check your answer to '${f.label}'.`, f.id);
+    if (f.type === "number") { v = Number(v); if (Number.isNaN(v) || (f.min != null && v < f.min) || (f.max != null && v > f.max)) bad(); }
+    else if (f.type === "rating") { v = Number(v); if (!(v >= 1 && v <= 5)) bad(); }
+    else if (f.type === "yesno") { if (![true, false, "yes", "no"].includes(v)) bad(); v = v === true || v === "yes"; }
+    else if (f.type === "select") { if (!f.options.includes(v)) bad(); }
+    else if (f.type === "multi") { if (!Array.isArray(v) || v.some((x) => !f.options.includes(x))) bad(); v = [...new Set(v)]; }
+    else v = String(v).trim().slice(0, f.type === "text" ? 200 : 4000);
+    out[f.id] = v;
+  }
+  return out;
+}
+const formOut = (f) => { const ss = subs().filter((s2) => s2.form_id === f.id); const last = ss.map((s2) => s2.created_at).sort().pop();
+  return { ...f, project_name: f.project_id ? byId("projects", f.project_id)?.name : null, responses: ss.length, last_response_at: last || null }; };
+const getForm = (u, id2) => { const f = forms().find((x) => x.id === id2 && x.organization_id === u.organization_id); if (!f) E(404, "Form not found."); return f; };
+on("GET", "/forms", (u) => forms().filter((f) => f.organization_id === u.organization_id).sort((a, b) => b.created_at.localeCompare(a.created_at)).map(formOut));
+on("POST", "/forms", (u, { body }) => { manage(u); const f = { id: uid(), organization_id: u.organization_id, created_by_id: u.id, created_at: nowIso(), ...validateForm(body) };
+  forms().push(f); log(u.organization_id, u.id, "form_created", "form", f.id, `${u.full_name} created form '${f.title}'`); return formOut(f); });
+on("GET", "/forms/:id", (u, _, id2) => formOut(getForm(u, id2)));
+on("PUT", "/forms/:id", (u, { body }, id2) => { manage(u); const f = getForm(u, id2); Object.assign(f, validateForm(body)); log(u.organization_id, u.id, "form_updated", "form", f.id, `${u.full_name} updated form '${f.title}'`); return formOut(f); });
+on("DELETE", "/forms/:id", (u, _, id2) => { adminOnly(u); const f = getForm(u, id2); db.forms = forms().filter((x) => x.id !== id2); db.form_submissions = subs().filter((s2) => s2.form_id !== id2);
+  log(u.organization_id, u.id, "form_deleted", "form", f.id, `${u.full_name} deleted form '${f.title}' and its responses`); return null; });
+on("GET", "/forms/:id/submissions", (u, _, id2) => { const f = getForm(u, id2); const ss = subs().filter((s2) => s2.form_id === f.id).sort((a, b) => b.created_at.localeCompare(a.created_at));
+  return { total: ss.length, items: ss.map((s2) => ({ id: s2.id, data: s2.data, source: s2.source, submitted_by: refLabel("users", s2.submitted_by_id), created_at: s2.created_at })) }; });
+on("POST", "/forms/:id/submissions", (u, { body }, id2) => { if (u.role === "viewer") E(403, "Viewers cannot submit responses."); const f = getForm(u, id2); if (f.status !== "open") E(409, "This form is not accepting responses.");
+  const s2 = { id: uid(), form_id: f.id, organization_id: f.organization_id, data: validateAnswers(f.fields, body), source: "app", submitted_by_id: u.id, created_at: nowIso() }; subs().push(s2); return { id: s2.id }; });
+on("DELETE", "/forms/:id/submissions/:sid", (u, _, id2, sid) => { manage(u); const f = getForm(u, id2); if (!subs().some((s2) => s2.id === sid && s2.form_id === f.id)) E(404, "Response not found.");
+  db.form_submissions = subs().filter((s2) => s2.id !== sid); log(u.organization_id, u.id, "form_response_deleted", "form", f.id, `${u.full_name} deleted a response to '${f.title}'`); return null; });
+const publicForm = (id2) => { const f = forms().find((x) => x.id === id2); if (!f || !f.is_public || f.status !== "open") E(404, "This form is not available."); return f; };
+on("GET", "/public/forms/:id", (_, __, id2) => { const f = publicForm(id2); const site = mrows("site_settings").find((s2) => s2.organization_id === f.organization_id);
+  return { id: f.id, title: f.title, description: f.description, fields: f.fields, organization: byId("orgs", f.organization_id).name, brand: { primary: site?.brand_primary || "#2C3D9B", accent: site?.brand_accent || "#F2B33D" } }; });
+on("POST", "/public/forms/:id", (_, { body }, id2) => { const f = publicForm(id2); const b2 = { ...body }; if (b2.website) return { ok: true }; delete b2.website;
+  subs().push({ id: uid(), form_id: f.id, organization_id: f.organization_id, data: validateAnswers(f.fields, b2), source: "public", submitted_by_id: null, created_at: nowIso() }); return { ok: true }; });
+on("POST", "/auth/password", (u, { body }) => {
+  if (u.password !== body.current_password) E(400, "Your current password is not right.");
+  const pw = body.new_password || ""; if (pw.length < 10 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) vErr("Password needs at least 10 characters and letters and numbers.", "password");
+  u.password = pw; log(u.organization_id, u.id, "password_changed", "user", u.id, `${u.full_name} changed their password; other sessions signed out`);
+  return { access_token: u.id, token_type: "bearer", user: meOut(u) };
 });

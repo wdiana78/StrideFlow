@@ -35,9 +35,9 @@ def test_expense_workflow_blocks_self_approval_and_needs_receipt(client):
     assert any(a["id"] == exp["id"] for a in client.get("/api/approvals", headers=manager).json())
     r = client.post(f"/api/m/expenses/{exp['id']}/transition", headers=manager, json={"to": "approved"})
     assert r.status_code == 422 and "Receipt" in r.json()["detail"]
-    client.patch(f"/api/m/expenses/{exp['id']}", headers=manager, json={"receipt": {"name": "r.jpg", "url": "/files/r.jpg"}})
+    client.patch(f"/api/m/expenses/{exp['id']}", headers=manager, json={"receipt": {"name": "r.jpg", "url": "/files/00000000000000000000000000000000.jpg"}})
     assert client.post(f"/api/m/expenses/{exp['id']}/transition", headers=manager, json={"to": "approved"}).status_code == 200
-    own = mk(client, manager, "expenses", {"description": "Mine", "budget_line_id": line["id"], "amount": 100, "spent_on": "2026-10-01", "receipt": {"name": "a.jpg", "url": "/files/a.jpg"}})
+    own = mk(client, manager, "expenses", {"description": "Mine", "budget_line_id": line["id"], "amount": 100, "spent_on": "2026-10-01", "receipt": {"name": "a.jpg", "url": "/files/00000000000000000000000000000000.jpg"}})
     assert client.post(f"/api/m/expenses/{own['id']}/transition", headers=manager, json={"to": "approved"}).status_code == 403
     assert client.post(f"/api/m/expenses/{own['id']}/transition", headers=member, json={"to": "approved"}).status_code == 403
     assert client.post(f"/api/m/expenses/{own['id']}/transition", headers=admin, json={"to": "rejected"}).status_code == 422  # needs a note
@@ -47,7 +47,7 @@ def test_expense_workflow_blocks_self_approval_and_needs_receipt(client):
 def test_budget_computed_and_overspend_flag(client):
     admin, manager, member, p, grant, line = setup_finance(client)
     for amount in (6000, 5000):
-        e = mk(client, member, "expenses", {"description": "Fuel", "budget_line_id": line["id"], "amount": amount, "spent_on": "2026-10-01", "receipt": {"name": "x.jpg", "url": "/files/x.jpg"}})
+        e = mk(client, member, "expenses", {"description": "Fuel", "budget_line_id": line["id"], "amount": amount, "spent_on": "2026-10-01", "receipt": {"name": "x.jpg", "url": "/files/00000000000000000000000000000000.jpg"}})
         client.post(f"/api/m/expenses/{e['id']}/transition", headers=manager, json={"to": "approved"})
     got = client.get(f"/api/m/budget_lines/{line['id']}", headers=admin).json()
     assert got["spent"] == 11000 and got["remaining"] == -1000

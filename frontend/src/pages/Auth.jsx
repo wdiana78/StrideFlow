@@ -37,7 +37,7 @@ export function Login() {
     <div className="auth-wrap">
       <form className="auth-card" onSubmit={submit} noValidate>
         <Link to="/" className="brand" style={{ padding: 0 }}><Logo />Kept</Link>
-        <div className="stack-sm"><h1 style={{ fontSize: 26, fontWeight: 700 }}>Sign in</h1><p className="muted">Pick up where your team left off.</p></div>
+        <div className="stack-sm"><Link to="/" className="small">← Back to the website</Link><h1 style={{ fontSize: 26, fontWeight: 700 }}>Staff sign in</h1></div>
         <ErrorNotice error={error} />
         <Field label="Email"><input className="input" type="email" autoComplete="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field>
         <Field label="Password"><input className="input" type="password" autoComplete="current-password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></Field>

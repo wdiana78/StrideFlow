@@ -716,7 +716,15 @@
     "facebook": "Timiza Youth Initiative",
     "twitter": "@TimizaYouth",
     "instagram": "@timizayouth",
-    "show_impact": true
+    "show_impact": true,
+    "mission": "To empower young people in Kilifi to lead change in health, gender equality, peace, climate action and disability inclusion.",
+    "vision": "A healthy, safe and inclusive Kilifi County where every young person thrives.",
+    "founded": "Youth-led CBO, Kilifi County",
+    "address": "Kilifi town, Kilifi County, Kenya",
+    "brand_primary": "#0E5E6F",
+    "brand_accent": "#F2B33D",
+    "donation_campaign": "Fund 1,000 more young people this year",
+    "donation_goal": 500000
    }
   ],
   "site_programmes": [
@@ -1900,6 +1908,145 @@
     "due_on": "2026-10-10",
     "_status": "done"
    }
+  ],
+  "site_services": [
+   {
+    "title": "Youth health outreach",
+    "icon": "outreach",
+    "order": 1,
+    "published": true,
+    "description": "Mobile SRH information days at schools, markets and youth centres, run by trained peer educators."
+   },
+   {
+    "title": "Peer educator training",
+    "icon": "training",
+    "order": 2,
+    "published": true,
+    "description": "Five-day courses that turn young volunteers into trusted health and rights educators."
+   },
+   {
+    "title": "Community dialogues",
+    "icon": "dialogue",
+    "order": 3,
+    "published": true,
+    "description": "Facilitated ward forums on GBV and peace with chiefs, parents, teachers and youth."
+   },
+   {
+    "title": "Accessibility audits",
+    "icon": "research",
+    "order": 4,
+    "published": true,
+    "description": "Assessments of public facilities with clear, costed recommendations for the county."
+   },
+   {
+    "title": "Policy advocacy",
+    "icon": "advocacy",
+    "order": 5,
+    "published": true,
+    "description": "Evidence from our programmes taken to county planning and budget forums."
+   },
+   {
+    "title": "Tree planting and climate clubs",
+    "icon": "environment",
+    "order": 6,
+    "published": true,
+    "description": "Indigenous tree planting before the rains and climate clubs in schools."
+   }
+  ],
+  "site_stories": [
+   {
+    "title": "Peer educators bring SRH information to Mtwapa market",
+    "project_id": "Health Advocacy",
+    "order": 1,
+    "published": true,
+    "stat_value": "260",
+    "stat_label": "young people reached in one day",
+    "summary": "A market-day outreach reached more young people than any event this year.",
+    "body": "Traders' children and boda riders rarely come to youth centres, so the team went to them. Twelve peer educators ran a health desk, quiz and condom demonstration through the market day.",
+    "quote": "I learned more in ten minutes at the stand than in school.",
+    "quote_by": "Participant, 19"
+   },
+   {
+    "title": "Watamu boda riders join the GBV referral network",
+    "project_id": "Gender, Peace and Security",
+    "order": 2,
+    "published": true,
+    "stat_value": "52",
+    "stat_label": "people at the Watamu dialogue",
+    "summary": "A ward dialogue ended with the boda association agreeing to help survivors reach support.",
+    "body": "Riders are often the first people a survivor calls for transport. After the dialogue, the association agreed to carry the referral hotline and take survivors to the nearest service free of charge.",
+    "quote": "We move people every day. Now we know where to take them.",
+    "quote_by": "Boda association chair"
+   },
+   {
+    "title": "3,450 indigenous trees in the ground before the rains",
+    "project_id": "Climate Change",
+    "order": 3,
+    "published": true,
+    "stat_value": "3,450",
+    "stat_label": "seedlings planted",
+    "summary": "Schools, volunteers and the county planted at four sites from Kilifi creek to Kaloleni.",
+    "body": "Each site has a school climate club responsible for watering and counting survivors every month.",
+    "quote": "Our club checks the trees every Friday.",
+    "quote_by": "Climate club member, Kaloleni"
+   }
+  ],
+  "donations": [
+   {
+    "donor_name": "Amina Hassan",
+    "contact": "0722 100 201",
+    "amount": 5000,
+    "method": "mpesa",
+    "project_id": "Health Advocacy",
+    "reference": "DN-7F21A0C4",
+    "_status": "confirmed",
+    "message": "For the peer educators."
+   },
+   {
+    "donor_name": "Bahari Hotel staff",
+    "contact": "csr@bahari.example",
+    "amount": 75000,
+    "method": "card",
+    "project_id": "Climate Change",
+    "reference": "DN-90AB33E1",
+    "_status": "confirmed",
+    "message": "Sponsoring 500 seedlings."
+   },
+   {
+    "donor_name": "Joseph Kahindi",
+    "contact": "0733 450 112",
+    "amount": 2000,
+    "method": "mpesa",
+    "reference": "DN-11C0FF42",
+    "_status": "confirmed",
+    "anonymous": true
+   },
+   {
+    "donor_name": "Coast diaspora group",
+    "contact": "coastdiaspora@example.org",
+    "amount": 120000,
+    "method": "bank",
+    "project_id": "Gender, Peace and Security",
+    "reference": "DN-5D6E7788",
+    "_status": "confirmed"
+   },
+   {
+    "donor_name": "Esther Wanjiku",
+    "contact": "0711 234 567",
+    "amount": 3000,
+    "method": "mpesa",
+    "reference": "DN-3A3B3C3D",
+    "_status": "confirmed"
+   },
+   {
+    "donor_name": "Kilifi Rotaract",
+    "contact": "rotaract@example.org",
+    "amount": 25000,
+    "method": "mpesa",
+    "project_id": "Disability Inclusion",
+    "reference": "DN-44AA55BB",
+    "_status": "pending"
+   }
   ]
  },
  "participants": {
@@ -1907,5 +2054,351 @@
   "Gender, Peace and Security": 38,
   "Disability Inclusion": 22,
   "Climate Change": 30
- }
+ },
+ "forms": [
+  {
+   "title": "Outreach exit survey",
+   "project": "Health Advocacy",
+   "is_public": true,
+   "n": 86,
+   "description": "Two minutes after each outreach day.",
+   "fields": [
+    {
+     "id": "ward",
+     "label": "Ward",
+     "type": "select",
+     "required": true,
+     "options": [
+      "Sokoni",
+      "Mnarani",
+      "Tezo",
+      "Mtwapa",
+      "Malindi Town",
+      "Kaloleni"
+     ],
+     "w": [
+      18,
+      14,
+      10,
+      26,
+      16,
+      16
+     ]
+    },
+    {
+     "id": "gender",
+     "label": "Gender",
+     "type": "select",
+     "required": true,
+     "options": [
+      "Female",
+      "Male",
+      "Prefer not to say"
+     ],
+     "w": [
+      57,
+      40,
+      3
+     ]
+    },
+    {
+     "id": "age",
+     "label": "Age",
+     "type": "select",
+     "required": true,
+     "options": [
+      "10-14",
+      "15-19",
+      "20-24",
+      "25-35"
+     ],
+     "w": [
+      8,
+      46,
+      32,
+      14
+     ]
+    },
+    {
+     "id": "learned",
+     "label": "Did you learn something new today?",
+     "type": "yesno",
+     "required": true,
+     "p": 0.87
+    },
+    {
+     "id": "rating",
+     "label": "How useful was the session?",
+     "type": "rating",
+     "required": true,
+     "w": [
+      2,
+      4,
+      12,
+      34,
+      48
+     ]
+    },
+    {
+     "id": "topics",
+     "label": "Which topics helped you most?",
+     "type": "multi",
+     "options": [
+      "Contraception",
+      "STIs and HIV",
+      "Menstrual health",
+      "Consent",
+      "Mental health"
+     ],
+     "w": [
+      0.58,
+      0.52,
+      0.36,
+      0.41,
+      0.29
+     ]
+    },
+    {
+     "id": "refer",
+     "label": "Would you tell a friend to come?",
+     "type": "yesno",
+     "p": 0.91
+    },
+    {
+     "id": "comment",
+     "label": "Anything else?",
+     "type": "textarea",
+     "samples": [
+      "More sessions in the evening please",
+      "Bring the nurse next time",
+      "Very good, thank you",
+      "We want this in our school",
+      "Talk about drugs too",
+      ""
+     ]
+    }
+   ]
+  },
+  {
+   "title": "GBV dialogue feedback",
+   "project": "Gender, Peace and Security",
+   "is_public": false,
+   "n": 48,
+   "description": "Collected by facilitators at the end of each dialogue.",
+   "fields": [
+    {
+     "id": "ward",
+     "label": "Ward",
+     "type": "select",
+     "required": true,
+     "options": [
+      "Sokoni",
+      "Mnarani",
+      "Tezo",
+      "Matsangoni",
+      "Watamu",
+      "Jaribuni"
+     ],
+     "w": [
+      16,
+      14,
+      15,
+      12,
+      24,
+      19
+     ]
+    },
+    {
+     "id": "role",
+     "label": "Participant is a",
+     "type": "select",
+     "required": true,
+     "options": [
+      "Young person",
+      "Parent",
+      "Community leader",
+      "Teacher"
+     ],
+     "w": [
+      44,
+      30,
+      14,
+      12
+     ]
+    },
+    {
+     "id": "safe",
+     "label": "How safe do women and girls feel in your area?",
+     "type": "rating",
+     "required": true,
+     "w": [
+      14,
+      26,
+      30,
+      20,
+      10
+     ]
+    },
+    {
+     "id": "hotline",
+     "label": "Knows the GBV hotline number",
+     "type": "yesno",
+     "required": true,
+     "p": 0.64
+    },
+    {
+     "id": "report",
+     "label": "Would report a case they witnessed",
+     "type": "yesno",
+     "required": true,
+     "p": 0.71
+    }
+   ]
+  },
+  {
+   "title": "Accessibility audit checklist",
+   "project": "Disability Inclusion",
+   "is_public": false,
+   "n": 12,
+   "description": "One per facility assessed.",
+   "fields": [
+    {
+     "id": "facility",
+     "label": "Facility",
+     "type": "text",
+     "required": true,
+     "samples": [
+      "County offices block A",
+      "County offices block B",
+      "Registry",
+      "Assembly hall",
+      "Kilifi health centre",
+      "Mnarani dispensary",
+      "Tezo dispensary",
+      "Matsangoni health post",
+      "Takaungu dispensary",
+      "Kaloleni Secondary",
+      "Kaloleni Primary",
+      "Mwijo Primary"
+     ]
+    },
+    {
+     "id": "type",
+     "label": "Type",
+     "type": "select",
+     "required": true,
+     "options": [
+      "Office",
+      "Health facility",
+      "School",
+      "Market",
+      "Bus stage"
+     ],
+     "w": [
+      4,
+      5,
+      3,
+      0,
+      0
+     ],
+     "seq": true
+    },
+    {
+     "id": "ramp",
+     "label": "Has a usable ramp",
+     "type": "yesno",
+     "required": true,
+     "p": 0.42
+    },
+    {
+     "id": "toilet",
+     "label": "Has an accessible toilet",
+     "type": "yesno",
+     "required": true,
+     "p": 0.25
+    },
+    {
+     "id": "signage",
+     "label": "Signage and wayfinding",
+     "type": "rating",
+     "required": true,
+     "w": [
+      30,
+      30,
+      22,
+      12,
+      6
+     ]
+    },
+    {
+     "id": "score",
+     "label": "Overall accessibility score (0 to 100)",
+     "type": "number",
+     "required": true,
+     "min": 10,
+     "max": 78
+    }
+   ]
+  },
+  {
+   "title": "School climate club check-in",
+   "project": "Climate Change",
+   "is_public": false,
+   "n": 18,
+   "description": "Monthly, filled in by each club patron.",
+   "fields": [
+    {
+     "id": "school",
+     "label": "School",
+     "type": "select",
+     "required": true,
+     "options": [
+      "Kilifi Township Secondary",
+      "Mnarani Primary",
+      "Kaloleni Secondary"
+     ],
+     "w": [
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "id": "members",
+     "label": "Active members",
+     "type": "number",
+     "required": true,
+     "min": 12,
+     "max": 38
+    },
+    {
+     "id": "alive",
+     "label": "Trees alive at last count",
+     "type": "number",
+     "required": true,
+     "min": 60,
+     "max": 240
+    },
+    {
+     "id": "activities",
+     "label": "Activities this month",
+     "type": "multi",
+     "options": [
+      "Watering",
+      "Planting",
+      "Clean-up",
+      "Awareness talk",
+      "Nursery work"
+     ],
+     "w": [
+      0.9,
+      0.35,
+      0.5,
+      0.4,
+      0.3
+     ]
+    }
+   ]
+  }
+ ]
 }

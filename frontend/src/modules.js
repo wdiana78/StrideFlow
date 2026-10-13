@@ -32,8 +32,9 @@ export function display(f, rec) {
   }
 }
 
+export const GROUP_COLOR = { Funding: "#3F9E6B", Finance: "#2E86AB", Procurement: "#6B5BA8", Inventory: "#D17B0F", People: "#C2477D", Participants: "#0E9AA7", Operations: "#E4572E", Governance: "#8C6D46", Website: "#F2B33D" };
 export const NAV = [
-  { label: "Funding", items: [["grants", "Grants"], ["income", "Income"]] },
+  { label: "Funding", items: [["grants", "Grants"], ["donations", "Donations"], ["income", "Income"]] },
   { label: "Finance", items: [["@finance", "Budget against actual"], ["budget_lines", "Budget lines"], ["expenses", "Expenses"]] },
   { label: "Procurement", items: [["purchase_requests", "Purchase requests"], ["vendors", "Vendors"]] },
   { label: "Inventory", items: [["items", "Stock"], ["stock_moves", "Stock movements"], ["assets", "Assets"]] },
@@ -41,5 +42,5 @@ export const NAV = [
   { label: "Participants", items: [["participants", "Participant registry"]] },
   { label: "Operations", items: [["events", "Events"], ["documents", "Documents"], ["inquiries", "Inquiries"]] },
   { label: "Governance", items: [["meetings", "Meetings"], ["decisions", "Decisions and actions"]] },
-  { label: "Website", items: [["site_settings", "Site settings"], ["site_programmes", "Programme pages"], ["site_team", "Team"], ["@site", "View public site"]] },
+  { label: "Website", items: [["site_settings", "Site settings and brand"], ["site_programmes", "Programme pages"], ["site_services", "Services"], ["site_stories", "Stories"], ["site_team", "Team"], ["@site", "View public site"]] },
 ];

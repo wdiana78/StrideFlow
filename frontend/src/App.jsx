@@ -18,6 +18,11 @@ import Finance from "./pages/Finance";
 import Calendar from "./pages/Calendar";
 import ModulePage from "./pages/Module";
 import PublicSite from "./pages/PublicSite";
+import Analytics from "./pages/Analytics";
+import { FormBuilder, FormDetail, FormsList, PublicForm } from "./pages/Forms";
+
+// When VITE_SITE_SLUG is set, the organization's public website is the home page and the ERP sits behind Staff login.
+const SITE = import.meta.env.VITE_SITE_SLUG;
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuth();
@@ -30,16 +35,23 @@ function RequireAuth({ children }) {
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Landing />} />
+      <Route path="/" element={SITE ? <PublicSite slugOverride={SITE} /> : <Landing />} />
+      <Route path="/kept" element={<Landing />} />
+      <Route path="/f/:id" element={<PublicForm />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/site/:slug" element={<PublicSite />} />
+      <Route path="/site/:slug/*" element={<PublicSite />} />
       <Route path="/app" element={<RequireAuth><Shell /></RequireAuth>}>
         <Route index element={<Overview />} />
         <Route path="attention" element={<Attention />} />
         <Route path="approvals" element={<Approvals />} />
         <Route path="calendar" element={<Calendar />} />
         <Route path="finance" element={<Finance />} />
+        <Route path="analytics" element={<Analytics />} />
+        <Route path="forms" element={<FormsList />} />
+        <Route path="forms/new" element={<FormBuilder />} />
+        <Route path="forms/:id" element={<FormDetail />} />
+        <Route path="forms/:id/edit" element={<FormBuilder />} />
         <Route path="m/:key" element={<ModulePage />} />
         <Route path="m/:key/:id" element={<ModulePage />} />
         <Route path="projects" element={<Projects />} />
@@ -50,7 +62,7 @@ export default function App() {
         <Route path="reports/:id" element={<ReportView />} />
         <Route path="settings" element={<Settings />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={SITE ? <PublicSite slugOverride={SITE} /> : <Navigate to="/" replace />} />
     </Routes>
   );
 }

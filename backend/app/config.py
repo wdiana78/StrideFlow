@@ -9,7 +9,16 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://kept:kept@localhost:5432/kept"
     jwt_secret: str = "change-me-in-production"
-    jwt_expire_minutes: int = 720
+    jwt_expire_minutes: int = 480
+    environment: str = "development"  # set to "production" on Render
+    payments_mode: str = "sandbox"  # "sandbox" simulates M-Pesa; "mpesa" calls Safaricom Daraja
+    mpesa_env: str = "sandbox"  # Daraja environment: sandbox | production
+    mpesa_consumer_key: str = ""
+    mpesa_consumer_secret: str = ""
+    mpesa_shortcode: str = ""
+    mpesa_passkey: str = ""
+    mpesa_callback_url: str = ""  # https://<api>/api/payments/mpesa/callback/<mpesa_callback_token>
+    mpesa_callback_token: str = ""
     cors_origins: str = "http://localhost:5173"
     upload_dir: str = "uploads"
     # Optional fixed "today" (YYYY-MM-DD) so demos and tests are reproducible.
@@ -32,7 +41,16 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    s = Settings()
+    if s.environment == "production":
+        # Fail closed: never run production with a guessable signing key or wide-open CORS.
+        if len(s.jwt_secret) < 32 or "change-me" in s.jwt_secret or "dev-only" in s.jwt_secret:
+            raise RuntimeError("JWT_SECRET must be a random value of at least 32 characters in production.")
+        if any(o == "*" for o in s.cors_list):
+            raise RuntimeError("CORS_ORIGINS cannot be '*' in production.")
+        if s.kept_today:
+            raise RuntimeError("KEPT_TODAY is for demos only; unset it in production.")
+    return s
 
 
 def today() -> date:

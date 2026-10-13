@@ -24,6 +24,18 @@ Moringa School capstone, 2026. All organizations and people in the demo data are
 
 Every meaningful action, including those made by the rules, is written to the audit log.
 
+## What Timiza sees first
+
+With `VITE_SITE_SLUG=timiza`, the home page is Timiza's public website: home, about, programmes, services, stories, impact, get involved, contact and donate. Staff sign in from the top bar to reach the ERP behind it. Website content, brand colours, programmes, services, stories and team are all edited in the ERP's Website section, and the impact numbers on the site are counted live from verified records.
+
+**Donations**: M-Pesa STK push and card in sandbox mode by default. Set `PAYMENTS_MODE=mpesa` and the Daraja variables to take real M-Pesa payments. A confirmed donation automatically becomes an Income record and moves the campaign progress bar.
+
+**Data collection**: build surveys, registers and checklists (8 question types), collect in the app or through a public link, and get charts for every question, cross-filtering and CSV export.
+
+**M&E analytics**: progress lines against targets, participants by gender, age, ward, disability and programme, event turnout, spending and volunteer hours.
+
+See `SECURITY.md` for the security review and `AUDIT.md` for the audit against the original brief.
+
 ## ERP modules (case study: Timiza Youth Initiative)
 
 Beyond programmes and M&E, Kept runs the whole organization. Every module below is defined once in `backend/app/modules.json`; that spec generates the PostgreSQL tables (prefixed `m_`, with real foreign keys), the validated API, the workflow rules and the screens.
@@ -63,7 +75,7 @@ backend/
     routers/             auth, org (people, stakeholders, templates, audit), projects, activities, flags
     services/            pace, rules engine, report builder, audit
   migrations/            Alembic
-  tests/                 22 API, business-rule and ERP tests
+  tests/                 38 API, business-rule, ERP and security tests
   seed.py                fictional demo data
 frontend/
   src/pages              Landing, Auth, Attention, Projects, Project, Activity, Work, Reports, ReportView, Settings
@@ -137,7 +149,7 @@ npm run dev                       # http://localhost:5173
 ## Tests
 
 ```bash
-cd backend && pytest -q          # 22 tests: auth, roles, tenant isolation, validation,
+cd backend && pytest -q          # 38 tests (16 security): auth, roles, tenant isolation, validation,
                                  # proof rules, pace, flags, escalation, dependencies, reports
 cd frontend && npm test
 ```

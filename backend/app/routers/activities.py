@@ -29,6 +29,7 @@ from ..models import (
 )
 from ..schemas import ActivityIn, ActivityOut, ActivityRow, ActivityUpdate, AuditOut, EvidenceIn, EvidenceOut
 from ..services import pace, rules
+from ..hardening import check_upload
 from ..services.audit import log
 
 router = APIRouter(tags=["activities"])
@@ -300,19 +301,18 @@ async def upload_evidence(
         raise HTTPException(status.HTTP_409_CONFLICT, "Reopen the activity before changing its proof.")
     r = _requirement(a, requirement_id, EvidenceKind.file)
     ext = Path(file.filename or "").suffix.lower()
-    if ext not in ALLOWED_EXT:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Upload a photo, PDF, Word, Excel, CSV or text file.")
-    content = await file.read()
+    content = await file.read(MAX_UPLOAD + 1)
     if len(content) > MAX_UPLOAD:
         raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, "Files must be 10 MB or smaller.")
     if not content:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "That file is empty.")
+    check_upload(ext, content)
     folder = Path(get_settings().upload_dir)
     folder.mkdir(parents=True, exist_ok=True)
     stored = f"{uuid.uuid4().hex}{ext}"
     (folder / stored).write_bytes(content)
     db.add(Evidence(activity_id=a.id, requirement_id=r.id if r else None, kind=EvidenceKind.file,
-                    file_name=file.filename, file_url=f"/files/{stored}", file_size=len(content), captured_by_id=user.id))
+                    file_name=Path(file.filename or "file").name[:200], file_url=f"/files/{stored}", file_size=len(content), captured_by_id=user.id))
     _after_evidence(db, a, user, f"{user.full_name} attached {file.filename}")
     return activity_detail(db, a)
 

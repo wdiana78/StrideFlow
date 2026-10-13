@@ -6,7 +6,8 @@ import { notifyChanged } from "../components/Shell";
 import { Dialog, Empty, ErrorNotice, Field, Loading, Toast } from "../components/ui";
 import { fmtDateTime } from "../format";
 import { useApi } from "../hooks";
-import { display, MODS, statusLabel, STATUS_TONE, TONE_COLOR } from "../modules";
+import { display, GROUP_COLOR, MODS, statusLabel, STATUS_TONE, TONE_COLOR } from "../modules";
+import { Columns, PALETTE } from "../components/charts";
 
 const optionCache = {};
 export function useOptions(ref) {
@@ -67,10 +68,9 @@ export default function ModulePage() {
   return (
     <>
       <div className="spread" style={{ alignItems: "flex-end" }}>
-        <div className="stack-sm" style={{ gap: 4 }}>
-          <span className="small muted">{m.group}</span>
+        <div className="stack-sm" style={{ gap: 6 }}>
+          <span className="chip-tone" style={{ background: `${GROUP_COLOR[m.group]}22`, color: GROUP_COLOR[m.group], alignSelf: "flex-start" }}><span className="dot" style={{ background: GROUP_COLOR[m.group] }} />{m.group}</span>
           <h1 className="page-title">{m.label}</h1>
-          <span className="muted" style={{ maxWidth: 720 }}>{m.description}</span>
         </div>
         <div className="row wrap">
           {m.status?.board && (
@@ -84,6 +84,7 @@ export default function ModulePage() {
         </div>
       </div>
 
+      <Insight m={m} version={data?.total} />
       <div className="panel">
         <div className="panel-head" style={{ alignItems: "flex-end" }}>
           <input className="input" style={{ maxWidth: 280 }} placeholder={`Search ${m.label.toLowerCase()}`} aria-label="Search" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -130,6 +131,7 @@ export default function ModulePage() {
                     </th>
                   ))}
                   {m.status && <th>Status</th>}
+                  <th style={{ textAlign: "right" }}><span className="sr-only">Actions</span></th>
                 </tr></thead>
                 <tbody>{data.items.map((r) => (
                   <tr key={r.id} className="clickable" onClick={() => nav(`/app/m/${key}/${r.id}`)}>
@@ -139,6 +141,10 @@ export default function ModulePage() {
                       </td>
                     ))}
                     {m.status && <td><StatusPill m={m} value={r[m.status.field]} /></td>}
+                    <td style={{ textAlign: "right", whiteSpace: "nowrap" }} onClick={(e) => e.stopPropagation()}>
+                      {can("edit") && <button className="btn btn-icon btn-ghost" title="Edit" aria-label={`Edit ${r._title}`} onClick={() => setEditing(r)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4" /></svg></button>}
+                      {can("delete") && <button className="btn btn-icon btn-ghost-danger" title="Delete" aria-label={`Delete ${r._title}`} onClick={async () => { if (!confirm(`Delete ${r._title}?`)) return; try { await api(`/m/${key}/${r.id}`, { method: "DELETE" }); done("Deleted"); } catch (e) { setToast(e.message); } }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></svg></button>}
+                    </td>
                   </tr>
                 ))}</tbody>
               </table>
@@ -326,4 +332,23 @@ function Input({ f, value, onChange, invalid }) {
     );
     default: return <input className="input" value={value || ""} onChange={(e) => onChange(e.target.value)} {...common} />;
   }
+}
+
+function Insight({ m, version }) {
+  const by = m.status ? m.status.field : (m.fields.find((f) => f.filter && (f.type === "select" || f.type === "ref")) || {}).key;
+  const sumField = (m.fields.find((f) => f.type === "money" && f.list) || {}).key;
+  const { data } = useApi(by ? `/m/${m.key}/stats` : null, { by, sum: sumField }, [version]);
+  if (!by || !data?.length) return null;
+  const tones = m.status ? data.map((d) => TONE_COLOR[STATUS_TONE[d.key] || "neutral"]) : PALETTE;
+  return (
+    <div className="panel" style={{ padding: "14px 18px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
+      {data.slice(0, 6).map((d, i) => (
+        <div key={String(d.key)} className="stack-sm" style={{ gap: 2, borderLeft: `4px solid ${m.status ? tones[i] : PALETTE[i % PALETTE.length]}`, paddingLeft: 12 }}>
+          <span className="small muted">{d.label}</span>
+          <b style={{ fontSize: 22 }}>{d.count}</b>
+          {sumField && <span className="small" style={{ color: "var(--ink-2)" }}>KES {Math.round(d.sum).toLocaleString()}</span>}
+        </div>
+      ))}
+    </div>
+  );
 }

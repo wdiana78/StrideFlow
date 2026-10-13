@@ -27,7 +27,7 @@ CORE_REFS = {
 TYPE_COLUMNS = {
     "text": lambda: String(500), "email": lambda: String(254), "textarea": lambda: Text(),
     "number": lambda: Numeric(14, 2), "money": lambda: Numeric(14, 2), "date": lambda: Date(),
-    "select": lambda: String(40), "bool": lambda: Boolean(), "file": lambda: JsonType,
+    "select": lambda: String(40), "bool": lambda: Boolean(), "file": lambda: JsonType, "color": lambda: String(9),
 }
 
 
@@ -144,6 +144,8 @@ def serialize(db: Session, key: str, rows) -> list[dict]:
 
 # ---------- validation ----------
 EMAIL = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
+SAFE_URL = re.compile(r"^(/files/[0-9a-f]{32}\.[a-z]{2,5}|)$")
 
 
 def _coerce(db: Session, org_id, m: dict, f: dict, v):
@@ -172,10 +174,15 @@ def _coerce(db: Session, org_id, m: dict, f: dict, v):
             if not EMAIL.match(str(v)):
                 raise ErpError(422, "Enter a valid email address.", f["key"])
             return str(v).strip().lower()
+        if t == "color":
+            if not COLOR.match(str(v)):
+                raise ErpError(422, f"{f['label']} must be a colour like #0E5E6F.", f["key"])
+            return str(v).upper()
         if t == "file":
-            if not isinstance(v, dict) or not v.get("url"):
+            # Only accept references to files this API stored, never arbitrary URLs (blocks javascript: and phishing links).
+            if not isinstance(v, dict) or not v.get("url") or not SAFE_URL.match(str(v["url"])):
                 raise ErpError(422, f"Upload a file for {f['label'].lower()}.", f["key"])
-            return {"name": str(v.get("name", "file")), "url": str(v["url"]), "size": v.get("size")}
+            return {"name": str(v.get("name", "file"))[:200], "url": str(v["url"]), "size": v.get("size")}
         if t == "ref":
             rid = uuid.UUID(str(v))
             target, _ = CORE_REFS[f["ref"]] if f["ref"] in CORE_REFS else (TABLES[f["ref"]], None)
@@ -192,13 +199,13 @@ def _coerce(db: Session, org_id, m: dict, f: dict, v):
 
 
 def _validate(db: Session, org_id, m: dict, data: dict, existing: dict | None, record_id=None) -> dict:
-    known = {f["key"]: f for f in m["fields"]}
+    known = {f["key"]: f for f in m["fields"] if not f.get("hidden")}  # hidden fields are system-only: no mass assignment
     clean = {}
     for k, v in data.items():
         if k in known:
             clean[k] = _coerce(db, org_id, m, known[k], v)
     merged = {**(existing or {}), **clean}
-    for f in m["fields"]:
+    for f in known.values():
         if f.get("required") and merged.get(f["key"]) in (None, ""):
             raise ErpError(422, f"{f['label']} is required.", f["key"])
         if f.get("after") and merged.get(f["key"]) and merged.get(f["after"]) and merged[f["key"]] < merged[f["after"]]:
@@ -342,6 +349,8 @@ def transition(db: Session, user, key: str, rid, to: str, note: str | None, log)
         if to in f.get("required_for", []) and not rec.get(f["key"]):
             raise ErpError(422, f"{f['label']} is required before this can be {dict(st['options'])[to].lower()}.", f["key"])
     db.execute(t.update().where(t.c.id == rid).values(**{st["field"]: to, "updated_at": now()}))
+    if key == "donations" and to == "confirmed":
+        post_donation_income(db, rec, user.id)
     labels = dict(st["options"])
     log(db, user.organization_id, user.id, f"{key}_{to}", key, rid,
         f"{user.full_name}: {labels.get(cur)} → {labels.get(to)}" + (f". Note: {note.strip()}" if note and note.strip() else ""),
@@ -441,3 +450,45 @@ def desired_flags(db: Session, org_id, today: date) -> dict:
         put("report_due", "grants", r.id, "high" if days < 3 else "medium", r.owner_id, r.title,
             f"Application deadline passed {-days} days ago." if days < 0 else f"Application due in {days} days, {r.deadline.strftime('%d %b')}.", r.project_id)
     return out
+
+
+def post_donation_income(db: Session, donation: dict, actor_id=None):
+    """A confirmed donation becomes an Income record, so finance never re-types it."""
+    inc = TABLES["income"]
+    name = "Anonymous donor" if donation.get("anonymous") else donation.get("donor_name")
+    method = donation.get("method") if donation.get("method") in ("mpesa", "bank", "cash") else "bank"
+    db.execute(inc.insert().values(id=uuid.uuid4(), organization_id=donation["organization_id"], created_by_id=actor_id, created_at=now(), updated_at=now(),
+                                   source=f"Donation: {name}", amount=donation["amount"], received_on=date.today(), method=method,
+                                   reference=donation.get("reference"), notes=donation.get("message")))
+
+
+def stats(db: Session, user, key: str, by: str, sum_field: str | None, params: dict) -> list[dict]:
+    m, t = MODULES[key], TABLES[key]
+    fields = {f["key"]: f for f in m["fields"]}
+    st = m.get("status")
+    if by not in fields and not (st and by == st["field"]):
+        raise ErpError(422, "Choose a field to group by.")
+    if sum_field and (sum_field not in fields or fields[sum_field]["type"] not in ("number", "money")):
+        raise ErpError(422, "Choose a number field to add up.")
+    q = select(t.c[by], func.count(), func.coalesce(func.sum(t.c[sum_field]), 0) if sum_field else func.count()).where(t.c.organization_id == user.organization_id)
+    for f in m["fields"]:
+        v = params.get(f["key"])
+        if f.get("filter") and v not in (None, "") and f["key"] != by:
+            q = q.where(t.c[f["key"]] == (uuid.UUID(v) if f["type"] == "ref" else (v in ("true", "1")) if f["type"] == "bool" else v))
+    rows = db.execute(q.group_by(t.c[by])).all()
+    f = fields.get(by)
+    if f and f["type"] == "ref":
+        labels = label_of(db, f["ref"], [r[0] for r in rows])
+        lab = lambda v: labels.get(str(v), "None") if v else "None"  # noqa: E731
+    elif f and f["type"] == "select":
+        opts = dict(f["options"])
+        lab = lambda v: opts.get(v, v or "None")  # noqa: E731
+    elif f and f["type"] == "bool":
+        lab = lambda v: "Yes" if v else "No"  # noqa: E731
+    elif st and by == st["field"]:
+        opts = dict(st["options"])
+        lab = lambda v: opts.get(v, v)  # noqa: E731
+    else:
+        lab = lambda v: str(v) if v is not None else "None"  # noqa: E731
+    out = [{"key": _plain(r[0]), "label": lab(r[0]), "count": int(r[1]), "sum": float(r[2])} for r in rows]
+    return sorted(out, key=lambda r: -r["count"])

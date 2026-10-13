@@ -8,6 +8,7 @@ from ..db import get_db
 from ..deps import admin_only, can_manage, get_current_user
 from ..models import AuditEvent, Role, Stakeholder, Template, User
 from ..schemas import AuditOut, InviteIn, StakeholderIn, StakeholderOut, TemplateOut, UserOut, UserUpdate
+from ..hardening import check_password
 from ..security import hash_password
 from ..services.audit import log
 
@@ -24,6 +25,7 @@ def list_users(user: User = Depends(get_current_user), db: Session = Depends(get
 def invite_user(body: InviteIn, admin: User = Depends(admin_only), db: Session = Depends(get_db)):
     if db.scalar(select(User).where(func.lower(User.email) == body.email.lower())):
         raise HTTPException(status.HTTP_409_CONFLICT, "Someone already uses this email.")
+    check_password(body.temporary_password, body.email, body.full_name)
     u = User(organization_id=admin.organization_id, full_name=body.full_name.strip(), email=body.email.lower(),
              password_hash=hash_password(body.temporary_password), role=body.role)
     db.add(u)
@@ -48,6 +50,7 @@ def update_user(user_id: uuid.UUID, body: UserUpdate, admin: User = Depends(admi
         changes["is_active"] = [u.is_active, body.is_active]
         u.is_active = body.is_active
     if changes:
+        u.token_version = (u.token_version or 0) + 1  # new role or removed access takes effect immediately, not when the token expires
         log(db, admin.organization_id, admin.id, "user_updated", "user", u.id, f"Updated {u.full_name}", changes)
     db.commit()
     return u
