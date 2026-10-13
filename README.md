@@ -63,6 +63,12 @@ frontend/
 
 Each organization's data is isolated: another organization's ids return 404.
 
+## See it right now (no setup)
+
+Open `kept-live-preview.html` (in the project root) in any browser, or use the hosted link. It is the same React app running against `frontend/src/demo/engine.js`, an in-browser port of the API (same endpoints, rules, pace maths, permissions and reports) with data saved in the browser. Use **Switch account** to try each role and **Reset data** to start over. Rebuild it with `cd frontend && npm run build:preview`.
+
+The real app below uses the FastAPI backend and PostgreSQL; the preview engine is never included in the normal build.
+
 ## Run it locally
 
 Requirements: Python 3.12, Node 20+, PostgreSQL 14+.
@@ -131,7 +137,7 @@ Start command (already in the blueprint): `alembic upgrade head && uvicorn app.m
 
 1. **Add New > Project**, import the repo, set **Root Directory** to `frontend`.
 2. Framework preset: Vite. Build: `npm run build`. Output: `dist`.
-3. Environment variable: `VITE_API_URL=https://kept-api.onrender.com`.
+3. Environment variable: `VITE_API_URL=https://kept-api.onrender.com`. If you set `KEPT_TODAY` on the API, set `VITE_TODAY` to the same date.
 4. Deploy, then put the Vercel URL in Render's `CORS_ORIGINS` (comma-separate several) and redeploy the API.
 
 `vercel.json` rewrites all paths to `index.html` so deep links like `/app/projects/…` work.

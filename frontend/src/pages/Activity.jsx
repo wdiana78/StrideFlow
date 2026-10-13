@@ -67,7 +67,7 @@ export default function Activity() {
       <div className="two-col">
         <section className="wide panel" aria-labelledby="proof-h">
           <div className="panel-head"><h2 id="proof-h">Proof of work</h2><span className="small muted">{a.requirements.length ? "Required items must be present before this can be completed." : "No proof is required for this activity."}</span></div>
-          {a.requirements.map((r) => <ProofItem key={r.id} activity={a} req={r} canWork={canWork} onChange={(updated) => { setData(updated); notifyChanged(); }} onError={(e) => setMsg({ tone: "error", text: e.message })} />)}
+          {a.requirements.map((r) => <ProofItem key={r.id} activity={a} req={r} canWork={canWork} onChange={(updated) => { setData(updated); setMsg(null); notifyChanged(); }} onError={(e) => setMsg({ tone: "error", text: e.message })} />)}
           <div className="proof-item" style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
             {a.status !== "done" ? (
               <button className="btn btn-primary btn-lg" disabled={busy || !canWork || a.status === "blocked"} onClick={complete}>Mark complete</button>

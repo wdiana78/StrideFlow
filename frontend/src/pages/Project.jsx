@@ -41,7 +41,7 @@ export default function Project() {
         </div>
         {can.manage && (
           <div className="row wrap">
-            <button className="btn" onClick={() => setDialog("activity")} disabled={!p.commitments.length}>Add {vocab.activity.toLowerCase()}</button>
+            <button className="btn" onClick={() => setDialog("activity")} disabled={!p.commitments.length} title={p.commitments.length ? undefined : "Add a commitment first"}>Add {vocab.activity.toLowerCase()}</button>
             <button className="btn btn-primary" onClick={() => setDialog("report")}>Generate report</button>
           </div>
         )}

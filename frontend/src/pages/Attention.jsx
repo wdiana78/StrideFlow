@@ -60,7 +60,7 @@ export default function Attention() {
       ) : (
         <div className="two-col">
           <div className="wide panel" style={{ overflow: "hidden" }}>
-            <div className="flag-row" style={{ background: "var(--stone)", cursor: "default", fontSize: 13, fontWeight: 600, color: "var(--ink-2)", paddingTop: 10, paddingBottom: 10, borderTop: 0 }} aria-hidden="true">
+            <div className="flag-row flag-head" style={{ background: "var(--stone)", cursor: "default", fontSize: 13, fontWeight: 600, color: "var(--ink-2)", paddingTop: 10, paddingBottom: 10, borderTop: 0 }} aria-hidden="true">
               <span>Flag</span><span>About</span><span>Owner</span><span style={{ textAlign: "right" }}>{view === "resolved" ? "Closed" : "Open"}</span>
             </div>
             {items.map((f) => (

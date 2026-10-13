@@ -1,4 +1,5 @@
 const BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+export const PREVIEW = import.meta.env.VITE_DEMO === "1";
 const TOKEN_KEY = "kept_token";
 
 export const tokenStore = {
@@ -16,9 +17,19 @@ export class ApiError extends Error {
 }
 
 /** Absolute URL for an uploaded file path like /files/abc.jpg */
-export const fileUrl = (path) => (path ? `${BASE}${path}` : null);
+export const fileUrl = (path) => (!path ? null : path.startsWith("data:") ? path : `${BASE}${path}`);
 
 export async function api(path, { method = "GET", body, form, params } = {}) {
+  if (PREVIEW) {
+    // Hosted preview: the same API, answered by an in-browser port of the backend (src/demo/engine.js).
+    const { handle } = await import("./demo/engine");
+    try {
+      return await handle(method, path, { body, form, params, token: tokenStore.get() });
+    } catch (e) {
+      if (e.status === 401 && tokenStore.get()) { tokenStore.clear(); window.dispatchEvent(new Event("kept:signed-out")); }
+      throw new ApiError(e.status || 500, e.message, e.data);
+    }
+  }
   const url = new URL(`${BASE}/api${path}`, window.location.origin);
   if (params) Object.entries(params).forEach(([k, v]) => v !== undefined && v !== null && v !== "" && url.searchParams.set(k, v));
   const headers = {};

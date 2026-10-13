@@ -1,6 +1,6 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { api } from "../api";
+import { api, PREVIEW } from "../api";
 import { useAuth } from "../auth";
 import { initials } from "../format";
 
@@ -45,7 +45,7 @@ export default function Shell() {
   return (
     <div className="shell">
       <aside className="sidebar" aria-label="Main">
-        <a className="brand" href="/app"><Logo />Kept</a>
+        <Link className="brand" to="/app"><Logo />Kept</Link>
         <div className="org-name"><div className="small muted">Organization</div><div className="strong">{user.organization.name}</div></div>
         <nav className="stack-sm" style={{ gap: 4 }} aria-label="Sections"><Links openFlags={openFlags} admin={can.admin} /></nav>
         <div className="user-box">
@@ -60,13 +60,33 @@ export default function Shell() {
         </div>
       </aside>
       <nav className="topbar" aria-label="Sections">
-        <a className="brand" href="/app" style={{ padding: "0 8px" }}><Logo size={18} /></a>
+        <Link className="brand" to="/app" style={{ padding: "0 8px" }} aria-label="Kept home"><Logo size={18} /></Link>
         <Links openFlags={openFlags} admin={can.admin} />
         <button className="btn btn-quiet" onClick={out}>Sign out</button>
       </nav>
-      <main className="main" id="main"><Outlet /></main>
+      <main className="main" id="main">{PREVIEW && <PreviewBar />}<Outlet /></main>
     </div>
   );
 }
 
 export const notifyChanged = () => window.dispatchEvent(new Event("kept:changed"));
+
+function PreviewBar() {
+  const { signOut } = useAuth();
+  const nav = useNavigate();
+  const reset = async () => {
+    if (!confirm("Reset the preview to its starting data? Your changes in this browser will be lost.")) return;
+    const { resetPreview } = await import("../demo/engine");
+    resetPreview();
+    signOut();
+    nav("/login");
+  };
+  const switchUser = () => { signOut(); nav("/login"); };
+  return (
+    <div className="notice no-print" style={{ background: "var(--cobalt-tint)", color: "var(--cobalt-dark)", border: "1px solid #c3caeb", display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+      <span style={{ flex: 1, minWidth: 240 }}><b>Live preview.</b> Everything works; your changes are saved in this browser. "Today" is fixed at 13 Oct 2026 so the scenario stays the same.</span>
+      <button className="btn" onClick={switchUser}>Switch account</button>
+      <button className="btn btn-quiet" onClick={reset}>Reset data</button>
+    </div>
+  );
+}

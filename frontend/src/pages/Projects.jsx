@@ -138,7 +138,7 @@ function NewProjectDialog({ onClose }) {
   };
   return (
     <Dialog title="New project" onClose={onClose}
-      footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn btn-primary" disabled={busy || !form.name || !form.starts_on || !form.ends_on} onClick={submit}>{busy ? "Creating…" : "Create project"}</button></>}>
+      footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn btn-primary" disabled={busy || !templates.length || !form.name || !form.starts_on || !form.ends_on} onClick={submit}>{busy ? "Creating…" : "Create project"}</button></>}>
       <div className="dialog-body">
         <ErrorNotice error={error} />
         <Field label="Template" hint="Sets vocabulary and the proof each kind of work needs">

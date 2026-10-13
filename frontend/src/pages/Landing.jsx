@@ -23,8 +23,8 @@ export default function Landing() {
       <header className="container spread" style={{ padding: "22px 32px" }}>
         <Link to="/" className="brand" style={{ padding: 0 }}><Logo size={24} />Kept</Link>
         <nav className="row wrap" style={{ gap: 20 }} aria-label="Site">
-          <a href="#how" style={{ color: "var(--ink-2)", textDecoration: "none" }}>How it works</a>
-          <a href="#examples" style={{ color: "var(--ink-2)", textDecoration: "none" }}>Examples</a>
+          <a href="#how" onClick={(e) => { e.preventDefault(); document.getElementById("how")?.scrollIntoView({ behavior: "smooth" }); }} style={{ color: "var(--ink-2)", textDecoration: "none" }}>How it works</a>
+          <a href="#examples" onClick={(e) => { e.preventDefault(); document.getElementById("examples")?.scrollIntoView({ behavior: "smooth" }); }} style={{ color: "var(--ink-2)", textDecoration: "none" }}>Examples</a>
           {!user && <Link to="/login" style={{ color: "var(--ink-2)", textDecoration: "none" }}>Sign in</Link>}
           {user ? <Link className="btn btn-primary" to="/app">Open Kept</Link> : <Link className="btn btn-primary" to="/register">Create your organization</Link>}
         </nav>

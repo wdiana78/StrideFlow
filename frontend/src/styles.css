@@ -27,6 +27,8 @@
 html, body, #root { height: 100%; }
 body {
   margin: 0;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   font-family: var(--font);
   font-size: 15px;
   line-height: 22px;
@@ -152,7 +154,7 @@ table.table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .flag-row { width: 100%; text-align: left; display: grid; grid-template-columns: 140px 1fr 150px 80px; gap: 16px; align-items: center; padding: 14px 18px; border: 0; border-top: 1px solid var(--rule-soft); background: var(--surface); cursor: pointer; }
 .flag-row:hover { background: #fafbf9; }
 .flag-row[aria-current="true"] { background: var(--cobalt-tint); box-shadow: inset 3px 0 0 var(--cobalt); }
-@media (max-width: 760px) { .flag-row { grid-template-columns: 1fr; gap: 4px; } }
+@media (max-width: 760px) { .flag-row { grid-template-columns: 1fr; gap: 4px; } .flag-head { display: none; } }
 .two-col { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
 .two-col > .wide { flex: 3 1 540px; min-width: 0; }
 .two-col > .narrow { flex: 2 1 320px; min-width: 0; }

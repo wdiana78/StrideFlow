@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { api } from "../api";
+import { api, PREVIEW } from "../api";
 import { useAuth } from "../auth";
 import { Logo } from "../components/Shell";
 import { ErrorNotice, Field } from "../components/ui";
@@ -42,7 +42,23 @@ export function Login() {
         <Field label="Email"><input className="input" type="email" autoComplete="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field>
         <Field label="Password"><input className="input" type="password" autoComplete="current-password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></Field>
         <button className="btn btn-primary btn-lg" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
-        <div className="notice notice-warn small">Demo: <button type="button" className="btn btn-quiet" style={{ height: 28, padding: "0 6px" }} onClick={demo}>fill in the demo manager account</button></div>
+        {PREVIEW ? (
+          <div className="stack-sm" style={{ borderTop: "1px solid var(--rule-soft)", paddingTop: 16 }}>
+            <b style={{ fontSize: 14 }}>Try it as</b>
+            {[["achieng@tumaini.example", "Achieng Otieno", "Manager: plans work, resolves flags, generates reports"],
+              ["brian@tumaini.example", "Brian Mutua", "Member: only his own activities"],
+              ["admin@tumaini.example", "Grace Nduta", "Admin: people, roles, audit log"],
+              ["viewer@tumaini.example", "Board Observer", "Viewer: read only"],
+              ["wairimu@mwangaza.example", "Wairimu Kamau", "Creative agency, the client-engagement template"]].map(([email, name, what]) => (
+              <button key={email} type="button" className="btn" style={{ height: "auto", padding: "10px 14px", justifyContent: "flex-start", textAlign: "left", whiteSpace: "normal" }}
+                onClick={async () => { try { signIn(await api("/auth/login", { method: "POST", body: { email, password: "kept-demo-2026" } })); nav("/app", { replace: true }); } catch (err) { setError(err); } }}>
+                <span style={{ display: "flex", flexDirection: "column" }}><span>{name}</span><span className="small muted" style={{ fontWeight: 400 }}>{what}</span></span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="notice notice-warn small">Demo: <button type="button" className="btn btn-quiet" style={{ height: 28, padding: "0 6px" }} onClick={demo}>fill in the demo manager account</button></div>
+        )}
         <p className="small muted">New here? <Link to="/register">Create your organization</Link></p>
       </form>
     </div>

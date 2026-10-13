@@ -15,7 +15,8 @@ export const fmtDateTime = (iso) => {
 };
 export const fmtNum = (n) => (n == null ? "" : Number.isInteger(n) ? n.toLocaleString() : Number(n).toLocaleString(undefined, { maximumFractionDigits: 1 }));
 export const initials = (name = "") => name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("");
-export const isoToday = () => new Date().toISOString().slice(0, 10);
+// VITE_TODAY mirrors the backend KEPT_TODAY setting so due-date colouring matches the API.
+export const isoToday = () => import.meta.env.VITE_TODAY || new Date().toISOString().slice(0, 10);
 export const STATUS_LABEL = { not_started: "Not started", in_progress: "In progress", blocked: "Blocked", done: "Done" };
 export const RULE_LABEL = { behind_pace: "Behind pace", overdue: "Overdue", missing_proof: "Missing proof", blocked: "Blocked", due_soon: "Due soon" };
 export const RULE_WHY = {
