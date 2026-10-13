@@ -5,7 +5,7 @@
  */
 import { SEED } from "./seed";
 
-const KEY = "kept_preview_db_v1";
+const KEY = "kept_preview_db_v2";
 export const TODAY = "2026-10-13";
 const AT_RISK_GAP = 15, DUE_SOON = 3, ESCALATE = 2;
 

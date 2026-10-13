@@ -1,5 +1,7 @@
 import { Fragment } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { api } from "../api";
+import { Shape } from "../components/ui";
 import { useAuth } from "../auth";
 import { Logo } from "../components/Shell";
 
@@ -15,8 +17,25 @@ const EXAMPLES = [
   ["Client engagement", "A creative studio reporting to a client", [["Promise", "Deliver 12 campaign assets by 30 Nov"], ["Work", "Design, review and delivery rounds"], ["Proof", "Approved file and client sign-off"], ["Report", "Monthly status report"]]],
 ];
 
+const CASE = [
+  ["Health Advocacy", [["Reach 1,500 young people with SRH information", "990 reached", "on_track"], ["Train 40 peer educators", "22 trained, 30 points behind", "at_risk"]]],
+  ["Gender, Peace and Security", [["Hold 12 community dialogues on GBV", "6 held", "on_track"], ["Next dialogue, Ganze ward", "Blocked: guides not printed", "blocked"]]],
+  ["Disability Inclusion", [["Assess 20 public facilities", "12 assessed", "on_track"], ["Train 30 youth leaders", "14 trained, behind pace", "at_risk"]]],
+  ["Climate Change", [["Plant 5,000 indigenous seedlings", "3,450 planted", "on_track"], ["Launch 8 school climate clubs", "3 launched, behind pace", "at_risk"]]],
+];
+const STATUS_COLOR = { on_track: "var(--ok)", at_risk: "var(--risk)", blocked: "var(--slate)" };
+
 export default function Landing() {
-  const { user } = useAuth();
+  const { user, signIn } = useAuth();
+  const nav = useNavigate();
+  const openCase = async () => {
+    try {
+      signIn(await api("/auth/login", { method: "POST", body: { email: "zawadi@timiza.example", password: "kept-demo-2026" } }));
+      nav("/app");
+    } catch {
+      nav("/login");
+    }
+  };
   const primary = user ? <Link className="btn btn-primary btn-lg" to="/app">Open Kept</Link> : <Link className="btn btn-primary btn-lg" to="/register">Create your organization</Link>;
   return (
     <div className="landing">
@@ -24,6 +43,7 @@ export default function Landing() {
         <Link to="/" className="brand" style={{ padding: 0 }}><Logo size={24} />Kept</Link>
         <nav className="row wrap" style={{ gap: 20 }} aria-label="Site">
           <a href="#how" onClick={(e) => { e.preventDefault(); document.getElementById("how")?.scrollIntoView({ behavior: "smooth" }); }} style={{ color: "var(--ink-2)", textDecoration: "none" }}>How it works</a>
+          <a href="#case-study" onClick={(e) => { e.preventDefault(); document.getElementById("case-study")?.scrollIntoView({ behavior: "smooth" }); }} style={{ color: "var(--ink-2)", textDecoration: "none" }}>Case study</a>
           <a href="#examples" onClick={(e) => { e.preventDefault(); document.getElementById("examples")?.scrollIntoView({ behavior: "smooth" }); }} style={{ color: "var(--ink-2)", textDecoration: "none" }}>Examples</a>
           {!user && <Link to="/login" style={{ color: "var(--ink-2)", textDecoration: "none" }}>Sign in</Link>}
           {user ? <Link className="btn btn-primary" to="/app">Open Kept</Link> : <Link className="btn btn-primary" to="/register">Create your organization</Link>}
@@ -68,6 +88,39 @@ export default function Landing() {
         </ol>
       </section>
 
+      <section id="case-study" style={{ background: "#fff", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)" }}>
+        <div className="container stack" style={{ padding: "80px 32px", gap: 32 }}>
+          <div className="spread" style={{ alignItems: "flex-end" }}>
+            <div className="stack-sm" style={{ maxWidth: 760 }}>
+              <span style={{ color: "var(--cobalt)", fontWeight: 700 }}>Case study</span>
+              <h2 style={{ fontSize: 40, lineHeight: "46px", fontWeight: 800, letterSpacing: "-0.8px" }}>Timiza Youth Initiative, Kilifi</h2>
+              <p style={{ fontSize: 18, lineHeight: "28px", color: "var(--ink-2)" }}>A youth-led community-based organization running four programmes at once: health advocacy, gender peace and security, disability inclusion and climate change. Each answers to partners and funders. Work like this usually lives in separate spreadsheets, phones and WhatsApp groups; this workspace shows it in one place.</p>
+            </div>
+            <button className="btn btn-primary btn-lg" onClick={openCase}>Open the Timiza workspace</button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16 }}>
+            {CASE.map(([prog, rows]) => (
+              <div key={prog} className="stack-sm" style={{ border: "1px solid var(--rule)", borderRadius: 8, padding: 20, gap: 14 }}>
+                <b style={{ fontSize: 17 }}>{prog}</b>
+                {rows.map(([what, where, st]) => (
+                  <div key={what} className="stack-sm" style={{ gap: 2, borderTop: "1px solid var(--rule-soft)", paddingTop: 12 }}>
+                    <span style={{ fontSize: 14 }}>{what}</span>
+                    <span className="status" style={{ color: STATUS_COLOR[st], fontSize: 13 }}><Shape kind={st} size={10} />{where}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 32, borderTop: "2px solid var(--ink)", paddingTop: 24 }}>
+            {[["One view across four programmes", "The coordinator opens Attention and sees nine items that need someone today, from an overdue facilitation guide to a training target 30 points behind, each with an owner."],
+              ["Proof captured on the day", "Attendance lists, planting photos, audit forms and referral logs are attached when the work is done. Referral logs record counts and partner summaries, never survivors' names."],
+              ["Reports for every partner in a click", "Planned against actual, issues and evidence for any programme and period, ready for the funder, the county or the board."]].map(([h, p]) => (
+              <div key={h} className="stack-sm"><b style={{ fontSize: 18 }}>{h}</b><p style={{ color: "var(--ink-2)" }}>{p}</p></div>
+            ))}
+          </div>
+          <p className="small muted">The organization, its programmes and partners are from Timiza's public website. Staff names, targets and figures in the workspace are illustrative.</p>
+        </div>
+      </section>
       <section id="examples" style={{ background: "var(--ink)", color: "#F5F6F3" }}>
         <div className="container stack" style={{ padding: "80px 32px", gap: 36 }}>
           <div className="stack-sm" style={{ maxWidth: 720 }}>

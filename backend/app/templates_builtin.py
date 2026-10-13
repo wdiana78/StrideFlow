@@ -29,6 +29,35 @@ BUILTIN_TEMPLATES = [
         },
     },
     {
+        "key": "youth_advocacy",
+        "name": "Youth advocacy programme",
+        "description": "Youth-led CBOs running outreach, dialogues, trainings and campaigns across several programme areas.",
+        "vocabulary": {"stakeholder": "Funder", "commitment": "Commitment", "activity": "Activity", "project": "Programme"},
+        "blueprint": {
+            "commitments": [
+                {"title": "Reach young people with information", "unit": "young people", "measure": "sum", "target_value": 1000},
+                {"title": "Hold community dialogues", "unit": "dialogues", "measure": "activities", "target_value": 10},
+            ],
+            "activity_types": [
+                {"key": "outreach", "name": "Community outreach", "requirements": [
+                    R("value", "People reached", counts=True), R("file", "Attendance list or photos"), R("note", "Outreach note", required=False)]},
+                {"key": "dialogue", "name": "Community dialogue", "requirements": [
+                    R("value", "Participants", counts=True), R("file", "Signed attendance list"), R("note", "Key resolutions")]},
+                {"key": "training", "name": "Training", "requirements": [
+                    R("value", "Participants trained", counts=True), R("file", "Signed attendance sheet")]},
+                {"key": "referral", "name": "Referral log", "requirements": [
+                    R("value", "Referrals", counts=True), R("note", "Partner summary (no names)")]},
+                {"key": "planting", "name": "Tree planting", "requirements": [
+                    R("value", "Seedlings planted", counts=True), R("file", "Photos")]},
+                {"key": "audit", "name": "Accessibility audit", "requirements": [
+                    R("value", "Facilities assessed", counts=True), R("file", "Audit forms")]},
+                {"key": "purchase", "name": "Purchase", "requirements": [R("file", "Receipt"), R("value", "Amount spent", required=False)]},
+                {"key": "deliverable", "name": "Deliverable", "requirements": [R("file", "Final document")]},
+                {"key": "task", "name": "General task", "requirements": []},
+            ],
+        },
+    },
+    {
         "key": "client_engagement",
         "name": "Client engagement",
         "description": "Agencies and service firms delivering work to a client on agreed dates.",

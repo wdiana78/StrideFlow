@@ -45,7 +45,8 @@ export function Login() {
         {PREVIEW ? (
           <div className="stack-sm" style={{ borderTop: "1px solid var(--rule-soft)", paddingTop: 16 }}>
             <b style={{ fontSize: 14 }}>Try it as</b>
-            {[["achieng@tumaini.example", "Achieng Otieno", "Manager: plans work, resolves flags, generates reports"],
+            {[["zawadi@timiza.example", "Zawadi Kahindi", "Case study: Timiza Youth Initiative, Kilifi (programme manager)"],
+              ["achieng@tumaini.example", "Achieng Otieno", "Manager: plans work, resolves flags, generates reports"],
               ["brian@tumaini.example", "Brian Mutua", "Member: only his own activities"],
               ["admin@tumaini.example", "Grace Nduta", "Admin: people, roles, audit log"],
               ["viewer@tumaini.example", "Board Observer", "Viewer: read only"],

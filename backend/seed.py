@@ -4,7 +4,9 @@
 
 Every person and organization here is invented. Demo password for all accounts: kept-demo-2026
 """
+import json
 from datetime import date, datetime, time, timedelta, timezone
+from pathlib import Path
 
 from sqlalchemy import delete, select
 
@@ -32,7 +34,7 @@ from app.services.audit import log
 from app.templates_builtin import ensure_builtin_templates
 
 PASSWORD = "kept-demo-2026"
-DEMO_ORGS = ["Tumaini Community Network", "Mwangaza Creative Studio"]
+DEMO_ORGS = ["Tumaini Community Network", "Mwangaza Creative Studio", "Timiza Youth Initiative"]
 
 
 def at(d: date, hour=15) -> datetime:
@@ -213,8 +215,52 @@ def seed():
                 done_on=date(2026, 10, 1), files={"Report sent": "kilele-sept-status.pdf"})
     db.commit()
     rules.evaluate_org(db, org2.id, today())
+
+    seed_case_study(db, pw)
     db.close()
     print("Seeded demo data. Sign in as achieng@tumaini.example /", PASSWORD)
+
+
+def seed_case_study(db, pw):
+    """Timiza Youth Initiative case study, loaded from seed_data/timiza.json (shared with the web preview)."""
+    data = json.loads((Path(__file__).parent / "seed_data" / "timiza.json").read_text())
+    d = lambda s: date.fromisoformat(s) if s else None  # noqa: E731
+    tpl = db.scalar(select(Template).where(Template.key == data["template_key"], Template.organization_id.is_(None)))
+    org = Organization(name=data["organization"]["name"], sector=data["organization"]["sector"], currency="KES")
+    db.add(org)
+    db.flush()
+    people = {}
+    for u in data["users"]:
+        people[u["key"]] = User(organization_id=org.id, full_name=u["name"], email=u["email"], password_hash=pw, role=Role(u["role"]))
+        db.add(people[u["key"]])
+    stakes = {}
+    for s in data["stakeholders"]:
+        stakes[s["key"]] = Stakeholder(organization_id=org.id, name=s["name"], kind=StakeholderKind(s["kind"]))
+        db.add(stakes[s["key"]])
+    db.flush()
+    b = Builder(db, org, tpl)
+    for pj in data["projects"]:
+        p = Project(organization_id=org.id, template_id=tpl.id, stakeholder_id=stakes[pj["stakeholder"]].id, manager_id=people[pj["manager"]].id,
+                    name=pj["name"], description=pj["description"], starts_on=d(pj["starts_on"]), ends_on=d(pj["ends_on"]))
+        db.add(p)
+        db.flush()
+        cs = {}
+        for c in pj["commitments"]:
+            cs[c["key"]] = Commitment(project_id=p.id, stakeholder_id=p.stakeholder_id, title=c["title"], unit=c["unit"],
+                                      measure=Measure(c["measure"]), target_value=c["target"], due_on=d(c["due"]))
+            db.add(cs[c["key"]])
+        db.flush()
+        keyed = {}
+        for a in pj["activities"]:
+            act = b.activity(cs[a["c"]], a["title"], d(a["due"]), people[a["owner"]], a["kind"],
+                             ActivityStatus(a.get("status", "not_started")), values=a.get("values"), files=a.get("files"),
+                             notes=a.get("notes"), done_on=d(a.get("done_on")) or (d(a["due"]) if a.get("status") == "done" else None),
+                             depends_on=keyed.get(a.get("depends_on")), refused_on=d(a.get("refused_on")))
+            if a.get("key"):
+                keyed[a["key"]] = act
+    log(db, org.id, people["amani"].id, "organization_created", "organization", org.id, "Case study data loaded")
+    db.commit()
+    rules.evaluate_org(db, org.id, today())
 
 
 if __name__ == "__main__":

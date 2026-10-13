@@ -1,0 +1,106 @@
+{
+  "note": "Case study workspace. Organization, programmes and partners are from timiza.vercel.app. Staff names, targets and figures are illustrative.",
+  "organization": {"name": "Timiza Youth Initiative", "sector": "Youth-led community advocacy, Kilifi County"},
+  "template_key": "youth_advocacy",
+  "users": [
+    {"key": "amani", "name": "Amani Charo", "email": "admin@timiza.example", "role": "admin"},
+    {"key": "zawadi", "name": "Zawadi Kahindi", "email": "zawadi@timiza.example", "role": "manager"},
+    {"key": "baraka", "name": "Baraka Katana", "email": "baraka@timiza.example", "role": "member"},
+    {"key": "neema", "name": "Neema Kazungu", "email": "neema@timiza.example", "role": "member"},
+    {"key": "juma", "name": "Juma Mwangome", "email": "juma@timiza.example", "role": "member"},
+    {"key": "observer", "name": "Partner Observer", "email": "viewer@timiza.example", "role": "viewer"}
+  ],
+  "stakeholders": [
+    {"key": "fund", "name": "Pwani Community Fund (illustrative funder)", "kind": "funder"},
+    {"key": "county", "name": "Kilifi County Government", "kind": "partner"},
+    {"key": "ticah", "name": "TICAH", "kind": "partner"},
+    {"key": "lcvt", "name": "LCVT Health", "kind": "partner"},
+    {"key": "kesco", "name": "Kenya Community Support Center", "kind": "partner"},
+    {"key": "gvrc", "name": "Gender Violence Recovery Center", "kind": "partner"}
+  ],
+  "projects": [
+    {
+      "name": "Health Advocacy", "stakeholder": "fund", "manager": "zawadi", "starts_on": "2026-07-01", "ends_on": "2026-12-31",
+      "description": "Sexual and reproductive health information for young people in Kilifi, delivered through outreach days and trained peer educators.",
+      "commitments": [
+        {"key": "reach", "title": "Reach 1,500 young people with SRH information", "unit": "young people", "measure": "sum", "target": 1500, "due": "2026-12-15"},
+        {"key": "peers", "title": "Train 40 peer educators", "unit": "peer educators", "measure": "sum", "target": 40, "due": "2026-10-31"}
+      ],
+      "activities": [
+        {"c": "reach", "title": "Youth health day, Kilifi town", "due": "2026-07-18", "owner": "baraka", "kind": "outreach", "status": "done", "values": {"People reached": 210}, "files": {"Attendance list or photos": "kilifi-town-youth-day.jpg"}},
+        {"c": "reach", "title": "School outreach, Mnarani", "due": "2026-08-08", "owner": "neema", "kind": "outreach", "status": "done", "values": {"People reached": 180}, "files": {"Attendance list or photos": "mnarani-outreach.jpg"}},
+        {"c": "reach", "title": "Market outreach, Mtwapa", "due": "2026-08-29", "owner": "baraka", "kind": "outreach", "status": "done", "values": {"People reached": 260}, "files": {"Attendance list or photos": "mtwapa-market.jpg"}},
+        {"c": "reach", "title": "Youth football tournament health desk, Kaloleni", "due": "2026-09-19", "owner": "juma", "kind": "outreach", "status": "done", "values": {"People reached": 150}, "files": {"Attendance list or photos": "kaloleni-tournament.jpg"}},
+        {"c": "reach", "title": "Outreach, Malindi youth centre", "due": "2026-10-03", "owner": "neema", "kind": "outreach", "status": "done", "values": {"People reached": 190}, "files": {"Attendance list or photos": "malindi-youth-centre.jpg"}},
+        {"c": "reach", "title": "Youth day, Kilifi town (October)", "due": "2026-10-16", "owner": "baraka", "kind": "outreach"},
+        {"c": "reach", "title": "Outreach, Watamu", "due": "2026-11-07", "owner": "neema", "kind": "outreach"},
+        {"c": "reach", "title": "Outreach, Mariakani", "due": "2026-11-28", "owner": "juma", "kind": "outreach"},
+        {"c": "peers", "title": "Peer educator training, cohort 1", "due": "2026-08-14", "owner": "zawadi", "kind": "training", "status": "done", "values": {"Participants trained": 12}, "files": {"Signed attendance sheet": "peer-cohort-1.pdf"}},
+        {"c": "peers", "title": "Peer educator training, cohort 2", "due": "2026-09-11", "owner": "zawadi", "kind": "training", "status": "done", "values": {"Participants trained": 10}, "files": {"Signed attendance sheet": "peer-cohort-2.pdf"}},
+        {"c": "peers", "title": "Peer educator training, cohort 3", "due": "2026-10-10", "owner": "neema", "kind": "training", "status": "in_progress", "done_on": "2026-10-10", "refused_on": "2026-10-10", "values": {"Participants trained": 14}},
+        {"c": "peers", "title": "Peer educator training, cohort 4", "due": "2026-10-29", "owner": "neema", "kind": "training"}
+      ]
+    },
+    {
+      "name": "Gender, Peace and Security", "stakeholder": "fund", "manager": "zawadi", "starts_on": "2026-07-01", "ends_on": "2026-12-31",
+      "description": "Ward-level community dialogues on gender-based violence and peace, with referrals to support services. No personal details of survivors are recorded.",
+      "commitments": [
+        {"key": "dialogues", "title": "Hold 12 community dialogues on GBV", "unit": "dialogues", "measure": "activities", "target": 12, "due": "2026-12-10"},
+        {"key": "referrals", "title": "Refer 60 people to support services", "unit": "referrals", "measure": "sum", "target": 60, "due": "2026-12-10"}
+      ],
+      "activities": [
+        {"c": "dialogues", "title": "Dialogue, Sokoni ward", "due": "2026-07-24", "owner": "juma", "kind": "dialogue", "status": "done", "values": {"Participants": 46}, "files": {"Signed attendance list": "sokoni-dialogue.pdf"}, "notes": {"Key resolutions": "Ward administrator to host a monthly safety forum."}},
+        {"c": "dialogues", "title": "Dialogue, Mnarani ward", "due": "2026-08-21", "owner": "juma", "kind": "dialogue", "status": "done", "values": {"Participants": 38}, "files": {"Signed attendance list": "mnarani-dialogue.pdf"}, "notes": {"Key resolutions": "Chiefs agreed to publicise the GBV hotline at barazas."}},
+        {"c": "dialogues", "title": "Dialogue, Tezo ward", "due": "2026-09-04", "owner": "baraka", "kind": "dialogue", "status": "done", "values": {"Participants": 41}, "files": {"Signed attendance list": "tezo-dialogue.pdf"}, "notes": {"Key resolutions": "Youth group to run a follow-up drama session."}},
+        {"c": "dialogues", "title": "Dialogue, Matsangoni ward", "due": "2026-09-18", "owner": "juma", "kind": "dialogue", "status": "done", "values": {"Participants": 33}, "files": {"Signed attendance list": "matsangoni-dialogue.pdf"}, "notes": {"Key resolutions": "Request for a women-only follow-up session."}},
+        {"c": "dialogues", "title": "Dialogue, Watamu ward", "due": "2026-10-02", "owner": "baraka", "kind": "dialogue", "status": "done", "values": {"Participants": 52}, "files": {"Signed attendance list": "watamu-dialogue.pdf"}, "notes": {"Key resolutions": "Boda boda association to join the referral network."}},
+        {"c": "dialogues", "title": "Dialogue, Jaribuni ward", "due": "2026-10-09", "owner": "juma", "kind": "dialogue", "status": "done", "values": {"Participants": 29}, "files": {"Signed attendance list": "jaribuni-dialogue.pdf"}, "notes": {"Key resolutions": "Schools to invite the team for a session."}},
+        {"key": "guides", "c": "dialogues", "title": "Print dialogue facilitation guides", "due": "2026-10-08", "owner": "baraka", "kind": "task"},
+        {"c": "dialogues", "title": "Dialogue, Ganze ward", "due": "2026-10-23", "owner": "juma", "kind": "dialogue", "depends_on": "guides"},
+        {"c": "dialogues", "title": "Dialogue, Bamba ward", "due": "2026-11-06", "owner": "juma", "kind": "dialogue"},
+        {"c": "referrals", "title": "Referral log, July", "due": "2026-07-31", "owner": "zawadi", "kind": "referral", "status": "done", "values": {"Referrals": 9}, "notes": {"Partner summary (no names)": "Referred to the Gender Violence Recovery Center and county health facilities."}},
+        {"c": "referrals", "title": "Referral log, August", "due": "2026-08-31", "owner": "zawadi", "kind": "referral", "status": "done", "values": {"Referrals": 11}, "notes": {"Partner summary (no names)": "Mostly health referrals; two legal-aid referrals."}},
+        {"c": "referrals", "title": "Referral log, September", "due": "2026-09-30", "owner": "zawadi", "kind": "referral", "status": "done", "values": {"Referrals": 12}, "notes": {"Partner summary (no names)": "Increase after the Tezo and Matsangoni dialogues."}},
+        {"c": "referrals", "title": "Referral log, October", "due": "2026-10-31", "owner": "zawadi", "kind": "referral"}
+      ]
+    },
+    {
+      "name": "Disability Inclusion", "stakeholder": "fund", "manager": "zawadi", "starts_on": "2026-07-01", "ends_on": "2026-12-31",
+      "description": "Accessibility audits of public facilities with the county, and inclusion training for youth leaders.",
+      "commitments": [
+        {"key": "audits", "title": "Assess accessibility of 20 public facilities", "unit": "facilities", "measure": "sum", "target": 20, "due": "2026-11-30"},
+        {"key": "leaders", "title": "Train 30 youth leaders in inclusive practice", "unit": "youth leaders", "measure": "sum", "target": 30, "due": "2026-12-05"}
+      ],
+      "activities": [
+        {"c": "audits", "title": "Audit, Kilifi county offices", "due": "2026-08-20", "owner": "neema", "kind": "audit", "status": "done", "values": {"Facilities assessed": 4}, "files": {"Audit forms": "audit-county-offices.pdf"}},
+        {"c": "audits", "title": "Audit, health centres in Kilifi North", "due": "2026-09-10", "owner": "neema", "kind": "audit", "status": "done", "values": {"Facilities assessed": 5}, "files": {"Audit forms": "audit-health-centres.pdf"}},
+        {"c": "audits", "title": "Audit, schools in Kaloleni", "due": "2026-09-30", "owner": "juma", "kind": "audit", "status": "done", "values": {"Facilities assessed": 3}, "files": {"Audit forms": "audit-kaloleni-schools.pdf"}},
+        {"c": "audits", "title": "Audit, markets and bus stages", "due": "2026-10-22", "owner": "neema", "kind": "audit"},
+        {"c": "audits", "title": "Share audit findings with the county", "due": "2026-11-25", "owner": "zawadi", "kind": "deliverable"},
+        {"c": "leaders", "title": "Inclusion training, Kilifi North", "due": "2026-09-25", "owner": "neema", "kind": "training", "status": "done", "values": {"Participants trained": 14}, "files": {"Signed attendance sheet": "inclusion-training-1.pdf"}},
+        {"c": "leaders", "title": "Inclusion training, Malindi", "due": "2026-11-12", "owner": "neema", "kind": "training"}
+      ]
+    },
+    {
+      "name": "Climate Change", "stakeholder": "fund", "manager": "zawadi", "starts_on": "2026-07-01", "ends_on": "2026-12-31",
+      "description": "Indigenous tree planting before the short rains and school climate clubs.",
+      "commitments": [
+        {"key": "trees", "title": "Plant 5,000 indigenous seedlings", "unit": "seedlings", "measure": "sum", "target": 5000, "due": "2026-11-20"},
+        {"key": "clubs", "title": "Launch 8 school climate clubs", "unit": "clubs", "measure": "activities", "target": 8, "due": "2026-12-18"}
+      ],
+      "activities": [
+        {"c": "trees", "title": "Planting, Kilifi creek", "due": "2026-07-12", "owner": "juma", "kind": "planting", "status": "done", "values": {"Seedlings planted": 600}, "files": {"Photos": "kilifi-creek-planting.jpg"}},
+        {"c": "trees", "title": "Planting, Mnarani school grounds", "due": "2026-08-09", "owner": "baraka", "kind": "planting", "status": "done", "values": {"Seedlings planted": 900}, "files": {"Photos": "mnarani-planting.jpg"}},
+        {"c": "trees", "title": "Planting, Arabuko-Sokoke edge", "due": "2026-09-13", "owner": "juma", "kind": "planting", "status": "done", "values": {"Seedlings planted": 1100}, "files": {"Photos": "sokoke-planting.jpg"}},
+        {"c": "trees", "title": "Planting, Kaloleni water point", "due": "2026-10-04", "owner": "baraka", "kind": "planting", "status": "done", "values": {"Seedlings planted": 850}, "files": {"Photos": "kaloleni-planting.jpg"}},
+        {"c": "trees", "title": "Buy 1,500 seedlings from the county nursery", "due": "2026-10-12", "owner": "zawadi", "kind": "purchase", "status": "done", "files": {"Receipt": "nursery-receipt.pdf"}, "values": {"Amount spent": 45000}},
+        {"c": "trees", "title": "School planting day, Kaloleni", "due": "2026-10-15", "owner": "baraka", "kind": "planting"},
+        {"c": "trees", "title": "Planting, Ganze before the short rains", "due": "2026-11-05", "owner": "juma", "kind": "planting"},
+        {"c": "clubs", "title": "Launch climate club, Kilifi Township Secondary", "due": "2026-08-18", "owner": "baraka", "kind": "deliverable", "status": "done", "files": {"Final document": "club-charter-kilifi-township.pdf"}},
+        {"c": "clubs", "title": "Launch climate club, Mnarani Primary", "due": "2026-09-15", "owner": "baraka", "kind": "deliverable", "status": "done", "files": {"Final document": "club-charter-mnarani.pdf"}},
+        {"c": "clubs", "title": "Launch climate club, Kaloleni Secondary", "due": "2026-10-06", "owner": "baraka", "kind": "deliverable", "status": "done", "files": {"Final document": "club-charter-kaloleni.pdf"}},
+        {"c": "clubs", "title": "Launch climate club, Ganze Secondary", "due": "2026-10-27", "owner": "baraka", "kind": "deliverable"}
+      ]
+    }
+  ]
+}

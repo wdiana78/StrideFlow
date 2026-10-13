@@ -1,3 +1,4 @@
+import TIMIZA from "./timiza.json";
 // Same fictional data and templates as backend/seed.py and backend/app/templates_builtin.py.
 const R = (kind, label, required = true, counts = false) => ({ kind, label, required, counts });
 export const TEMPLATES = [
@@ -15,6 +16,26 @@ export const TEMPLATES = [
         { key: "distribution", name: "Distribution", requirements: [R("value", "Households reached", true, true), R("file", "Delivery note")] },
         { key: "field_visit", name: "Field visit", requirements: [R("note", "Visit report"), R("file", "Photos")] },
         { key: "registration", name: "Group registration", requirements: [R("value", "Groups registered", true, true), R("file", "Registration certificate")] },
+        { key: "purchase", name: "Purchase", requirements: [R("file", "Receipt"), R("value", "Amount spent", false)] },
+        { key: "deliverable", name: "Deliverable", requirements: [R("file", "Final document")] },
+        { key: "task", name: "General task", requirements: [] },
+      ],
+    } },
+  { id: "tpl-youth", key: "youth_advocacy", name: "Youth advocacy programme",
+    description: "Youth-led CBOs running outreach, dialogues, trainings and campaigns across several programme areas.",
+    vocabulary: { stakeholder: "Funder", commitment: "Commitment", activity: "Activity", project: "Programme" },
+    blueprint: {
+      commitments: [
+        { title: "Reach young people with information", unit: "young people", measure: "sum", target_value: 1000 },
+        { title: "Hold community dialogues", unit: "dialogues", measure: "activities", target_value: 10 },
+      ],
+      activity_types: [
+        { key: "outreach", name: "Community outreach", requirements: [R("value", "People reached", true, true), R("file", "Attendance list or photos"), R("note", "Outreach note", false)] },
+        { key: "dialogue", name: "Community dialogue", requirements: [R("value", "Participants", true, true), R("file", "Signed attendance list"), R("note", "Key resolutions")] },
+        { key: "training", name: "Training", requirements: [R("value", "Participants trained", true, true), R("file", "Signed attendance sheet")] },
+        { key: "referral", name: "Referral log", requirements: [R("value", "Referrals", true, true), R("note", "Partner summary (no names)")] },
+        { key: "planting", name: "Tree planting", requirements: [R("value", "Seedlings planted", true, true), R("file", "Photos")] },
+        { key: "audit", name: "Accessibility audit", requirements: [R("value", "Facilities assessed", true, true), R("file", "Audit forms")] },
         { key: "purchase", name: "Purchase", requirements: [R("file", "Receipt"), R("value", "Amount spent", false)] },
         { key: "deliverable", name: "Deliverable", requirements: [R("file", "Final document")] },
         { key: "task", name: "General task", requirements: [] },
@@ -134,5 +155,20 @@ export function SEED() {
   act(m, K, assets, "Design round 1: brand look", "2026-09-25", designer, "design_round", { status: "done", done_on: "2026-09-25", values: { "Assets delivered": 3 }, files: { "Approved file": "kilele-round1.pdf" }, notes: { "Client sign-off": "Approved by marketing lead on call." } });
   act(m, K, assets, "Design round 2: social set", "2026-10-16", designer, "design_round");
   act(m, K, reps, "September status report", "2026-10-01", lead, "status_report", { status: "done", done_on: "2026-10-01", files: { "Report sent": "kilele-sept-status.pdf" } });
+  // ---------- Timiza Youth Initiative (case study, shared with backend/seed_data/timiza.json) ----------
+  const tz = org(TIMIZA.organization.name, TIMIZA.organization.sector);
+  const ppl = Object.fromEntries(TIMIZA.users.map((x) => [x.key, user(tz, x.name, x.email, x.role)]));
+  const sk = Object.fromEntries(TIMIZA.stakeholders.map((x) => [x.key, stake(tz, x.name, x.kind)]));
+  for (const pj of TIMIZA.projects) {
+    const pr = project(tz, "tpl-youth", sk[pj.stakeholder], ppl[pj.manager], pj.name, pj.starts_on, pj.ends_on, pj.description);
+    const cs = Object.fromEntries(pj.commitments.map((c) => [c.key, commit(pr, c.title, c.unit, c.measure, c.target, c.due)]));
+    const keyed = {};
+    for (const a of pj.activities) {
+      const made = act(tz, "tpl-youth", cs[a.c], a.title, a.due, ppl[a.owner], a.kind, {
+        status: a.status || "not_started", values: a.values, files: a.files, notes: a.notes,
+        done_on: a.done_on || (a.status === "done" ? a.due : undefined), depends_on: keyed[a.depends_on], refused_on: a.refused_on });
+      if (a.key) keyed[a.key] = made;
+    }
+  }
   return db;
 }
