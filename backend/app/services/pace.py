@@ -30,9 +30,12 @@ class Pace:
 
 
 def _done_by(activity, as_of: date) -> bool:
-    return activity.status == ActivityStatus.done and (
-        activity.completed_at is None or activity.completed_at.date() <= as_of
-    )
+    from ..config import today
+
+    if activity.status != ActivityStatus.done:
+        return False
+    # Anything completed counts "as of today"; historical cut-offs (reports, charts) use the completion date.
+    return as_of >= today() or activity.completed_at is None or activity.completed_at.date() <= as_of
 
 
 def actual_value(c: Commitment, as_of: date) -> float:

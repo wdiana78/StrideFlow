@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "build:preview": "VITE_DEMO=1 VITE_TODAY=2026-10-13 VITE_SITE_SLUG=timiza vite build && python3 scripts/inline_preview.py"
+    "build:preview": "VITE_DEMO=1 VITE_TODAY=2026-10-13 vite build && python3 scripts/inline_preview.py"
   },
   "dependencies": {
     "react": "18.3.1",

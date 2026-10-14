@@ -19,6 +19,7 @@ import Calendar from "./pages/Calendar";
 import ModulePage from "./pages/Module";
 import PublicSite from "./pages/PublicSite";
 import Analytics from "./pages/Analytics";
+import Apps from "./pages/Apps";
 import { FormBuilder, FormDetail, FormsList, PublicForm } from "./pages/Forms";
 
 // When VITE_SITE_SLUG is set, the organization's public website is the home page and the ERP sits behind Staff login.
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="calendar" element={<Calendar />} />
         <Route path="finance" element={<Finance />} />
         <Route path="analytics" element={<Analytics />} />
+        <Route path="apps" element={<Apps />} />
         <Route path="forms" element={<FormsList />} />
         <Route path="forms/new" element={<FormBuilder />} />
         <Route path="forms/:id" element={<FormDetail />} />

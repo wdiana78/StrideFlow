@@ -76,6 +76,7 @@ class FlagRule(str, enum.Enum):
     missing_proof = "missing_proof"
     behind_pace = "behind_pace"
     blocked = "blocked"
+    invoice_overdue = "invoice_overdue"
     over_budget = "over_budget"
     approval_waiting = "approval_waiting"
     expiring = "expiring"
@@ -101,6 +102,8 @@ class Organization(Base):
     name: Mapped[str] = mapped_column(String(160))
     sector: Mapped[str] = mapped_column(String(80), default="")
     currency: Mapped[str] = mapped_column(String(3), default="KES")
+    industry: Mapped[str] = mapped_column(String(30), default="community", server_default="community")
+    installed_apps: Mapped[list] = mapped_column(JsonType, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
@@ -305,6 +308,7 @@ class Form(Base):
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     organization_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
     project_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
+    event_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("m_events.id", ondelete="SET NULL"), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(200))
     description: Mapped[str] = mapped_column(Text, default="")
     fields: Mapped[list] = mapped_column(JsonType, default=list)

@@ -13,6 +13,7 @@ from . import erp  # noqa: F401  (registers ERP module tables)
 from .routers import activities, auth, flags, org, projects
 from .routers import erp as erp_router
 from .routers import forms as forms_router
+from .routers import apps as apps_router
 from .hardening import BodySizeLimit, SecurityHeaders
 import logging
 import re
@@ -57,7 +58,7 @@ async def validation_handler(request: Request, exc: RequestValidationError):
 
 
 for r in (auth.router, org.router, projects.router, activities.router, flags.router, erp_router.router, erp_router.public,
-          forms_router.router, forms_router.public):
+          forms_router.router, forms_router.public, apps_router.router):
     app.include_router(r, prefix="/api")
 
 Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)

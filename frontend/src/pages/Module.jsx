@@ -107,11 +107,23 @@ export default function ModulePage() {
           <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "minmax(240px, 1fr)", gap: 12, padding: 16, overflowX: "auto" }}>
             {m.status.options.map(([v, l]) => {
               const items = data.items.filter((r) => r[m.status.field] === v);
+              const drop = async (e) => {
+                e.preventDefault(); e.currentTarget.style.outline = "none";
+                const rid = e.dataTransfer.getData("text/plain"); const rec = data.items.find((x) => x.id === rid);
+                if (!rec || rec[m.status.field] === v) return;
+                const tr = m.status.transitions.find((x) => x.to === v && x.from.includes(rec[m.status.field]));
+                if (!tr) { setToast(`Can't move from ${statusLabel(m, rec[m.status.field])} to ${l}`); return; }
+                const note = tr.note ? prompt(`Note for "${tr.label}"`) : null;
+                if (tr.note && !note) return;
+                try { await api(`/m/${key}/${rid}/transition`, { method: "POST", body: { to: v, note } }); done(`${rec._title}: ${l}`); } catch (er) { setToast(er.message); }
+              };
               return (
-                <div key={v} className="stack-sm" style={{ background: "var(--stone)", borderRadius: 8, padding: 10, minHeight: 120, gap: 8 }}>
+                <div key={v} className="stack-sm" onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.outline = "2px dashed var(--cobalt-soft)"; }} onDragLeave={(e) => { e.currentTarget.style.outline = "none"; }} onDrop={drop}
+                  style={{ background: "linear-gradient(180deg, var(--stone), #fff)", borderRadius: 16, padding: 10, minHeight: 160, gap: 8, border: "1px solid var(--rule-soft)" }}>
                   <div className="spread small" style={{ fontWeight: 600, padding: "2px 4px" }}><StatusPill m={m} value={v} /><span className="muted">{items.length}</span></div>
                   {items.map((r) => (
-                    <button key={r.id} onClick={() => nav(`/app/m/${key}/${r.id}`)} className="stack-sm" style={{ textAlign: "left", background: "#fff", border: "1px solid var(--rule)", borderRadius: 6, padding: 12, gap: 4, cursor: "pointer" }}>
+                    <button key={r.id} draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", r.id)} onClick={() => nav(`/app/m/${key}/${r.id}`)} className="stack-sm" title="Drag to change status"
+                      style={{ textAlign: "left", background: "#fff", border: "1px solid var(--rule)", borderRadius: 12, padding: 12, gap: 4, cursor: "grab", boxShadow: "var(--shadow-soft)" }}>
                       <b style={{ fontSize: 14 }}>{r._title}</b>
                       {cols.filter((f) => f.key !== m.title_field).slice(0, 3).map((f) => display(f, r) && <span key={f.key} className="small muted">{f.label}: {display(f, r)}</span>)}
                     </button>
@@ -233,6 +245,7 @@ function RecordPanel({ m, id, onClose, onEdit, onChanged }) {
                 <div className="row"><button className="btn btn-primary" disabled={!note.trim() || busy} onClick={() => go(noteFor, note)}>{noteFor.label}</button><button className="btn btn-quiet" onClick={() => setNoteFor(null)}>Cancel</button></div>
               </div>
             )}
+            {m.key === "events" && <EventFormBox ev={r} onChanged={reload} />}
             <dl className="facts" style={{ gridTemplateColumns: "160px 1fr" }}>
               {all.map((f) => {
                 const v = display(f, r);
@@ -349,6 +362,29 @@ function Insight({ m, version }) {
           {sumField && <span className="small" style={{ color: "var(--ink-2)" }}>KES {Math.round(d.sum).toLocaleString()}</span>}
         </div>
       ))}
+    </div>
+  );
+}
+
+function EventFormBox({ ev, onChanged }) {
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const f = ev._form;
+  if (!f) return (
+    <div className="notice" style={{ background: "var(--accent-tint)", color: "var(--accent-ink)" }}>
+      <div className="spread"><span>No attendance form yet.</span><button className="btn btn-primary" disabled={busy} onClick={async () => { setBusy(true); await api(`/events/${ev.id}/form`, { method: "POST" }); setBusy(false); onChanged(); }}>Create attendance form</button></div>
+    </div>
+  );
+  const link = `${window.location.origin}${window.location.pathname}${window.location.hash ? "#" : ""}/f/${f.id}`.replace(/([^:])\/\//g, "$1/");
+  return (
+    <div style={{ borderRadius: 16, padding: 16, background: "linear-gradient(135deg, var(--cobalt-tint), var(--accent-tint))" }} className="stack-sm">
+      <div className="spread"><b>Attendance and feedback form</b><span className="chip-tone" style={{ background: "#fff", color: "var(--cobalt-dark)" }}>{f.responses} responses</span></div>
+      <span className="small" style={{ color: "var(--ink-2)" }}>Share the link or QR at the door. Marking the event as held fills attendance from these responses.</span>
+      <div className="row wrap">
+        <Link className="btn btn-primary" to={`/app/forms/${f.id}`}>See results</Link>
+        <Link className="btn" to={`/app/forms/${f.id}?tab=collect`}>Add response</Link>
+        <button className="btn" onClick={() => { navigator.clipboard?.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>{copied ? "Copied ✓" : "Copy public link"}</button>
+      </div>
     </div>
   );
 }

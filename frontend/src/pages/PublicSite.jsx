@@ -10,7 +10,7 @@ import { useApi } from "../hooks";
 // The organization's public website. Content is edited in Website; numbers come live from verified records.
 const Site = createContext(null);
 const useSite = () => useContext(Site);
-const PROG_COLORS = ["#0E5E6F", "#E4572E", "#6B5BA8", "#3F9E6B", "#2E86AB", "#C2477D"];
+const PROG_COLORS = ["#E85D84", "#FF8A65", "#F59E3B", "#C93A63", "#E5734F", "#B5838D"];
 const ICONS = {
   outreach: "M3 11l18-8-8 18-2-8-8-2z", training: "M12 3l10 5-10 5L2 8l10-5zM6 10v5c3 2 9 2 12 0v-5",
   dialogue: "M4 5h12v8H8l-4 4V5zM20 9v8l-3-3h-5", research: "M11 4a7 7 0 100 14 7 7 0 000-14zM21 21l-5-5",
@@ -35,17 +35,17 @@ export default function PublicSite({ slugOverride }) {
   useEffect(() => { if (data) document.title = data.organization; }, [data]);
   if (loading && !data) return <div style={{ padding: 40 }}><Loading rows={8} /></div>;
   if (error) return <div style={{ padding: 40 }}><ErrorNotice error={error} onRetry={reload} /></div>;
-  const vars = { "--s-primary": data.brand.primary, "--s-accent": data.brand.accent, "--s-ink": "#14262A", "--s-sand": "#F7F3EA" };
+  const vars = { "--s-primary": data.brand.primary, "--s-accent": data.brand.accent, "--s-ink": "#2B1D24", "--s-sand": "#FFF3EC" };
   const links = [["", "Home"], ["/about", "About"], ["/programmes", "Programmes"], ["/services", "Services"], ["/stories", "Stories"], ["/impact", "Impact"], ["/get-involved", "Get involved"], ["/contact", "Contact"]];
   return (
     <Site.Provider value={{ ...data, base, reload }}>
       <div className="site" style={{ ...vars, background: "#fff", color: "var(--s-ink)", minHeight: "100%" }}>
         <StaffBar />
-        <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(255,255,255,.96)", backdropFilter: "blur(6px)", borderBottom: "1px solid #ECE6D6" }}>
+        <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(255,255,255,.96)", backdropFilter: "blur(6px)", borderBottom: "1px solid #F3E0D8" }}>
           <div className="container spread" style={{ padding: "12px 32px" }}>
             <Link to={base || "/"} className="row" style={{ textDecoration: "none", color: "var(--s-ink)", gap: 12 }}>
               <span style={{ width: 42, height: 42, borderRadius: 12, background: "var(--s-primary)", color: "var(--s-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16 }}>{initials(data.organization)}</span>
-              <span className="stack-sm" style={{ gap: 0 }}><b style={{ fontSize: 17, lineHeight: "20px" }}>{data.organization}</b><span className="small" style={{ color: "#5b6b6d" }}>{data.location}</span></span>
+              <span className="stack-sm" style={{ gap: 0 }}><b style={{ fontSize: 17, lineHeight: "20px" }}>{data.organization}</b><span className="small" style={{ color: "#7A6470" }}>{data.location}</span></span>
             </Link>
             <nav className={"site-nav" + (menu ? " open" : "")} aria-label="Site">
               {links.map(([p, l]) => <NavLink key={l} to={`${base}${p}` || "/"} end={p === ""} className="site-link">{l}</NavLink>)}
@@ -94,12 +94,12 @@ function Home() {
   const imp = s.impact, d = s.donations;
   return (
     <>
-      <section style={{ background: "radial-gradient(circle at 85% 20%, rgba(255,255,255,.12), transparent 40%), linear-gradient(135deg, var(--s-primary) 0%, #0A3F4A 100%)", color: "#fff" }}>
+      <section style={{ background: "radial-gradient(circle at 85% 20%, rgba(255,255,255,.12), transparent 40%), linear-gradient(135deg, var(--s-primary) 0%, color-mix(in srgb, var(--s-primary) 62%, #2B1D24) 100%)", color: "#fff" }}>
         <div className="container" style={{ padding: "84px 32px 92px", display: "flex", flexWrap: "wrap", gap: 48, alignItems: "center" }}>
           <div className="stack" style={{ flex: "1 1 520px", gap: 22 }}>
             <span className="chip-tone" style={{ background: "rgba(255,255,255,.14)", color: "var(--s-accent)", alignSelf: "flex-start" }}>● {s.location}</span>
             <h1 style={{ fontSize: "clamp(42px, 5.6vw, 72px)", lineHeight: 1.02, fontWeight: 900, letterSpacing: "-2px", textTransform: "capitalize" }}>{s.tagline}</h1>
-            <p style={{ fontSize: 19, lineHeight: "30px", color: "#d6ebee", maxWidth: 580 }}>{s.intro}</p>
+            <p style={{ fontSize: 19, lineHeight: "30px", color: "rgba(255,255,255,.9)", maxWidth: 580 }}>{s.intro}</p>
             <div className="row wrap">
               <Link to={`${s.base}/donate`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "var(--s-ink)", fontWeight: 800 }}>♥ Donate now</Link>
               <Link to={`${s.base}/get-involved`} className="btn btn-lg" style={{ background: "transparent", borderColor: "rgba(255,255,255,.5)", color: "#fff" }}>Get involved</Link>
@@ -107,12 +107,12 @@ function Home() {
           </div>
           {imp && (
             <div style={{ flex: "1 1 340px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-              {[[imp.people_reached, "young people reached", "#F2B33D"], [imp.participants_registered, "participants registered", "#7FD1C1"], [imp.activities_done, "activities delivered", "#F59A7C"], [imp.volunteer_hours, "volunteer hours", "#B9A8F0"]].map(([n, l, c]) => (
+              {[[imp.people_reached, "young people reached", "#FFD7A8"], [imp.participants_registered, "participants registered", "#FFE3EA"], [imp.activities_done, "activities delivered", "#FFC9B3"], [imp.volunteer_hours, "volunteer hours", "#FFF0D6"]].map(([n, l, c]) => (
                 <div key={l} style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.16)", borderRadius: 16, padding: 20 }}>
-                  <b style={{ fontSize: 38, lineHeight: "42px", color: c, display: "block" }}>{fmtNum(n)}</b><span style={{ color: "#d6ebee", fontSize: 14 }}>{l}</span>
+                  <b style={{ fontSize: 38, lineHeight: "42px", color: c, display: "block" }}>{fmtNum(n)}</b><span style={{ color: "rgba(255,255,255,.9)", fontSize: 14 }}>{l}</span>
                 </div>
               ))}
-              <span className="small" style={{ gridColumn: "1 / -1", color: "#9cc8d0" }}>✓ Counted from {fmtNum(imp.evidence_items)} verified records · {fmtDate(imp.as_of, true)}</span>
+              <span className="small" style={{ gridColumn: "1 / -1", color: "rgba(255,255,255,.8)" }}>✓ Counted from {fmtNum(imp.evidence_items)} verified records · {fmtDate(imp.as_of, true)}</span>
             </div>
           )}
         </div>
@@ -139,13 +139,13 @@ function Home() {
           <div className="container" style={{ padding: "80px 32px", display: "flex", flexWrap: "wrap", gap: 40, alignItems: "center" }}>
             <div className="stack" style={{ flex: "1 1 420px" }}>
               <H2 eyebrow="Case study" title={s.stories[0].title} />
-              <p style={{ fontSize: 18, lineHeight: "29px", color: "#3c4a4c" }}>{s.stories[0].summary}</p>
+              <p style={{ fontSize: 18, lineHeight: "29px", color: "#57434D" }}>{s.stories[0].summary}</p>
               <Link to={`${s.base}/stories/${s.stories[0].id}`} className="btn btn-lg" style={{ background: "var(--s-primary)", borderColor: "var(--s-primary)", color: "#fff", alignSelf: "flex-start" }}>Read the story</Link>
             </div>
             <figure style={{ flex: "1 1 340px", margin: 0, background: "#fff", borderRadius: 20, padding: 32, borderLeft: "8px solid var(--s-accent)" }}>
               <b style={{ fontSize: 64, lineHeight: 1, color: "var(--s-primary)" }}>{s.stories[0].stat_value}</b>
-              <p style={{ color: "#5b6b6d", marginTop: 6 }}>{s.stories[0].stat_label}</p>
-              {s.stories[0].quote && <blockquote style={{ margin: "20px 0 0", fontSize: 20, lineHeight: "30px", fontWeight: 600 }}>“{s.stories[0].quote}”<footer className="small" style={{ fontWeight: 400, color: "#5b6b6d", marginTop: 8 }}>{s.stories[0].quote_by}</footer></blockquote>}
+              <p style={{ color: "#7A6470", marginTop: 6 }}>{s.stories[0].stat_label}</p>
+              {s.stories[0].quote && <blockquote style={{ margin: "20px 0 0", fontSize: 20, lineHeight: "30px", fontWeight: 600 }}>“{s.stories[0].quote}”<footer className="small" style={{ fontWeight: 400, color: "#7A6470", marginTop: 8 }}>{s.stories[0].quote_by}</footer></blockquote>}
             </figure>
           </div>
         </section>
@@ -160,17 +160,17 @@ function Home() {
 function ProgrammeCard({ p, color, compact }) {
   const s = useSite();
   return (
-    <article className="stack" style={{ background: "#fff", borderRadius: 18, padding: 24, border: "1px solid #ECE6D6", boxShadow: "0 10px 30px rgba(20,38,42,.06)", position: "relative", overflow: "hidden" }}>
+    <article className="stack" style={{ background: "#fff", borderRadius: 18, padding: 24, border: "1px solid #F3E0D8", boxShadow: "0 10px 30px rgba(20,38,42,.06)", position: "relative", overflow: "hidden" }}>
       <span style={{ position: "absolute", inset: "0 0 auto 0", height: 6, background: color }} />
       <span style={{ width: 48, height: 48, borderRadius: 14, background: `${color}1A`, color, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18 }}>{initials(p.title)}</span>
       <h3 style={{ fontSize: 21, fontWeight: 800 }}>{p.title}</h3>
-      <p style={{ color: "#3c4a4c", lineHeight: "24px", fontSize: 15 }}>{p.summary}</p>
-      {!compact && p.focus && <span className="small" style={{ color: "#5b6b6d" }}>Focus: {p.focus}</span>}
+      <p style={{ color: "#57434D", lineHeight: "24px", fontSize: 15 }}>{p.summary}</p>
+      {!compact && p.focus && <span className="small" style={{ color: "#7A6470" }}>Focus: {p.focus}</span>}
       {p.results.slice(0, compact ? 1 : 4).map((r) => (
         <div key={r.title} className="stack-sm" style={{ gap: 4 }}>
           <span className="small" style={{ fontWeight: 700 }}>{r.title}</span>
           <Meter value={r.actual} max={r.target} color={color} />
-          <span className="small" style={{ color: "#5b6b6d" }}>{fmtNum(r.actual)} of {fmtNum(r.target)} {r.unit}</span>
+          <span className="small" style={{ color: "#7A6470" }}>{fmtNum(r.actual)} of {fmtNum(r.target)} {r.unit}</span>
         </div>
       ))}
       {!compact && <Link to={`${s.base}/donate?programme=${encodeURIComponent(p.title)}`} className="btn" style={{ borderColor: color, color, alignSelf: "flex-start" }}>Support this programme</Link>}
@@ -185,7 +185,7 @@ function ServiceCard({ x, color }) {
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={ICONS[x.icon] || ICONS.outreach} /></svg>
       </span>
       <h3 style={{ fontSize: 19, fontWeight: 800 }}>{x.title}</h3>
-      <p style={{ color: "#3c4a4c", lineHeight: "24px" }}>{x.description}</p>
+      <p style={{ color: "#57434D", lineHeight: "24px" }}>{x.description}</p>
     </div>
   );
 }
@@ -193,7 +193,7 @@ function ServiceCard({ x, color }) {
 function DonationBand() {
   const s = useSite(); const d = s.donations;
   return (
-    <section style={{ background: "linear-gradient(120deg, var(--s-accent), #F7C966)" }}>
+    <section style={{ background: "linear-gradient(120deg, color-mix(in srgb, var(--s-accent) 45%, #fff), var(--s-sand))" }}>
       <div className="container" style={{ padding: "56px 32px", display: "flex", flexWrap: "wrap", gap: 32, alignItems: "center" }}>
         <div className="stack-sm" style={{ flex: "1 1 420px" }}>
           <b style={{ fontSize: 13, letterSpacing: ".08em", textTransform: "uppercase" }}>Campaign</b>
@@ -213,7 +213,7 @@ function Partners() {
     <section className="container stack" style={{ padding: "64px 32px", gap: 22 }}>
       <H2 eyebrow="We are credible" title="Our partners" />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
-        {s.partners.map((p, i) => <div key={p} className="row" style={{ border: "1px solid #ECE6D6", borderRadius: 14, padding: "16px 18px", gap: 12, fontWeight: 700 }}><span style={{ width: 36, height: 36, borderRadius: 10, background: `${PROG_COLORS[i % 6]}1F`, color: PROG_COLORS[i % 6], display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>{initials(p)}</span>{p}</div>)}
+        {s.partners.map((p, i) => <div key={p} className="row" style={{ border: "1px solid #F3E0D8", borderRadius: 14, padding: "16px 18px", gap: 12, fontWeight: 700 }}><span style={{ width: 36, height: 36, borderRadius: 10, background: `${PROG_COLORS[i % 6]}1F`, color: PROG_COLORS[i % 6], display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>{initials(p)}</span>{p}</div>)}
       </div>
     </section>
   );
@@ -232,11 +232,11 @@ function CallToAction() {
 }
 
 const PageHead = ({ eyebrow, title, sub }) => (
-  <section style={{ background: "linear-gradient(135deg, var(--s-primary), #0A3F4A)", color: "#fff" }}>
+  <section style={{ background: "linear-gradient(135deg, var(--s-primary), color-mix(in srgb, var(--s-primary) 62%, #2B1D24))", color: "#fff" }}>
     <div className="container stack-sm" style={{ padding: "64px 32px" }}>
       <span style={{ color: "var(--s-accent)", fontWeight: 800, fontSize: 13, letterSpacing: ".08em", textTransform: "uppercase" }}>{eyebrow}</span>
       <h1 style={{ fontSize: "clamp(34px, 4.5vw, 54px)", fontWeight: 900, letterSpacing: "-1.2px", lineHeight: 1.05 }}>{title}</h1>
-      {sub && <p style={{ fontSize: 18, color: "#d6ebee", maxWidth: 680 }}>{sub}</p>}
+      {sub && <p style={{ fontSize: 18, color: "rgba(255,255,255,.9)", maxWidth: 680 }}>{sub}</p>}
     </div>
   </section>
 );
@@ -247,7 +247,7 @@ function About() {
     <>
       <PageHead eyebrow="About us" title={s.organization} sub={s.intro} />
       <section className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
-        {[["Mission", s.mission, "#0E5E6F"], ["Vision", s.vision, "#E4572E"], ["How we work", s.about, "#6B5BA8"]].map(([t, x, c]) => x && (
+        {[["Mission", s.mission, "#C93A63"], ["Vision", s.vision, "#E5734F"], ["How we work", s.about, "#B5838D"]].map(([t, x, c]) => x && (
           <div key={t} className="stack-sm" style={{ borderRadius: 18, padding: 26, background: `${c}10`, borderTop: `6px solid ${c}` }}><b style={{ color: c, fontSize: 14, textTransform: "uppercase", letterSpacing: ".06em" }}>{t}</b><p style={{ fontSize: 17, lineHeight: "28px" }}>{x}</p></div>
         ))}
       </section>
@@ -258,7 +258,7 @@ function About() {
             {s.team.map((t, i) => (
               <div key={t.name} className="stack-sm" style={{ background: "#fff", borderRadius: 18, padding: 24, alignItems: "center", textAlign: "center" }}>
                 <span style={{ width: 88, height: 88, borderRadius: "50%", background: `linear-gradient(135deg, ${PROG_COLORS[i % 6]}, var(--s-accent))`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 28 }}>{initials(t.name)}</span>
-                <b style={{ fontSize: 19 }}>{t.name}</b><span style={{ color: "#5b6b6d" }}>{t.role}</span>
+                <b style={{ fontSize: 19 }}>{t.name}</b><span style={{ color: "#7A6470" }}>{t.role}</span>
               </div>
             ))}
           </div>
@@ -301,9 +301,9 @@ function Stories() {
       <PageHead eyebrow="Case studies" title="Stories from the field" />
       <section className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 22 }}>
         {s.stories.map((x, i) => (
-          <Link key={x.id} to={`${s.base}/stories/${x.id}`} className="stack" style={{ textDecoration: "none", color: "inherit", borderRadius: 18, overflow: "hidden", border: "1px solid #ECE6D6" }}>
-            <div style={{ background: `linear-gradient(135deg, ${PROG_COLORS[i % 6]}, #0A3F4A)`, color: "#fff", padding: 26 }}><b style={{ fontSize: 52, lineHeight: 1 }}>{x.stat_value}</b><div style={{ opacity: .9 }}>{x.stat_label}</div></div>
-            <div className="stack-sm" style={{ padding: "0 24px 24px" }}><span className="small" style={{ color: PROG_COLORS[i % 6], fontWeight: 800 }}>{x.programme}</span><h3 style={{ fontSize: 20, fontWeight: 800 }}>{x.title}</h3><p style={{ color: "#3c4a4c" }}>{x.summary}</p><span style={{ color: "var(--s-primary)", fontWeight: 700 }}>Read story →</span></div>
+          <Link key={x.id} to={`${s.base}/stories/${x.id}`} className="stack" style={{ textDecoration: "none", color: "inherit", borderRadius: 18, overflow: "hidden", border: "1px solid #F3E0D8" }}>
+            <div style={{ background: `linear-gradient(135deg, ${PROG_COLORS[i % 6]}, color-mix(in srgb, var(--s-primary) 62%, #2B1D24))`, color: "#fff", padding: 26 }}><b style={{ fontSize: 52, lineHeight: 1 }}>{x.stat_value}</b><div style={{ opacity: .9 }}>{x.stat_label}</div></div>
+            <div className="stack-sm" style={{ padding: "0 24px 24px" }}><span className="small" style={{ color: PROG_COLORS[i % 6], fontWeight: 800 }}>{x.programme}</span><h3 style={{ fontSize: 20, fontWeight: 800 }}>{x.title}</h3><p style={{ color: "#57434D" }}>{x.summary}</p><span style={{ color: "var(--s-primary)", fontWeight: 700 }}>Read story →</span></div>
           </Link>
         ))}
       </section>
@@ -321,7 +321,7 @@ function Story() {
       <article className="container" style={{ padding: "56px 32px", maxWidth: 820 }}>
         <div className="row wrap" style={{ gap: 24, marginBottom: 24 }}><div style={{ background: "var(--s-sand)", borderRadius: 16, padding: "18px 24px" }}><b style={{ fontSize: 44, color: "var(--s-primary)" }}>{x.stat_value}</b><div>{x.stat_label}</div></div></div>
         <p style={{ fontSize: 19, lineHeight: "32px" }}>{x.body}</p>
-        {x.quote && <blockquote style={{ margin: "32px 0", padding: "8px 0 8px 24px", borderLeft: "6px solid var(--s-accent)", fontSize: 24, lineHeight: "34px", fontWeight: 700 }}>“{x.quote}”<footer className="small" style={{ fontWeight: 400, color: "#5b6b6d", marginTop: 8 }}>{x.quote_by}</footer></blockquote>}
+        {x.quote && <blockquote style={{ margin: "32px 0", padding: "8px 0 8px 24px", borderLeft: "6px solid var(--s-accent)", fontSize: 24, lineHeight: "34px", fontWeight: 700 }}>“{x.quote}”<footer className="small" style={{ fontWeight: 400, color: "#7A6470", marginTop: 8 }}>{x.quote_by}</footer></blockquote>}
         <Link to={`${s.base}/donate`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "var(--s-ink)", fontWeight: 800 }}>♥ Fund more stories like this</Link>
       </article>
     </>
@@ -354,10 +354,10 @@ function GetInvolved() {
       <section className="container" style={{ padding: "56px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
         <VolunteerForm />
         <div className="stack">
-          {[["♥", "Donate", "M-Pesa or card, from KES 50.", `${s.base}/donate`, "#E4572E"], ["🤝", "Partner with us", "Co-fund a programme or host an event.", `${s.base}/contact`, "#6B5BA8"], ["📣", "Spread the word", "Share our stories and impact.", `${s.base}/stories`, "#3F9E6B"]].map(([i, t, d, to, c]) => (
+          {[["♥", "Donate", "M-Pesa or card, from KES 50.", `${s.base}/donate`, "#E5734F"], ["🤝", "Partner with us", "Co-fund a programme or host an event.", `${s.base}/contact`, "#B5838D"], ["📣", "Spread the word", "Share our stories and impact.", `${s.base}/stories`, "#F59E3B"]].map(([i, t, d, to, c]) => (
             <Link key={t} to={to} className="row" style={{ textDecoration: "none", color: "inherit", gap: 16, borderRadius: 16, padding: 20, border: `1px solid ${c}44`, background: `${c}0D` }}>
               <span aria-hidden="true" style={{ fontSize: 28, width: 52, height: 52, borderRadius: 14, background: c, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{i}</span>
-              <span className="stack-sm" style={{ gap: 2 }}><b style={{ fontSize: 18 }}>{t}</b><span style={{ color: "#5b6b6d" }}>{d}</span></span>
+              <span className="stack-sm" style={{ gap: 2 }}><b style={{ fontSize: 18 }}>{t}</b><span style={{ color: "#7A6470" }}>{d}</span></span>
             </Link>
           ))}
         </div>
@@ -373,7 +373,7 @@ function Contact() {
       <PageHead eyebrow="Contact" title="Talk to us" />
       <section className="container" style={{ padding: "56px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
         <div className="stack">
-          {[["Email", s.contact_email, "#0E5E6F"], ["Location", s.address || s.location, "#E4572E"], ["Social", Object.values(s.social).filter(Boolean).join(" · "), "#6B5BA8"]].map(([t, v, c]) => v && (
+          {[["Email", s.contact_email, "#C93A63"], ["Location", s.address || s.location, "#E5734F"], ["Social", Object.values(s.social).filter(Boolean).join(" · "), "#B5838D"]].map(([t, v, c]) => v && (
             <div key={t} style={{ borderRadius: 16, padding: 20, borderLeft: `6px solid ${c}`, background: `${c}0D` }}><b style={{ color: c }}>{t}</b><div style={{ fontSize: 17, marginTop: 4 }}>{v}</div></div>
           ))}
         </div>
@@ -438,7 +438,7 @@ function InquiryForm() {
   const [state, send] = useSubmit(`/public/${s.slug}/inquiry`);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   return (
-    <form onSubmit={(e) => { e.preventDefault(); send(f, () => setF(empty)); }} className="stack" style={{ border: "1px solid #ECE6D6", borderRadius: 20, padding: 28 }} noValidate>
+    <form onSubmit={(e) => { e.preventDefault(); send(f, () => setF(empty)); }} className="stack" style={{ border: "1px solid #F3E0D8", borderRadius: 20, padding: 28 }} noValidate>
       <h2 style={{ fontSize: 26, fontWeight: 900 }}>Send a message</h2>
       {state.ok && <div className="notice notice-ok" role="status">✓ {state.ok}</div>}
       <ErrorNotice error={state.error} />
@@ -495,7 +495,7 @@ function Donate() {
 
   return (
     <>
-      <section style={{ background: "linear-gradient(135deg, var(--s-primary), #0A3F4A)", color: "#fff" }}>
+      <section style={{ background: "linear-gradient(135deg, var(--s-primary), color-mix(in srgb, var(--s-primary) 62%, #2B1D24))", color: "#fff" }}>
         <div className="container" style={{ padding: "56px 32px", display: "flex", flexWrap: "wrap", gap: 32, alignItems: "center" }}>
           <div className="stack-sm" style={{ flex: "1 1 420px" }}>
             <span style={{ color: "var(--s-accent)", fontWeight: 800, fontSize: 13, letterSpacing: ".08em", textTransform: "uppercase" }}>Donate</span>
@@ -511,7 +511,7 @@ function Donate() {
         </div>
       </section>
       <section className="container" style={{ padding: "48px 32px 72px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 28, alignItems: "start" }}>
-        <div className="stack" style={{ background: "#fff", border: "1px solid #ECE6D6", borderRadius: 22, padding: 28, boxShadow: "0 18px 40px rgba(20,38,42,.08)" }}>
+        <div className="stack" style={{ background: "#fff", border: "1px solid #F3E0D8", borderRadius: 22, padding: 28, boxShadow: "0 18px 40px rgba(20,38,42,.08)" }}>
           {stage === "form" && (
             <form className="stack" onSubmit={start} noValidate>
               <b style={{ fontSize: 18 }}>Choose an amount</b>
@@ -551,7 +551,7 @@ function Donate() {
           )}
           {stage === "done" && (
             <div className="stack" style={{ textAlign: "center", alignItems: "center" }}>
-              <div style={{ width: 80, height: 80, borderRadius: "50%", background: "#3F9E6B", color: "#fff", fontSize: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>✓</div>
+              <div style={{ width: 80, height: 80, borderRadius: "50%", background: "var(--s-primary)", color: "#fff", fontSize: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>✓</div>
               <h2 style={{ fontSize: 28, fontWeight: 900 }}>Asante sana{f.anonymous ? "" : `, ${f.name.split(" ")[0]}`}!</h2>
               <p>Your gift of <b>KES {amount.toLocaleString()}</b> was received.</p>
               <div style={{ background: "var(--s-sand)", borderRadius: 12, padding: "12px 18px" }}>Receipt reference <b>{don.reference}</b></div>
@@ -567,11 +567,11 @@ function Donate() {
         </div>
         <aside className="stack">
           <b style={{ fontSize: 18 }}>What your gift does</b>
-          {[["KES 500", "Prints SRH flyers for 50 young people", "#0E5E6F"], ["KES 2,500", "Trains one peer educator for a day", "#E4572E"], ["KES 5,000", "Plants and protects 150 indigenous trees", "#3F9E6B"], ["KES 10,000", "Runs a full ward dialogue on GBV", "#6B5BA8"]].map(([a, t, c]) => (
+          {[["KES 500", "Prints SRH flyers for 50 young people", "#C93A63"], ["KES 2,500", "Trains one peer educator for a day", "#E5734F"], ["KES 5,000", "Plants and protects 150 indigenous trees", "#F59E3B"], ["KES 10,000", "Runs a full ward dialogue on GBV", "#B5838D"]].map(([a, t, c]) => (
             <div key={a} className="row" style={{ gap: 14, borderRadius: 14, padding: 16, background: `${c}0F`, borderLeft: `5px solid ${c}` }}><b style={{ color: c, minWidth: 92 }}>{a}</b><span>{t}</span></div>
           ))}
           {d.recent.length > 0 && <><b style={{ fontSize: 18, marginTop: 8 }}>Recent supporters</b>
-            {d.recent.map((r, i) => <div key={i} className="spread" style={{ borderBottom: "1px solid #ECE6D6", padding: "8px 0" }}><span>♥ {r.name}</span><b>{kes(r.amount)}</b></div>)}</>}
+            {d.recent.map((r, i) => <div key={i} className="spread" style={{ borderBottom: "1px solid #F3E0D8", padding: "8px 0" }}><span>♥ {r.name}</span><b>{kes(r.amount)}</b></div>)}</>}
         </aside>
       </section>
     </>

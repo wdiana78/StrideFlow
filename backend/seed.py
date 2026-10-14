@@ -35,7 +35,7 @@ from app.services.audit import log
 from app.templates_builtin import ensure_builtin_templates
 
 PASSWORD = "kept-demo-2026"
-DEMO_ORGS = ["Tumaini Community Network", "Mwangaza Creative Studio", "Timiza Youth Initiative"]
+DEMO_ORGS = ["Tumaini Community Network", "Mwangaza Creative Studio", "Timiza Youth Initiative", "Hatua Shoes", "Pwani Coast Stays"]
 
 
 def at(d: date, hour=15) -> datetime:
@@ -218,6 +218,12 @@ def seed():
     rules.evaluate_org(db, org2.id, today())
 
     seed_case_study(db, pw)
+    seed_tenants(db, pw)
+    from app.apps import INDUSTRY_BY_KEY
+    for o in db.scalars(select(Organization)).all():
+        if o.name == "Tumaini Community Network":
+            o.industry, o.installed_apps = "community", sorted(INDUSTRY_BY_KEY["community"]["apps"])
+    db.commit()
     db.close()
     print("Seeded demo data. Sign in as achieng@tumaini.example /", PASSWORD)
 
@@ -227,7 +233,9 @@ def seed_case_study(db, pw):
     data = json.loads((Path(__file__).parent / "seed_data" / "timiza.json").read_text())
     d = lambda s: date.fromisoformat(s) if s else None  # noqa: E731
     tpl = db.scalar(select(Template).where(Template.key == data["template_key"], Template.organization_id.is_(None)))
-    org = Organization(name=data["organization"]["name"], sector=data["organization"]["sector"], currency="KES")
+    from app.apps import INDUSTRY_BY_KEY
+    org = Organization(name=data["organization"]["name"], sector=data["organization"]["sector"], currency="KES",
+                       industry="community", installed_apps=sorted(INDUSTRY_BY_KEY["community"]["apps"]))
     db.add(org)
     db.flush()
     people = {}
@@ -262,6 +270,7 @@ def seed_case_study(db, pw):
     projects_by_name = {pp.name: pp for pp in db.scalars(select(Project).where(Project.organization_id == org.id)).all()}
     seed_erp(db, org, people, stakes, projects_by_name, data)
     seed_forms(db, org, people, projects_by_name, data["forms"])
+    seed_event_forms(db, org, people["zawadi"])
     log(db, org.id, people["amani"].id, "organization_created", "organization", org.id, "Case study data loaded")
     db.commit()
     rules.evaluate_org(db, org.id, today())
@@ -389,6 +398,84 @@ def seed_forms(db, org, people, projects, forms):
             db.add(FormSubmission(form_id=form.id, organization_id=org.id, data=data, source="public" if spec["is_public"] else "app",
                                   submitted_by_id=None if spec["is_public"] else submitters[i % 3], created_at=when))
     db.flush()
+
+
+EVENT_GEN = {"gender": [55, 42, 3], "age": [6, 44, 30, 15, 5], "heard": [30, 28, 10, 14, 12, 6], "rating": [2, 4, 14, 38, 42]}
+
+
+def seed_event_forms(db, org, creator):
+    """Every event gets its attendance and feedback form; held events already have responses."""
+    from app import erp
+    from app.models import Form, FormSubmission
+    from app.routers.erp import EVENT_FORM_FIELDS
+
+    rng = Lcg(99)
+    t = erp.TABLES["events"]
+    for ev in db.execute(select(t).where(t.c.organization_id == org.id).order_by(t.c.date, t.c.title)).all():
+        form = Form(organization_id=org.id, event_id=ev.id, project_id=ev.project_id, title=f"{ev.title}: attendance and feedback",
+                    description="Takes one minute. No names needed.", fields=[{**x, "options": x.get("options", []), "min": None, "max": None} for x in EVENT_FORM_FIELDS],
+                    is_public=True, status="open" if ev.status == "planned" else "closed", created_by_id=creator.id)
+        db.add(form)
+        db.flush()
+        n = min(int(ev.attended or 0), 60) if ev.status == "held" else 0
+        for i in range(n):
+            data = answers_for({"fields": [
+                {"id": "gender", "type": "select", "options": EVENT_FORM_FIELDS[0]["options"], "w": EVENT_GEN["gender"]},
+                {"id": "age", "type": "select", "options": EVENT_FORM_FIELDS[1]["options"], "w": EVENT_GEN["age"]},
+                {"id": "ward", "type": "text", "samples": WARDS},
+                {"id": "heard", "type": "select", "options": EVENT_FORM_FIELDS[3]["options"], "w": EVENT_GEN["heard"]},
+                {"id": "rating", "type": "rating", "w": EVENT_GEN["rating"]},
+                {"id": "again", "type": "yesno", "p": 0.9}]}, rng, i)[0]
+            db.add(FormSubmission(form_id=form.id, organization_id=org.id, data=data, source="public",
+                                  created_at=datetime.fromisoformat(ev.date.isoformat() + "T16:00:00+00:00")))
+    db.flush()
+
+
+def seed_tenants(db, pw):
+    """Other industries on the same platform: an agency, a shoe brand, a guesthouse."""
+    from app import erp
+    from app.apps import INDUSTRY_BY_KEY
+
+    spec = json.loads((Path(__file__).parent / "seed_data" / "tenants.json").read_text())
+    for t in spec["tenants"]:
+        org = db.scalar(select(Organization).where(Organization.name == t["organization"]["name"]))
+        if not org:
+            org = Organization(name=t["organization"]["name"], sector=t["organization"]["sector"], currency="KES")
+            db.add(org)
+            db.flush()
+        org.industry, org.installed_apps = t["industry"], sorted(INDUSTRY_BY_KEY[t["industry"]]["apps"])
+        people = {}
+        if t.get("admin"):
+            people["admin"] = User(organization_id=org.id, full_name=t["admin"]["name"], email=t["admin"]["email"], password_hash=pw, role=Role.admin)
+            db.add(people["admin"])
+        for u in t.get("users", []):
+            people[u["key"]] = User(organization_id=org.id, full_name=u["name"], email=u["email"], password_hash=pw, role=Role(u["role"]))
+            db.add(people[u["key"]])
+        db.flush()
+        owner = people.get("admin") or db.scalar(select(User).where(User.organization_id == org.id, User.role == Role.admin))
+        keys = {}
+        records = {"site_settings": [t["site_settings"]], "site_services": t.get("site_services", []), **t.get("modules", {})}
+        order = ["site_settings", "site_services", "vendors", "customers", "items", "stock_moves", "resources", "invoices", "bookings", "events"]
+        for key in [k for k in order if k in records]:
+            m, tbl = erp.MODULES[key], erp.TABLES[key]
+            fields = {f["key"]: f for f in m["fields"]}
+            for rec in records[key]:
+                values = {}
+                for k, v in rec.items():
+                    if k.startswith("_") or k not in fields:
+                        continue
+                    f = fields[k]
+                    values[k] = keys[v] if f["type"] == "ref" else date.fromisoformat(v) if f["type"] == "date" else v
+                rid = uuid.uuid4()
+                if m.get("status"):
+                    values[m["status"]["field"]] = rec.get("_status", m["status"]["default"])
+                now = datetime.now(timezone.utc) - timedelta(days=5)
+                db.execute(tbl.insert().values(id=rid, organization_id=org.id, created_by_id=owner.id, created_at=now, updated_at=now, **values))
+                if rec.get("_key"):
+                    keys[rec["_key"]] = rid
+        seed_event_forms(db, org, owner)
+        db.commit()
+        rules.evaluate_org(db, org.id, today())
 
 
 if __name__ == "__main__":

@@ -4,9 +4,10 @@
  * preview build (VITE_DEMO=1). The real app talks to the Python API and PostgreSQL.
  */
 import SPEC from "../modules.json";
+import PLATFORM from "../platform.json";
 import { SEED } from "./seed";
 
-const KEY = "kept_preview_db_v4";
+const KEY = "kept_preview_db_v5";
 export const TODAY = "2026-10-13";
 const AT_RISK_GAP = 15, DUE_SOON = 3, ESCALATE = 2;
 
@@ -427,7 +428,7 @@ export async function handle(method, path, { body, form, params, token }) {
   for (const rt of routes) {
     if (rt.method !== method) continue;
     const m = path.match(rt.re); if (!m) continue;
-    const isPublic = path === "/auth/login" || path === "/auth/register" || path.startsWith("/public/");
+    const isPublic = path === "/auth/login" || path === "/auth/register" || path.startsWith("/public/") || path.startsWith("/platform");
     const user = isPublic ? null : current(token);
     try {
       const out = await rt.fn(user, { body: body || {}, form, params: params || {} }, ...m.slice(1));
@@ -455,6 +456,8 @@ function computed(key, r) {
     const a = Number(r.amount || 0); return { spent, remaining: a - spent, used_pct: a ? Math.round((spent / a) * 1000) / 10 : 0 };
   }
   if (key === "items") return { stock: mrows("stock_moves").filter((x) => x.item_id === r.id).reduce((s, x) => s + Number(x.quantity) * (x.direction === "in" ? 1 : -1), 0) };
+  if (key === "customers") { const inv = mrows("invoices").filter((i) => i.customer_id === r.id);
+    return { billed: inv.filter((i) => i.status !== "void").reduce((a, i) => a + Number(i.amount), 0), outstanding: inv.filter((i) => i.status === "sent").reduce((a, i) => a + Number(i.amount), 0) }; }
   if (key === "volunteers") return { hours: mrows("volunteer_hours").filter((x) => x.volunteer_id === r.id).reduce((s, x) => s + Number(x.hours), 0) };
   return {};
 }
@@ -496,6 +499,11 @@ function mvalidate(org, m, data, existing, rid) {
     if (f.required && (merged[f.key] === null || merged[f.key] === undefined || merged[f.key] === "")) fail(422, `${f.label} is required.`, f.key);
     if (f.after && merged[f.key] && merged[f.after] && merged[f.key] < merged[f.after]) fail(422, `${f.label} must be on or after ${known[f.after].label.toLowerCase()}.`, f.key);
     if (f.unique && clean[f.key] && mrows(m.key).some((x) => x.organization_id === org && x.id !== rid && String(x[f.key] || "").toLowerCase() === String(clean[f.key]).toLowerCase())) fail(409, `That ${f.label.toLowerCase()} is already used.`, f.key);
+  }
+  const ov = m.no_overlap;
+  if (ov && merged[ov.resource] && merged[ov.start] && merged[ov.end] && !(m.status && existing && ov.ignore_status.includes(existing[m.status.field]))) {
+    const clash = mrows(m.key).find((x) => x.organization_id === org && x.id !== rid && x[ov.resource] === merged[ov.resource] && x[ov.start] <= merged[ov.end] && x[ov.end] >= merged[ov.start] && !(m.status && ov.ignore_status.includes(x[m.status.field])));
+    if (clash) fail(409, `Already booked by ${clash[m.title_field]} from ${fmt(clash[ov.start])} to ${fmt(clash[ov.end])}. Choose other dates.`, ov.start);
   }
   if (m.single && !existing && mrows(m.key).some((x) => x.organization_id === org)) fail(409, `${m.label} already exist. Edit them instead.`);
   return clean;
@@ -590,6 +598,8 @@ function erpDesired(org, put) {
     for (const r of mine(k)) { const days = dnum(TODAY) - dnum(r.created_at); if (r[f] !== w || days <= 3) continue;
       const title = k === "leave_requests" ? `${refLabel("users", r.user_id)}: ${r.kind} leave` : String(r[MODS[k].title_field] || MODS[k].singular);
       put("approval_waiting", k, r.id, { severity: "medium", owner_id: null, title, detail: `${MODS[k].singular} waiting ${days} days for approval.`, data: {}, project_id: null }); }
+  for (const r of mine("invoices")) { if (r.status !== "sent" || r.due_on >= TODAY) continue; const days = dnum(TODAY) - dnum(r.due_on);
+    put("invoice_overdue", "invoices", r.id, { severity: days > 14 ? "high" : "medium", owner_id: r.created_by_id, title: `Invoice ${r.number}`, detail: `KES ${Number(r.amount).toLocaleString()} unpaid, ${days} days past due.`, data: {}, project_id: r.project_id || null }); }
   for (const r of mine("documents")) { if (!r.expires_on) continue; const days = dnum(r.expires_on) - dnum(TODAY); if (days > 30) continue;
     put("expiring", "documents", r.id, { severity: days < 0 ? "high" : "medium", owner_id: r.owner_id, title: r.title, detail: days < 0 ? `Expired ${-days} days ago.` : `Expires in ${days} days, on ${fmt(r.expires_on)}.`, data: {}, project_id: null }); }
   for (const r of mine("items")) { const s2 = computed("items", r).stock; if (r.reorder_level != null && s2 <= Number(r.reorder_level))
@@ -617,7 +627,15 @@ on("GET", "/dashboard", (u) => {
     months.push({ month: `${key}-01`, spent: sumOf(spentRows.filter((e) => e.spent_on.startsWith(key)), "amount") }); }
   const byGender = {}; mine("participants").forEach((p) => { byGender[p.gender] = (byGender[p.gender] || 0) + 1; });
   const cnt = (s2) => statuses.filter((x) => x === s2).length;
+  const org2 = byId("orgs", org); const inv = mine("invoices"), bk = mine("bookings");
+  const low = mine("items").filter((r) => r.reorder_level != null && computed("items", r).stock <= Number(r.reorder_level)).length;
+  const sev = { high: 0, medium: 1, low: 2 };
   return {
+    installed: org2.installed_apps || [], industry: org2.industry,
+    top_flags: T("flags").filter((f) => f.organization_id === org && f.status === "open").sort((a, b) => sev[a.severity] - sev[b.severity] || a.opened_at.localeCompare(b.opened_at)).slice(0, 6).map((f) => ({ rule: f.rule, title: f.title, detail: f.detail, severity: f.severity })),
+    sales: { outstanding: sumOf(inv.filter((i) => i.status === "sent"), "amount"), paid: sumOf(inv.filter((i) => i.status === "paid"), "amount"), overdue: inv.filter((i) => i.status === "sent" && i.due_on < TODAY).length, drafts: inv.filter((i) => i.status === "draft").length },
+    inventory: { items: mine("items").length, low_stock: low, units: mine("items").reduce((a, r) => a + computed("items", r).stock, 0) },
+    bookings: { active: bk.filter((b) => ["confirmed", "checked_in"].includes(b.status) && b.ends_on >= TODAY).length, in_house: bk.filter((b) => b.status === "checked_in").length, value: sumOf(bk.filter((b) => b.status !== "cancelled" && b.ends_on >= TODAY), "amount") },
     today: TODAY, programmes,
     commitments: { total: statuses.length, on_track: cnt("on_track") + cnt("done"), at_risk: cnt("at_risk"), overdue: cnt("overdue") },
     finance: { awarded: sumOf(mine("grants").filter((g) => ["awarded", "reporting", "closed"].includes(g.stage)), "amount"),
@@ -854,4 +872,89 @@ on("POST", "/auth/password", (u, { body }) => {
   const pw = body.new_password || ""; if (pw.length < 10 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) vErr("Password needs at least 10 characters and letters and numbers.", "password");
   u.password = pw; log(u.organization_id, u.id, "password_changed", "user", u.id, `${u.full_name} changed their password; other sessions signed out`);
   return { access_token: u.id, token_type: "bearer", user: meOut(u) };
+});
+
+// =====================================================================================
+// Apps and industries, event forms, sales, bookings, search (mirror of backend)
+// =====================================================================================
+const APPDEFS = PLATFORM.apps, INDS = Object.fromEntries(PLATFORM.industries.map((i) => [i.key, i]));
+const appName = (k) => APPDEFS.find((a) => a.key === k)?.name || k;
+function requireApp(u, key) {
+  const app = MODS[key]?.app; const org = byId("orgs", u.organization_id);
+  if (app && !(org.installed_apps || []).includes(app)) E(404, `Install the ${appName(app)} app to use this.`);
+}
+on("GET", "/platform", () => ({ apps: APPDEFS, palettes: PLATFORM.palettes, industries: PLATFORM.industries.map((i) => ({ ...i, app_names: i.apps.map(appName) })) }));
+on("GET", "/platform/showcase", () => mrows("site_settings").map((s2) => { const o = byId("orgs", s2.organization_id);
+  return { slug: s2.slug, organization: o.name, industry: INDS[o.industry]?.name || o.industry, tagline: s2.tagline, primary: s2.brand_primary, accent: s2.brand_accent }; }));
+on("GET", "/apps", (u) => { const org = byId("orgs", u.organization_id); const inst = new Set(org.installed_apps || []);
+  return { industry: org.industry, installed: [...inst].sort(), apps: APPDEFS.map((a) => ({ ...a, installed: inst.has(a.key), modules: SPEC.modules.filter((m) => m.app === a.key).map((m) => ({ key: m.key, label: m.label })) })) }; });
+function setApp(u, key, on2) {
+  adminOnly(u); if (!APPDEFS.some((a) => a.key === key)) E(404, "Unknown app.");
+  const org = byId("orgs", u.organization_id); const s2 = new Set(org.installed_apps || []); on2 ? s2.add(key) : s2.delete(key); org.installed_apps = [...s2].sort();
+  log(org.id, u.id, on2 ? "app_installed" : "app_removed", "organization", org.id, `${u.full_name} ${on2 ? "installed" : "removed"} ${appName(key)}${on2 ? "" : " (data kept)"}`);
+  return { installed: org.installed_apps };
+}
+on("POST", "/apps/:key/install", (u, _, key) => setApp(u, key, true));
+on("POST", "/apps/:key/uninstall", (u, _, key) => setApp(u, key, false));
+function eventForm(u, ev) {
+  const f = { id: uid(), organization_id: u.organization_id, event_id: ev.id, project_id: ev.project_id || null, title: `${ev.title}: attendance and feedback`,
+    description: "Takes one minute. No names needed.", fields: PLATFORM.event_form_fields.map((x) => ({ ...x, options: x.options || [], min: null, max: null })),
+    is_public: true, status: "open", created_by_id: u.id, created_at: nowIso() };
+  forms().push(f); log(u.organization_id, u.id, "form_created", "events", ev.id, `Attendance and feedback form created for ${ev.title}`); return f;
+}
+on("POST", "/events/:id/form", (u, _, id2) => { manage(u); requireApp(u, "events"); const ev = getRec(u, "events", id2); return { id: (forms().find((f) => f.event_id === id2) || eventForm(u, ev)).id }; });
+on("GET", "/search", (u, { params }) => {
+  const q = (params.q || "").trim().toLowerCase(); if (q.length < 2) return [];
+  const org = byId("orgs", u.organization_id); const inst = new Set(org.installed_apps || []); const out = [];
+  for (const m of SPEC.modules) {
+    if (!inst.has(m.app)) continue; const cols = m.fields.filter((f) => f.search).map((f) => f.key); if (!cols.length) continue;
+    mrows(m.key).filter((r) => r.organization_id === u.organization_id && cols.some((c) => String(r[c] ?? "").toLowerCase().includes(q))).slice(0, 5)
+      .forEach((r) => out.push({ kind: m.singular, app: m.app, title: String(r[m.title_field] ?? m.singular), link: `/app/m/${m.key}/${r.id}` }));
+  }
+  if (inst.has("projects")) {
+    T("projects").filter((p) => p.organization_id === u.organization_id && p.name.toLowerCase().includes(q)).slice(0, 5).forEach((p) => out.push({ kind: "Project", app: "projects", title: p.name, link: `/app/projects/${p.id}` }));
+    T("activities").filter((a) => projectOfActivity(a).organization_id === u.organization_id && a.title.toLowerCase().includes(q)).slice(0, 8).forEach((a) => out.push({ kind: "Activity", app: "projects", title: a.title, link: `/app/activities/${a.id}` }));
+  }
+  return out.slice(0, 40);
+});
+routes.unshift(routes.pop()); // /search before generic routes
+// --- wrap generic module routes: app gating, event forms, hooks
+function wrap(method, pattern, fn) { const r = routes.find((x) => x.method === method && String(x.re) === String(new RegExp("^" + pattern.replace(/:\w+/g, "([^/]+)") + "$"))); if (r) { const inner = r.fn; r.fn = (...a) => fn(inner, ...a); } }
+for (const [mth, pat] of [["GET", "/m/:key"], ["GET", "/m/:key/stats"], ["PATCH", "/m/:key/:id"], ["DELETE", "/m/:key/:id"]]) wrap(mth, pat, (inner, u, req, key, ...rest) => { requireApp(u, key); return inner(u, req, key, ...rest); });
+wrap("POST", "/m/:key", (inner, u, req, key) => { requireApp(u, key); const rec = inner(u, req, key); if (key === "events") eventForm(u, mrows("events").find((e) => e.id === rec.id)); return rec; });
+wrap("GET", "/m/:key/:id", (inner, u, req, key, id2) => { requireApp(u, key); const rec = inner(u, req, key, id2);
+  if (key === "events") { const f = forms().find((x) => x.event_id === id2); if (f) rec._form = { id: f.id, title: f.title, is_public: f.is_public, responses: subs().filter((s2) => s2.form_id === f.id).length }; }
+  return rec; });
+wrap("POST", "/m/:key/:id/transition", (inner, u, req, key, id2) => {
+  requireApp(u, key);
+  const r = mrows(key).find((x) => x.id === id2 && x.organization_id === u.organization_id);
+  if (key === "events" && req.body.to === "held" && r && (r.attended === null || r.attended === undefined)) {
+    const f = forms().find((x) => x.event_id === id2); const n2 = f ? subs().filter((s2) => s2.form_id === f.id).length : 0; if (n2) r.attended = n2;
+  }
+  const before = r?.status; const out = inner(u, req, key, id2);
+  if (key === "invoices" && before === "sent" && out.status === "paid") {
+    const inv = mrows("invoices").find((x) => x.id === id2);
+    mrows("income").push({ id: uid(), organization_id: inv.organization_id, created_by_id: u.id, created_at: nowIso(), updated_at: nowIso(), source: `Invoice ${inv.number}: ${refLabel("customers", inv.customer_id)}`,
+      amount: Number(inv.amount), received_on: TODAY, method: "bank", reference: inv.number, notes: inv.description });
+  }
+  return out;
+});
+const _forms = ["/forms", "/forms/:id", "/forms/:id/submissions"];
+for (const pat of _forms) for (const mth of ["GET", "POST", "PUT", "DELETE"]) wrap(mth, pat, (inner, u, ...a) => {
+  if (!(byId("orgs", u.organization_id).installed_apps || []).includes("forms")) E(404, "Install the Data collection app to use this.");
+  if (mth === "GET" && pat === "/forms" && a[0].params?.event_id) return inner(u, ...a).filter((f) => f.event_id === a[0].params.event_id);
+  return inner(u, ...a);
+});
+// --- registration with industry, site and palette
+wrap("POST", "/auth/register", (inner, u, req) => {
+  const ind = INDS[req.body.industry || "community"]; if (!ind) E(422, "Choose an industry.");
+  const slug = req.body.site_slug;
+  if (slug && !/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(slug)) E(422, "Web address: lowercase letters, numbers and dashes.");
+  if (slug && mrows("site_settings").some((s2) => s2.slug === slug)) E(409, { message: "That web address is taken. Try another.", field: "site_slug" });
+  const pw = req.body.password || ""; if (pw.length < 10 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) E(422, "Password needs at least 10 characters with letters and numbers.");
+  const out = inner(u, req); const org = byId("orgs", out.user.organization.id);
+  org.industry = ind.key; org.installed_apps = [...new Set(ind.apps)].sort();
+  if (slug) { const pal = PLATFORM.palettes[req.body.palette] || PLATFORM.palettes.blossom;
+    mrows("site_settings").push({ id: uid(), organization_id: org.id, created_by_id: out.user.id, created_at: nowIso(), updated_at: nowIso(), slug, tagline: `Welcome to ${org.name}`, intro: `${org.name} on Kept.`, show_impact: true, brand_primary: pal.primary, brand_accent: pal.accent }); }
+  return { ...out, user: meOut(byId("users", out.user.id)) };
 });

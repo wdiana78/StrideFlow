@@ -1,5 +1,7 @@
 import SPEC from "../modules.json";
 import TIMIZA from "./timiza.json";
+import TENANTS from "./tenants.json";
+import PLATFORM from "../platform.json";
 // Same fictional data and templates as backend/seed.py and backend/app/templates_builtin.py.
 const R = (kind, label, required = true, counts = false) => ({ kind, label, required, counts });
 export const TEMPLATES = [
@@ -69,7 +71,8 @@ export function SEED() {
   const tplTypes = (tid) => Object.fromEntries(db.templates.find((t) => t.id === tid).blueprint.activity_types.map((t) => [t.key, t]));
   const audit = (org, actor, action, sid, summary) => db.audit.push({ id: ++db.seq, organization_id: org, actor_id: actor, action, subject_type: "activity", subject_id: sid, summary, changes: {}, at: at("2026-10-01", 9) });
 
-  function org(name, sector) { const o = { id: id("org"), name, sector, currency: "KES" }; db.orgs.push(o); return o; }
+  const appsFor = (k) => [...PLATFORM.industries.find((i) => i.key === k).apps].sort();
+  function org(name, sector, industry = "community") { const o = { id: id("org"), name, sector, currency: "KES", industry, installed_apps: appsFor(industry) }; db.orgs.push(o); return o; }
   function user(o, full_name, email, role) { const u = { id: id("usr"), organization_id: o.id, full_name, email, password: PASSWORD, role, is_active: true }; db.users.push(u); return u; }
   function stake(o, name, kind, contact_email = null) { const s = { id: id("stk"), organization_id: o.id, name, kind, contact_email }; db.stakeholders.push(s); return s; }
   function project(o, tid, s, m, name, starts_on, ends_on, description = "") { const p = { id: id("prj"), organization_id: o.id, template_id: tid, stakeholder_id: s.id, manager_id: m.id, name, description, starts_on, ends_on, status: "active" }; db.projects.push(p); return p; }
@@ -145,7 +148,7 @@ export function SEED() {
   act(t, C, ytrain, "Cohort 3 intake week", "2026-11-02", kevin, "training_session");
 
   // ---------- Mwangaza Creative Studio (contrasting example) ----------
-  const m = org("Mwangaza Creative Studio", "Creative agency");
+  const m = org("Mwangaza Creative Studio", "Creative agency", "agency");
   const lead = user(m, "Wairimu Kamau", "wairimu@mwangaza.example", "admin");
   const designer = user(m, "Otieno Were", "otieno@mwangaza.example", "member");
   const kilele = stake(m, "Kilele Coffee Co.", "client");
@@ -175,6 +178,8 @@ export function SEED() {
   }
   seedErp(db, id, tz, ppl, sk, projByName);
   seedForms(db, id, tz, ppl, projByName);
+  seedEventForms(db, id, tz, ppl.zawadi);
+  seedTenants(db, id, org, user, lead);
   return db;
 }
 
@@ -240,5 +245,46 @@ function seedForms(db, id, org, ppl, projects) {
       const day = new Date(Date.UTC(2026, 6, 1) + Math.floor(next() * 104) * 86400000).toISOString().slice(0, 10);
       db.form_submissions.push({ id: id("sub"), form_id: form.id, organization_id: org.id, data, source: spec.is_public ? "public" : "app", submitted_by_id: spec.is_public ? null : submitters[i % 3], created_at: `${day}T10:00:00.000Z` });
     }
+  }
+}
+
+const EVENT_GEN = { gender: [55, 42, 3], age: [6, 44, 30, 15, 5], heard: [30, 28, 10, 14, 12, 6], rating: [2, 4, 14, 38, 42] };
+function seedEventForms(db, id, org, creator) {
+  const next = lcg(99);
+  const pick = (w) => { const r = next() * w.reduce((a, b) => a + b, 0); let acc = 0; for (let k = 0; k < w.length; k++) { acc += w[k]; if (r < acc) return k; } return w.length - 1; };
+  const F = PLATFORM.event_form_fields;
+  const evs = (db.m.events || []).filter((e) => e.organization_id === org.id).sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
+  for (const ev of evs) {
+    const form = { id: id("frm"), organization_id: org.id, event_id: ev.id, project_id: ev.project_id || null, title: `${ev.title}: attendance and feedback`, description: "Takes one minute. No names needed.",
+      fields: F.map((x) => ({ ...x, options: x.options || [], min: null, max: null })), is_public: true, status: ev.status === "planned" ? "open" : "closed", created_by_id: creator.id, created_at: "2026-07-01T08:00:00.000Z" };
+    db.forms.push(form);
+    const n = ev.status === "held" ? Math.min(Number(ev.attended || 0), 60) : 0;
+    for (let i = 0; i < n; i++) {
+      const data = { gender: F[0].options[pick(EVENT_GEN.gender)], age: F[1].options[pick(EVENT_GEN.age)], ward: WARDS[i % WARDS.length], heard: F[3].options[pick(EVENT_GEN.heard)], rating: pick(EVENT_GEN.rating) + 1, again: next() < 0.9 };
+      next(); // the backend generator also draws a date; keep both in step
+      db.form_submissions.push({ id: id("sub"), form_id: form.id, organization_id: org.id, data, source: "public", submitted_by_id: null, created_at: `${ev.date}T16:00:00.000Z` });
+    }
+  }
+}
+function seedTenants(db, id, makeOrg, makeUser, mwangazaAdmin) {
+  const mods = Object.fromEntries(SPEC.modules.map((m) => [m.key, m]));
+  for (const t of TENANTS.tenants) {
+    let o = db.orgs.find((x) => x.name === t.organization.name);
+    if (!o) o = makeOrg(t.organization.name, t.organization.sector, t.industry);
+    o.industry = t.industry; o.installed_apps = [...PLATFORM.industries.find((i) => i.key === t.industry).apps].sort();
+    let owner = t.admin ? makeUser(o, t.admin.name, t.admin.email, "admin") : (t.existing ? mwangazaAdmin : db.users.find((u) => u.organization_id === o.id && u.role === "admin"));
+    (t.users || []).forEach((u) => makeUser(o, u.name, u.email, u.role));
+    const keys = {};
+    const records = { site_settings: [t.site_settings], site_services: t.site_services || [], ...(t.modules || {}) };
+    for (const key of ["site_settings", "site_services", "vendors", "customers", "items", "stock_moves", "resources", "invoices", "bookings", "events"].filter((k) => records[k])) {
+      const m = mods[key]; const fields = Object.fromEntries(m.fields.map((f) => [f.key, f])); db.m[key] = db.m[key] || [];
+      for (const rec of records[key]) {
+        const row = {}; for (const [k, v] of Object.entries(rec)) { if (k.startsWith("_") || !fields[k]) continue; row[k] = fields[k].type === "ref" ? keys[v] : v; }
+        const r = { id: id(key.slice(0, 3)), organization_id: o.id, created_by_id: owner.id, created_at: "2026-10-08T09:00:00.000Z", updated_at: "2026-10-08T09:00:00.000Z", ...row };
+        if (m.status) r[m.status.field] = rec._status || m.status.default;
+        db.m[key].push(r); if (rec._key) keys[rec._key] = r.id;
+      }
+    }
+    seedEventForms(db, id, o, owner);
   }
 }

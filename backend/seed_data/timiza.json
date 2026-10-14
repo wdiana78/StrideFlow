@@ -721,8 +721,8 @@
     "vision": "A healthy, safe and inclusive Kilifi County where every young person thrives.",
     "founded": "Youth-led CBO, Kilifi County",
     "address": "Kilifi town, Kilifi County, Kenya",
-    "brand_primary": "#0E5E6F",
-    "brand_accent": "#F2B33D",
+    "brand_primary": "#C93A63",
+    "brand_accent": "#FF9F68",
     "donation_campaign": "Fund 1,000 more young people this year",
     "donation_goal": 500000
    }
@@ -2400,5 +2400,6 @@
     }
    ]
   }
- ]
+ ],
+ "industry": "community"
 }

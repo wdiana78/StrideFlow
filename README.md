@@ -24,9 +24,19 @@ Moringa School capstone, 2026. All organizations and people in the demo data are
 
 Every meaningful action, including those made by the rules, is written to the audit log.
 
+## How the platform works (the Odoo model)
+
+Kept is the product. Its home page sells the platform: apps, industries and live customer examples.
+
+- **Sign-up** asks for the industry (community organization, agency, retail, hospitality, school, clinic), the organization name, an optional website address and a brand palette. Kept installs the apps that industry needs.
+- **Apps** (14): Projects and M&E, Data collection, Events, Funding, Budgets and expenses, Sales and invoicing, Procurement, Inventory and assets, Bookings, People, Participant registry, Documents, Governance, Website. Admins install or remove them in Apps; data is kept when an app is removed. The API refuses requests to apps an organization has not installed.
+- **Every organization** gets its own branded website at `/site/<slug>` and a private, isolated workspace, themed in its own colours.
+- **Demo tenants**: Timiza Youth Initiative (community), Mwangaza Creative Studio (agency), Hatua Shoes (retail), Pwani Coast Stays (hospitality).
+- **A dedicated deployment** for one customer's own domain (for example timiza.or.ke) sets `VITE_SITE_SLUG=timiza`, which makes that organization's website the home page.
+
 ## What Timiza sees first
 
-With `VITE_SITE_SLUG=timiza`, the home page is Timiza's public website: home, about, programmes, services, stories, impact, get involved, contact and donate. Staff sign in from the top bar to reach the ERP behind it. Website content, brand colours, programmes, services, stories and team are all edited in the ERP's Website section, and the impact numbers on the site are counted live from verified records.
+On Timiza's own domain (`VITE_SITE_SLUG=timiza`), the home page is Timiza's public website: home, about, programmes, services, stories, impact, get involved, contact and donate. Staff sign in from the top bar to reach the ERP behind it. Website content, brand colours, programmes, services, stories and team are all edited in the ERP's Website section, and the impact numbers on the site are counted live from verified records.
 
 **Donations**: M-Pesa STK push and card in sandbox mode by default. Set `PAYMENTS_MODE=mpesa` and the Daraja variables to take real M-Pesa payments. A confirmed donation automatically becomes an Income record and moves the campaign progress bar.
 
@@ -75,7 +85,7 @@ backend/
     routers/             auth, org (people, stakeholders, templates, audit), projects, activities, flags
     services/            pace, rules engine, report builder, audit
   migrations/            Alembic
-  tests/                 38 API, business-rule, ERP and security tests
+  tests/                 45 API, business-rule, ERP, apps and security tests
   seed.py                fictional demo data
 frontend/
   src/pages              Landing, Auth, Attention, Projects, Project, Activity, Work, Reports, ReportView, Settings
@@ -149,7 +159,7 @@ npm run dev                       # http://localhost:5173
 ## Tests
 
 ```bash
-cd backend && pytest -q          # 38 tests (16 security): auth, roles, tenant isolation, validation,
+cd backend && pytest -q          # 45 tests (16 security): auth, roles, tenant isolation, validation,
                                  # proof rules, pace, flags, escalation, dependencies, reports
 cd frontend && npm test
 ```

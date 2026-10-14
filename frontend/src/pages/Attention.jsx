@@ -7,7 +7,7 @@ import { Dialog, Empty, ErrorNotice, Field, Loading, PaceLine, Shape, Toast } fr
 import { fmtDate, fmtDateTime, RULE_LABEL, RULE_WHY } from "../format";
 import { useApi } from "../hooks";
 
-const RULES = ["behind_pace", "overdue", "missing_proof", "blocked", "due_soon", "over_budget", "approval_waiting", "expiring", "low_stock", "report_due"];
+const RULES = ["behind_pace", "overdue", "missing_proof", "blocked", "due_soon", "invoice_overdue", "over_budget", "approval_waiting", "expiring", "low_stock", "report_due"];
 
 function age(iso) {
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
@@ -65,7 +65,7 @@ export default function Attention() {
             </div>
             {items.map((f) => (
               <button key={f.id} className="flag-row" aria-current={selected?.id === f.id} onClick={() => setSelectedId(f.id)}>
-                <span className="status" style={{ color: ["overdue", "expiring"].includes(f.rule) || (f.rule === "over_budget" && f.severity === "high") ? "var(--bad)" : f.rule === "blocked" ? "var(--slate)" : ["due_soon", "approval_waiting"].includes(f.rule) ? "var(--cobalt)" : "var(--risk)" }}>
+                <span className="status" style={{ color: ["overdue", "expiring", "invoice_overdue"].includes(f.rule) || (f.rule === "over_budget" && f.severity === "high") ? "var(--bad)" : f.rule === "blocked" ? "var(--slate)" : ["due_soon", "approval_waiting"].includes(f.rule) ? "var(--cobalt)" : "var(--risk)" }}>
                   <Shape kind={f.rule} />{RULE_LABEL[f.rule]}
                 </span>
                 <span style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>

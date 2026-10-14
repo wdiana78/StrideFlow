@@ -45,26 +45,26 @@ export default function Analytics() {
 
       <div className="tile-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
         <section className="panel panel-body stack-sm"><h2 className="card-title">Gender</h2>
-          <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: P.gender.find((g) => g.label === k)?.count || 0 }))} colors={["#C2477D", "#2E86AB", "#F2B33D"]} /></section>
+          <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: P.gender.find((g) => g.label === k)?.count || 0 }))} colors={["#E85D84", "#FF8A65", "#FFB570"]} /></section>
         <section className="panel panel-body stack-sm"><h2 className="card-title">Age bands</h2>
           <Columns data={[...P.age_band].sort((x, y) => AGE_ORDER.indexOf(x.label) - AGE_ORDER.indexOf(y.label)).map((g) => ({ label: g.label, value: g.count }))} format={fmtNum} /></section>
         <section className="panel panel-body stack-sm"><h2 className="card-title">Disability inclusion</h2>
-          <Donut data={[["Yes", "With a disability"], ["No", "Without"]].map(([k, l]) => ({ label: l, value: P.disability.find((g) => g.label === k)?.count || 0 }))} colors={["#6B5BA8", "#D7DDE0"]} /></section>
+          <Donut data={[["Yes", "With a disability"], ["No", "Without"]].map(([k, l]) => ({ label: l, value: P.disability.find((g) => g.label === k)?.count || 0 }))} colors={["#C93A63", "#F6E0DA"]} /></section>
       </div>
 
       <div className="two-col">
         <section className="wide panel panel-body stack-sm"><h2 className="card-title">Participants by programme and gender</h2>
-          <Grouped data={P.by_programme} keys={[{ key: "female", label: "Female", color: "#C2477D" }, { key: "male", label: "Male", color: "#2E86AB" }, { key: "other", label: "Other", color: "#F2B33D" }]} format={fmtNum} /></section>
+          <Grouped data={P.by_programme} keys={[{ key: "female", label: "Female", color: "#E85D84" }, { key: "male", label: "Male", color: "#FF8A65" }, { key: "other", label: "Other", color: "#FFB570" }]} format={fmtNum} /></section>
         <section className="narrow panel panel-body stack-sm"><h2 className="card-title">Reach by ward</h2><Bars data={P.ward.map((w) => ({ label: w.label, value: w.count }))} /></section>
       </div>
 
       <div className="tile-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))" }}>
         <section className="panel panel-body stack-sm"><h2 className="card-title">Event turnout: expected vs actual</h2>
-          <Grouped data={a.events.map((e) => ({ label: e.title.split(",")[0], expected: e.expected, attended: e.attended }))} keys={[{ key: "expected", label: "Expected", color: "#B9D3D8" }, { key: "attended", label: "Attended", color: "#0E5E6F" }]} format={fmtNum} /></section>
+          <Grouped data={a.events.map((e) => ({ label: e.title.split(",")[0], expected: e.expected, attended: e.attended }))} keys={[{ key: "expected", label: "Expected", color: "#FBD3DD" }, { key: "attended", label: "Attended", color: "#E85D84" }]} format={fmtNum} /></section>
         <section className="panel panel-body stack-sm"><h2 className="card-title">Spending by category</h2>
           <Donut data={a.spending_by_category.map((x) => ({ label: x.label, value: x.value }))} format={moneyShort} center={moneyShort(a.spending_by_category.reduce((s, x) => s + x.value, 0))} /></section>
         <section className="panel panel-body stack-sm"><h2 className="card-title">Volunteer hours by programme</h2>
-          <Bars data={a.volunteer_hours.map((x) => ({ label: x.label, value: x.value }))} colors={["#3F9E6B", "#E4572E", "#6B5BA8", "#2E86AB"]} /></section>
+          <Bars data={a.volunteer_hours.map((x) => ({ label: x.label, value: x.value }))} colors={["#E85D84", "#FF8A65", "#FFB570", "#C93A63"]} /></section>
       </div>
     </>
   );

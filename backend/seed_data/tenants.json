@@ -1,0 +1,468 @@
+{
+ "tenants": [
+  {
+   "organization": {
+    "name": "Mwangaza Creative Studio",
+    "sector": "Creative agency"
+   },
+   "industry": "agency",
+   "existing": true,
+   "site_settings": {
+    "slug": "mwangaza",
+    "tagline": "Brands that feel like home",
+    "intro": "A Nairobi studio designing campaigns, identities and websites for East African brands.",
+    "about": "Small senior team, fixed-price projects, weekly check-ins.",
+    "location": "Westlands, Nairobi",
+    "contact_email": "hello@mwangaza.example",
+    "brand_primary": "#B4532A",
+    "brand_accent": "#F7C59F",
+    "show_impact": false
+   },
+   "site_services": [
+    {
+     "title": "Brand identity",
+     "icon": "research",
+     "order": 1,
+     "published": true,
+     "description": "Naming, logo, colour and voice."
+    },
+    {
+     "title": "Campaigns",
+     "icon": "advocacy",
+     "order": 2,
+     "published": true,
+     "description": "Launches across social, radio and outdoor."
+    },
+    {
+     "title": "Websites",
+     "icon": "training",
+     "order": 3,
+     "published": true,
+     "description": "Fast, accessible sites your team can update."
+    }
+   ],
+   "modules": {
+    "customers": [
+     {
+      "_key": "kilele",
+      "name": "Kilele Coffee Co.",
+      "kind": "business",
+      "phone": "0711 222 333",
+      "email": "marketing@kilele.example",
+      "location": "Nairobi"
+     },
+     {
+      "_key": "zuri",
+      "name": "Zuri Microfinance",
+      "kind": "institution",
+      "email": "comms@zuri.example",
+      "location": "Mombasa"
+     },
+     {
+      "_key": "nyota",
+      "name": "Nyota Schools",
+      "kind": "institution",
+      "location": "Kisumu"
+     }
+    ],
+    "invoices": [
+     {
+      "number": "MW-2026-031",
+      "customer_id": "kilele",
+      "description": "Launch campaign, phase 1",
+      "amount": 420000,
+      "issued_on": "2026-09-01",
+      "due_on": "2026-09-30",
+      "_status": "paid"
+     },
+     {
+      "number": "MW-2026-037",
+      "customer_id": "kilele",
+      "description": "Launch campaign, phase 2",
+      "amount": 380000,
+      "issued_on": "2026-09-20",
+      "due_on": "2026-10-05",
+      "_status": "sent"
+     },
+     {
+      "number": "MW-2026-039",
+      "customer_id": "zuri",
+      "description": "Annual report design",
+      "amount": 150000,
+      "issued_on": "2026-10-01",
+      "due_on": "2026-10-31",
+      "_status": "sent"
+     },
+     {
+      "number": "MW-2026-041",
+      "customer_id": "nyota",
+      "description": "Website redesign deposit",
+      "amount": 200000,
+      "issued_on": "2026-10-12",
+      "due_on": "2026-10-26",
+      "_status": "draft"
+     }
+    ],
+    "events": [
+     {
+      "title": "Kilele brand workshop",
+      "kind": "meeting",
+      "date": "2026-10-21",
+      "venue": "Studio",
+      "expected": 12,
+      "_status": "planned"
+     }
+    ]
+   }
+  },
+  {
+   "organization": {
+    "name": "Hatua Shoes",
+    "sector": "Footwear brand"
+   },
+   "industry": "retail",
+   "admin": {
+    "name": "Wanjiru Mbugua",
+    "email": "wanjiru@hatua.example"
+   },
+   "users": [
+    {
+     "key": "otis",
+     "name": "Otis Kamau",
+     "email": "otis@hatua.example",
+     "role": "member"
+    }
+   ],
+   "site_settings": {
+    "slug": "hatua",
+    "tagline": "Made in Kenya, made to walk",
+    "intro": "Handmade leather sandals and sneakers from Nairobi's Gikomba artisans.",
+    "about": "Every pair is stitched by hand and repairable for life.",
+    "location": "Gikomba, Nairobi",
+    "contact_email": "jambo@hatua.example",
+    "brand_primary": "#C2410C",
+    "brand_accent": "#F9A8D4",
+    "show_impact": false
+   },
+   "site_services": [
+    {
+     "title": "Leather sandals",
+     "icon": "environment",
+     "order": 1,
+     "published": true,
+     "description": "Classic Maasai-bead and plain styles, sizes 35 to 46."
+    },
+    {
+     "title": "Sneakers",
+     "icon": "outreach",
+     "order": 2,
+     "published": true,
+     "description": "Canvas and kitenge uppers on recycled soles."
+    },
+    {
+     "title": "Repairs for life",
+     "icon": "training",
+     "order": 3,
+     "published": true,
+     "description": "Bring any Hatua pair back for free stitching."
+    }
+   ],
+   "modules": {
+    "items": [
+     {
+      "_key": "sandal",
+      "name": "Beaded leather sandal",
+      "category": "other",
+      "unit": "pairs",
+      "reorder_level": 40,
+      "location": "Gikomba workshop"
+     },
+     {
+      "_key": "sneaker",
+      "name": "Kitenge sneaker",
+      "category": "other",
+      "unit": "pairs",
+      "reorder_level": 30,
+      "location": "Gikomba workshop"
+     },
+     {
+      "_key": "leather",
+      "name": "Tanned leather hides",
+      "category": "other",
+      "unit": "hides",
+      "reorder_level": 10,
+      "location": "Store room"
+     },
+     {
+      "_key": "boxes",
+      "name": "Shoe boxes",
+      "category": "stationery",
+      "unit": "boxes",
+      "reorder_level": 100,
+      "location": "Store room"
+     }
+    ],
+    "stock_moves": [
+     {
+      "item_id": "sandal",
+      "direction": "in",
+      "quantity": 220,
+      "moved_on": "2026-09-01",
+      "note": "September production"
+     },
+     {
+      "item_id": "sandal",
+      "direction": "out",
+      "quantity": 196,
+      "moved_on": "2026-10-10",
+      "note": "Sold: shop and online"
+     },
+     {
+      "item_id": "sneaker",
+      "direction": "in",
+      "quantity": 150,
+      "moved_on": "2026-09-05",
+      "note": "Batch 12"
+     },
+     {
+      "item_id": "sneaker",
+      "direction": "out",
+      "quantity": 88,
+      "moved_on": "2026-10-10",
+      "note": "Sold: shop and online"
+     },
+     {
+      "item_id": "leather",
+      "direction": "in",
+      "quantity": 40,
+      "moved_on": "2026-08-20",
+      "note": "Kariokor tannery"
+     },
+     {
+      "item_id": "leather",
+      "direction": "out",
+      "quantity": 33,
+      "moved_on": "2026-10-01",
+      "note": "Production"
+     },
+     {
+      "item_id": "boxes",
+      "direction": "in",
+      "quantity": 500,
+      "moved_on": "2026-08-01",
+      "note": "Printed boxes"
+     },
+     {
+      "item_id": "boxes",
+      "direction": "out",
+      "quantity": 284,
+      "moved_on": "2026-10-10",
+      "note": "Packed orders"
+     }
+    ],
+    "vendors": [
+     {
+      "_key": "tannery",
+      "name": "Kariokor Tannery",
+      "category": "Leather",
+      "phone": "0722 555 101",
+      "rating": "4"
+     },
+     {
+      "_key": "prints",
+      "name": "Industrial Area Packaging",
+      "category": "Boxes",
+      "phone": "0733 555 202",
+      "rating": "3"
+     }
+    ],
+    "customers": [
+     {
+      "_key": "carrefour",
+      "name": "Junction Mall boutique",
+      "kind": "business",
+      "location": "Nairobi"
+     },
+     {
+      "_key": "hotel",
+      "name": "Diani Beach Resort shop",
+      "kind": "business",
+      "location": "Diani"
+     },
+     {
+      "_key": "walkin",
+      "name": "Online orders (M-Pesa)",
+      "kind": "individual",
+      "location": "Countrywide"
+     }
+    ],
+    "invoices": [
+     {
+      "number": "HT-0412",
+      "customer_id": "carrefour",
+      "description": "40 pairs, consignment",
+      "amount": 168000,
+      "issued_on": "2026-09-15",
+      "due_on": "2026-09-29",
+      "_status": "sent"
+     },
+     {
+      "number": "HT-0418",
+      "customer_id": "hotel",
+      "description": "25 pairs sandals",
+      "amount": 97500,
+      "issued_on": "2026-10-01",
+      "due_on": "2026-10-31",
+      "_status": "sent"
+     },
+     {
+      "number": "HT-0420",
+      "customer_id": "walkin",
+      "description": "October online sales",
+      "amount": 214000,
+      "issued_on": "2026-10-12",
+      "due_on": "2026-10-12",
+      "_status": "paid"
+     }
+    ],
+    "events": [
+     {
+      "title": "Hatua pop-up, Village Market",
+      "kind": "campaign",
+      "date": "2026-10-25",
+      "venue": "Village Market",
+      "expected": 300,
+      "_status": "planned"
+     }
+    ]
+   }
+  },
+  {
+   "organization": {
+    "name": "Pwani Coast Stays",
+    "sector": "Guesthouse and rentals"
+   },
+   "industry": "hospitality",
+   "admin": {
+    "name": "Rehema Salim",
+    "email": "rehema@pwani.example"
+   },
+   "users": [],
+   "site_settings": {
+    "slug": "pwani",
+    "tagline": "Slow days by the ocean",
+    "intro": "Three cottages and a garden venue a short walk from Watamu beach.",
+    "about": "Family-run, solar-powered, breakfast from the garden.",
+    "location": "Watamu, Kilifi County",
+    "contact_email": "karibu@pwani.example",
+    "brand_primary": "#A21CAF",
+    "brand_accent": "#FDA4AF",
+    "show_impact": false
+   },
+   "site_services": [
+    {
+     "title": "Cottages",
+     "icon": "environment",
+     "order": 1,
+     "published": true,
+     "description": "Sleeps two to five, with kitchenette."
+    },
+    {
+     "title": "Garden venue",
+     "icon": "dialogue",
+     "order": 2,
+     "published": true,
+     "description": "Weddings and retreats up to 80 guests."
+    }
+   ],
+   "modules": {
+    "resources": [
+     {
+      "_key": "baobab",
+      "name": "Baobab cottage",
+      "kind": "room",
+      "capacity": 2,
+      "rate": 7500,
+      "location": "Garden"
+     },
+     {
+      "_key": "mnazi",
+      "name": "Mnazi cottage",
+      "kind": "room",
+      "capacity": 4,
+      "rate": 11000,
+      "location": "Pool side"
+     },
+     {
+      "_key": "garden",
+      "name": "Garden venue",
+      "kind": "venue",
+      "capacity": 80,
+      "rate": 35000,
+      "location": "Main lawn"
+     }
+    ],
+    "customers": [
+     {
+      "_key": "g1",
+      "name": "Achieng and Tom",
+      "kind": "individual",
+      "phone": "0701 100 200"
+     },
+     {
+      "_key": "g2",
+      "name": "Watamu Turtle Watch retreat",
+      "kind": "institution",
+      "email": "admin@turtlewatch.example"
+     }
+    ],
+    "bookings": [
+     {
+      "guest": "Achieng and Tom",
+      "resource_id": "baobab",
+      "starts_on": "2026-10-14",
+      "ends_on": "2026-10-18",
+      "contact": "0701 100 200",
+      "amount": 30000,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "Kimani family",
+      "resource_id": "mnazi",
+      "starts_on": "2026-10-10",
+      "ends_on": "2026-10-15",
+      "amount": 55000,
+      "_status": "checked_in"
+     },
+     {
+      "guest": "Watamu Turtle Watch retreat",
+      "resource_id": "garden",
+      "starts_on": "2026-10-24",
+      "ends_on": "2026-10-25",
+      "amount": 70000,
+      "_status": "tentative"
+     },
+     {
+      "guest": "Lena (Germany)",
+      "resource_id": "baobab",
+      "starts_on": "2026-10-20",
+      "ends_on": "2026-10-27",
+      "amount": 52500,
+      "_status": "confirmed"
+     }
+    ],
+    "invoices": [
+     {
+      "number": "PCS-118",
+      "customer_id": "g2",
+      "description": "Retreat deposit",
+      "amount": 35000,
+      "issued_on": "2026-10-01",
+      "due_on": "2026-10-10",
+      "_status": "sent"
+     }
+    ]
+   }
+  }
+ ]
+}

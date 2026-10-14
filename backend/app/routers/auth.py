@@ -39,6 +39,8 @@ def register(body: RegisterIn, request: Request, db: Session = Depends(get_db)):
     user = User(organization_id=org.id, full_name=body.full_name.strip(), email=email, password_hash=hash_password(body.password), role=Role.admin)
     db.add(user)
     db.flush()
+    from .apps import setup_new_org
+    setup_new_org(db, org, user, body.industry, body.site_slug, body.palette)
     log(db, org.id, user.id, "organization_created", "organization", org.id, f"Created {org.name}")
     db.commit()
     db.refresh(user)

@@ -113,7 +113,13 @@ def validate_answers(fields: list[dict], data: dict) -> dict:
     return out
 
 
+def _need_forms_app(user: User):
+    if "forms" not in (user.organization.installed_apps or []):
+        raise HTTPException(404, "Install the Data collection app to use this.")
+
+
 def _form(db: Session, fid: uuid.UUID, user: User) -> Form:
+    _need_forms_app(user)
     f = db.get(Form, fid)
     if not f or f.organization_id != user.organization_id:
         raise HTTPException(404, "Form not found.")
@@ -124,17 +130,26 @@ def _out(db: Session, f: Form) -> dict:
     n = db.scalar(select(func.count()).select_from(FormSubmission).where(FormSubmission.form_id == f.id))
     last = db.scalar(select(func.max(FormSubmission.created_at)).where(FormSubmission.form_id == f.id))
     return {"id": str(f.id), "title": f.title, "description": f.description, "project_id": str(f.project_id) if f.project_id else None,
-            "project_name": f.project.name if f.project else None, "is_public": f.is_public, "status": f.status, "fields": f.fields,
+            "project_name": f.project.name if f.project else None, "event_id": str(f.event_id) if f.event_id else None, "is_public": f.is_public, "status": f.status, "fields": f.fields,
             "responses": n, "last_response_at": last.isoformat() if last else None, "created_at": f.created_at.isoformat()}
 
 
 @router.get("/forms")
-def list_forms(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def list_forms(event_id: uuid.UUID | None = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    _need_forms_app(user)
+    q = select(Form).where(Form.organization_id == user.organization_id)
+    if event_id:
+        q = q.where(Form.event_id == event_id)
+    return [_out(db, f) for f in db.scalars(q.order_by(Form.created_at.desc())).all()]
+
+
+def _unused_list_forms(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return [_out(db, f) for f in db.scalars(select(Form).where(Form.organization_id == user.organization_id).order_by(Form.created_at.desc())).all()]
 
 
 @router.post("/forms", status_code=201)
 def create_form(body: FormIn, user: User = Depends(can_manage), db: Session = Depends(get_db)):
+    _need_forms_app(user)
     if body.project_id and not db.scalar(select(Project.id).where(Project.id == body.project_id, Project.organization_id == user.organization_id)):
         raise HTTPException(422, "Choose a programme from your organization.")
     f = Form(organization_id=user.organization_id, created_by_id=user.id, **body.model_dump(exclude={"fields"}), fields=[x.model_dump() for x in body.fields])

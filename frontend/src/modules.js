@@ -32,10 +32,12 @@ export function display(f, rec) {
   }
 }
 
-export const GROUP_COLOR = { Funding: "#3F9E6B", Finance: "#2E86AB", Procurement: "#6B5BA8", Inventory: "#D17B0F", People: "#C2477D", Participants: "#0E9AA7", Operations: "#E4572E", Governance: "#8C6D46", Website: "#F2B33D" };
+export const GROUP_COLOR = { Funding: "#E85D84", Finance: "#FF8A65", Sales: "#F06292", Procurement: "#FFB570", Inventory: "#E5734F", Bookings: "#F6A5C0", People: "#C93A63", Participants: "#FF9E80", Operations: "#F28F79", Governance: "#B5838D", Website: "#FF7E67" };
 export const NAV = [
   { label: "Funding", items: [["grants", "Grants"], ["donations", "Donations"], ["income", "Income"]] },
   { label: "Finance", items: [["@finance", "Budget against actual"], ["budget_lines", "Budget lines"], ["expenses", "Expenses"]] },
+  { label: "Sales", items: [["customers", "Customers"], ["invoices", "Invoices"]] },
+  { label: "Bookings", items: [["bookings", "Bookings"], ["resources", "Rooms and resources"]] },
   { label: "Procurement", items: [["purchase_requests", "Purchase requests"], ["vendors", "Vendors"]] },
   { label: "Inventory", items: [["items", "Stock"], ["stock_moves", "Stock movements"], ["assets", "Assets"]] },
   { label: "People", items: [["volunteers", "Volunteers"], ["volunteer_hours", "Volunteer hours"], ["leave_requests", "Leave"]] },

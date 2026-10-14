@@ -20,6 +20,7 @@ const LOOK = {
   due_soon: ["Due soon", "#2C3D9B", "circle", false],
   needs_proof: ["Needs proof", "#A85A06", "tri", false],
   over_budget: ["Budget", "#B3261E", "tri", true],
+  invoice_overdue: ["Overdue invoice", "#C0262D", "sq", true],
   approval_waiting: ["Approval waiting", "#2C3D9B", "circle", false],
   expiring: ["Expiring document", "#B3261E", "sq", false],
   low_stock: ["Low stock", "#A85A06", "sq", true],

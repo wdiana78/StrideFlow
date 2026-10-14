@@ -10,6 +10,6 @@ for m in re.findall(r'<script type="module" crossorigin src="\./(assets/[^"]+)">
     html=html.replace('</body>', f'<script type="module">{js}</script>\n</body>')
 html=html.replace('<link rel="icon" href="./favicon.svg" type="image/svg+xml" />','')
 html=html.replace('<meta name="viewport" content="width=device-width, initial-scale=1.0" />','<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />')
-html=html.replace('<title>Kept</title>','<title>Kept: live preview</title>')
+html=html.replace('<title>Kept</title>','<title>Kept: one workspace for every organization</title>')
 open(os.path.join(d, '..', 'kept-live-preview.html'),'w').write(html)
 print("built", len(html))

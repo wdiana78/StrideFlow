@@ -27,6 +27,9 @@ Status key: **Done**, **Partial** (works, with a stated limit), **Deferred** (de
 | 10 Design | Wireframes, design system, high-fidelity screens | Done | Design canvas artifact |
 | 11 Functional | Real CRUD, validation, persistence, backend permissions, working filters, audit | Done | All verified in automated tests and browser runs |
 | 12 Process | Incremental stages with decisions explained | Done | This conversation and git history |
+| Extra | Platform with industry selection and installable apps (Odoo model) | Done | Kept home page, three-step sign-up, Apps page, API app gating, four demo tenants in four industries |
+| Extra | Event-linked data collection | Done | Every event gets a public attendance and feedback form; marking it held fills attendance from responses |
+| Extra | Sales and Bookings | Done | Invoices with overdue alerts and income posting; bookings with double-booking prevention |
 | Extra (your request) | Public website with donate button, data collection, M&E charts, security review | Done | Website pages, sandbox M-Pesa and card donations, form builder, analytics, `SECURITY.md` |
 
 ## Known gaps, honestly stated

@@ -2,8 +2,10 @@
  "groups": [
   "Funding",
   "Finance",
+  "Sales",
   "Procurement",
   "Inventory",
+  "Bookings",
   "People",
   "Participants",
   "Operations",
@@ -198,7 +200,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "funding"
   },
   {
    "key": "income",
@@ -283,7 +286,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "funding"
   },
   {
    "key": "donations",
@@ -441,7 +445,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "funding"
   },
   {
    "key": "budget_lines",
@@ -546,7 +551,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "finance"
   },
   {
    "key": "expenses",
@@ -712,7 +718,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "finance"
   },
   {
    "key": "vendors",
@@ -789,7 +796,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "procurement"
   },
   {
    "key": "purchase_requests",
@@ -939,7 +947,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "procurement"
   },
   {
    "key": "items",
@@ -1023,7 +1032,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "inventory"
   },
   {
    "key": "stock_moves",
@@ -1101,7 +1111,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "inventory"
   },
   {
    "key": "assets",
@@ -1263,7 +1274,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "inventory"
   },
   {
    "key": "volunteers",
@@ -1438,7 +1450,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "people"
   },
   {
    "key": "volunteer_hours",
@@ -1501,7 +1514,8 @@
    "delete": [
     "admin",
     "manager"
-   ]
+   ],
+   "app": "people"
   },
   {
    "key": "leave_requests",
@@ -1624,7 +1638,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "people"
   },
   {
    "key": "participants",
@@ -1743,7 +1758,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "participants"
   },
   {
    "key": "events",
@@ -1893,7 +1909,8 @@
    "delete": [
     "admin",
     "manager"
-   ]
+   ],
+   "app": "events"
   },
   {
    "key": "documents",
@@ -1980,7 +1997,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "documents"
   },
   {
    "key": "inquiries",
@@ -2117,7 +2135,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "website"
   },
   {
    "key": "meetings",
@@ -2189,7 +2208,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "governance"
   },
   {
    "key": "decisions",
@@ -2284,7 +2304,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "governance"
   },
   {
    "key": "site_settings",
@@ -2410,7 +2431,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "website"
   },
   {
    "key": "site_programmes",
@@ -2469,7 +2491,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "website"
   },
   {
    "key": "site_team",
@@ -2527,7 +2550,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "website"
   },
   {
    "key": "site_services",
@@ -2606,7 +2630,8 @@
    ],
    "delete": [
     "admin"
-   ]
+   ],
+   "app": "website"
   },
   {
    "key": "site_stories",
@@ -2679,6 +2704,474 @@
    "create": [
     "admin",
     "manager"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ],
+   "app": "website"
+  },
+  {
+   "key": "customers",
+   "app": "sales",
+   "label": "Customers",
+   "singular": "Customer",
+   "group": "Sales",
+   "description": "People and businesses you sell to.",
+   "title_field": "name",
+   "fields": [
+    {
+     "key": "name",
+     "label": "Name",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "kind",
+     "label": "Type",
+     "type": "select",
+     "options": [
+      [
+       "individual",
+       "Individual"
+      ],
+      [
+       "business",
+       "Business"
+      ],
+      [
+       "institution",
+       "Institution"
+      ]
+     ],
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "phone",
+     "label": "Phone",
+     "type": "text",
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "email",
+     "label": "Email",
+     "type": "email",
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "location",
+     "label": "Location",
+     "type": "text",
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "kra_pin",
+     "label": "KRA PIN",
+     "type": "text"
+    },
+    {
+     "key": "notes",
+     "label": "Notes",
+     "type": "textarea"
+    }
+   ],
+   "computed": [
+    {
+     "key": "billed",
+     "label": "Billed",
+     "type": "money",
+     "list": true
+    },
+    {
+     "key": "outstanding",
+     "label": "Outstanding",
+     "type": "money",
+     "list": true
+    }
+   ],
+   "create": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ]
+  },
+  {
+   "key": "invoices",
+   "app": "sales",
+   "label": "Invoices",
+   "singular": "Invoice",
+   "group": "Sales",
+   "description": "Bill customers and track payment.",
+   "title_field": "number",
+   "fields": [
+    {
+     "key": "number",
+     "label": "Invoice no.",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true,
+     "unique": true
+    },
+    {
+     "key": "customer_id",
+     "label": "Customer",
+     "type": "ref",
+     "ref": "customers",
+     "required": true,
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "description",
+     "label": "For",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "amount",
+     "label": "Amount",
+     "type": "money",
+     "required": true,
+     "list": true,
+     "min": 1
+    },
+    {
+     "key": "issued_on",
+     "label": "Issued",
+     "type": "date",
+     "required": true,
+     "list": true
+    },
+    {
+     "key": "due_on",
+     "label": "Due",
+     "type": "date",
+     "required": true,
+     "list": true,
+     "after": "issued_on"
+    },
+    {
+     "key": "project_id",
+     "label": "Project",
+     "type": "ref",
+     "ref": "projects",
+     "filter": true
+    }
+   ],
+   "status": {
+    "field": "status",
+    "default": "draft",
+    "board": true,
+    "options": [
+     [
+      "draft",
+      "Draft"
+     ],
+     [
+      "sent",
+      "Sent"
+     ],
+     [
+      "paid",
+      "Paid"
+     ],
+     [
+      "void",
+      "Void"
+     ]
+    ],
+    "transitions": [
+     {
+      "from": [
+       "draft"
+      ],
+      "to": "sent",
+      "label": "Mark sent",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "sent"
+      ],
+      "to": "paid",
+      "label": "Record payment",
+      "roles": [
+       "admin",
+       "manager"
+      ]
+     },
+     {
+      "from": [
+       "draft",
+       "sent"
+      ],
+      "to": "void",
+      "label": "Void",
+      "roles": [
+       "admin"
+      ],
+      "note": true
+     }
+    ]
+   },
+   "create": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ]
+  },
+  {
+   "key": "resources",
+   "app": "bookings",
+   "label": "Bookable resources",
+   "singular": "Resource",
+   "group": "Bookings",
+   "description": "Rooms, venues, vehicles and equipment.",
+   "title_field": "name",
+   "fields": [
+    {
+     "key": "name",
+     "label": "Name",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "kind",
+     "label": "Type",
+     "type": "select",
+     "options": [
+      [
+       "room",
+       "Room"
+      ],
+      [
+       "venue",
+       "Venue"
+      ],
+      [
+       "vehicle",
+       "Vehicle"
+      ],
+      [
+       "equipment",
+       "Equipment"
+      ]
+     ],
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "capacity",
+     "label": "Capacity",
+     "type": "number",
+     "list": true
+    },
+    {
+     "key": "rate",
+     "label": "Rate per day",
+     "type": "money",
+     "list": true
+    },
+    {
+     "key": "location",
+     "label": "Location",
+     "type": "text",
+     "list": true
+    }
+   ],
+   "create": [
+    "admin",
+    "manager"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ]
+  },
+  {
+   "key": "bookings",
+   "app": "bookings",
+   "label": "Bookings",
+   "singular": "Booking",
+   "group": "Bookings",
+   "description": "Reservations with automatic double-booking checks.",
+   "title_field": "guest",
+   "fields": [
+    {
+     "key": "guest",
+     "label": "Booked by",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "resource_id",
+     "label": "Resource",
+     "type": "ref",
+     "ref": "resources",
+     "required": true,
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "starts_on",
+     "label": "From",
+     "type": "date",
+     "required": true,
+     "list": true
+    },
+    {
+     "key": "ends_on",
+     "label": "To",
+     "type": "date",
+     "required": true,
+     "list": true,
+     "after": "starts_on"
+    },
+    {
+     "key": "contact",
+     "label": "Phone or email",
+     "type": "text",
+     "list": true
+    },
+    {
+     "key": "amount",
+     "label": "Amount",
+     "type": "money",
+     "list": true
+    },
+    {
+     "key": "notes",
+     "label": "Notes",
+     "type": "textarea"
+    }
+   ],
+   "no_overlap": {
+    "resource": "resource_id",
+    "start": "starts_on",
+    "end": "ends_on",
+    "ignore_status": [
+     "cancelled"
+    ]
+   },
+   "status": {
+    "field": "status",
+    "default": "confirmed",
+    "board": true,
+    "options": [
+     [
+      "tentative",
+      "Tentative"
+     ],
+     [
+      "confirmed",
+      "Confirmed"
+     ],
+     [
+      "checked_in",
+      "Checked in"
+     ],
+     [
+      "completed",
+      "Completed"
+     ],
+     [
+      "cancelled",
+      "Cancelled"
+     ]
+    ],
+    "transitions": [
+     {
+      "from": [
+       "tentative"
+      ],
+      "to": "confirmed",
+      "label": "Confirm",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "confirmed"
+      ],
+      "to": "checked_in",
+      "label": "Check in",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "checked_in"
+      ],
+      "to": "completed",
+      "label": "Complete",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "tentative",
+       "confirmed"
+      ],
+      "to": "cancelled",
+      "label": "Cancel",
+      "roles": [
+       "admin",
+       "manager"
+      ],
+      "note": true
+     }
+    ]
+   },
+   "create": [
+    "admin",
+    "manager",
+    "member"
    ],
    "edit": [
     "admin",

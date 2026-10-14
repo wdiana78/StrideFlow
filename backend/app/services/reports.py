@@ -42,12 +42,15 @@ def build_snapshot(db: Session, project: Project, period_start: date, period_end
                 "start": project.starts_on.isoformat(), "due_on": c.due_on.isoformat(), "points": pts,
             })
 
+    from datetime import datetime, timezone
+    # A period that runs to today includes everything captured so far, even across a UTC midnight.
+    ev_end = max(period_end, datetime.now(timezone.utc).date()) if period_end >= today else period_end
     evidence_items = []
     for c in project.commitments:
         for a in c.activities:
             for e in a.evidence:
                 cd = e.captured_at.date()
-                if period_start <= cd <= period_end:
+                if period_start <= cd <= ev_end:
                     evidence_items.append({
                         "id": str(e.id), "activity": a.title, "commitment": c.title,
                         "label": e.requirement.label if e.requirement else e.kind.value,

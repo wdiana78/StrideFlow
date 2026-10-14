@@ -112,6 +112,16 @@ def _computed(db: Session, key: str, ids: list) -> dict:
             out[str(i)] = {"stock": 0.0}
         for item_id, direction, q in rows:
             out[str(item_id)]["stock"] += float(q) * (1 if direction == "in" else -1)
+    elif key == "customers":
+        inv = TABLES["invoices"]
+        for i in ids:
+            out[str(i)] = {"billed": 0.0, "outstanding": 0.0}
+        for cid, status, amt in db.execute(select(inv.c.customer_id, inv.c.status, func.sum(inv.c.amount)).where(inv.c.customer_id.in_(ids))
+                                           .group_by(inv.c.customer_id, inv.c.status)).all():
+            if status != "void":
+                out[str(cid)]["billed"] += float(amt)
+            if status == "sent":
+                out[str(cid)]["outstanding"] += float(amt)
     elif key == "volunteers":
         vh = TABLES["volunteer_hours"]
         for vid, h in db.execute(select(vh.c.volunteer_id, func.sum(vh.c.hours)).where(vh.c.volunteer_id.in_(ids)).group_by(vh.c.volunteer_id)).all():
@@ -217,6 +227,21 @@ def _validate(db: Session, org_id, m: dict, data: dict, existing: dict | None, r
                 q = q.where(t.c.id != record_id)
             if db.execute(q).first():
                 raise ErpError(409, f"That {f['label'].lower()} is already used.", f["key"])
+    ov = m.get("no_overlap")
+    if ov and merged.get(ov["resource"]) and merged.get(ov["start"]) and merged.get(ov["end"]):
+        t = TABLES[m["key"]]
+        st = m.get("status")
+        if not (st and existing and existing.get(st["field"]) in ov["ignore_status"]):
+            q = select(t).where(t.c.organization_id == org_id, t.c[ov["resource"]] == merged[ov["resource"]],
+                                t.c[ov["start"]] <= merged[ov["end"]], t.c[ov["end"]] >= merged[ov["start"]])
+            if st:
+                q = q.where(t.c[st["field"]].not_in(ov["ignore_status"]))
+            if record_id:
+                q = q.where(t.c.id != record_id)
+            clash = db.execute(q).first()
+            if clash:
+                title = getattr(clash, m["title_field"])
+                raise ErpError(409, f"Already booked by {title} from {clash._mapping[ov['start']].strftime('%d %b')} to {clash._mapping[ov['end']].strftime('%d %b')}. Choose other dates.", ov["start"])
     if m.get("single") and existing is None:
         t = TABLES[m["key"]]
         if db.execute(select(t.c.id).where(t.c.organization_id == org_id)).first():
@@ -345,12 +370,22 @@ def transition(db: Session, user, key: str, rid, to: str, note: str | None, log)
         if not rec.get(need):
             label = next(f["label"] for f in m["fields"] if f["key"] == need)
             raise ErpError(422, f"Set {label.lower()} first.", need)
+    if key == "events" and to == "held" and rec.get("attended") is None:
+        from .models import Form, FormSubmission  # attendance comes straight from the event's own form
+        fid = db.scalar(select(Form.id).where(Form.event_id == rid))
+        if fid:
+            n = db.scalar(select(func.count()).select_from(FormSubmission).where(FormSubmission.form_id == fid))
+            if n:
+                db.execute(t.update().where(t.c.id == rid).values(attended=n))
+                rec["attended"] = n
     for f in m["fields"]:
         if to in f.get("required_for", []) and not rec.get(f["key"]):
             raise ErpError(422, f"{f['label']} is required before this can be {dict(st['options'])[to].lower()}.", f["key"])
     db.execute(t.update().where(t.c.id == rid).values(**{st["field"]: to, "updated_at": now()}))
     if key == "donations" and to == "confirmed":
         post_donation_income(db, rec, user.id)
+    if key == "invoices" and to == "paid":
+        post_invoice_income(db, rec, user.id)
     labels = dict(st["options"])
     log(db, user.organization_id, user.id, f"{key}_{to}", key, rid,
         f"{user.full_name}: {labels.get(cur)} → {labels.get(to)}" + (f". Note: {note.strip()}" if note and note.strip() else ""),
@@ -421,6 +456,12 @@ def desired_flags(db: Session, org_id, today: date) -> dict:
                 title = f"{label_of(db, 'users', [r.user_id]).get(str(r.user_id), 'Staff')}: {r.kind} leave"
             put("approval_waiting", key, r.id, "medium", None, str(title), f"{MODULES[key]['singular']} waiting {days} days for approval.")
 
+    inv = TABLES["invoices"]
+    for r in db.execute(select(inv).where(inv.c.organization_id == org_id, inv.c.status == "sent", inv.c.due_on < today)).all():
+        days = (today - r.due_on).days
+        put("invoice_overdue", "invoices", r.id, "high" if days > 14 else "medium", r.created_by_id, f"Invoice {r.number}",
+            f"KES {float(r.amount):,.0f} unpaid, {days} days past due.", r.project_id)
+
     d = TABLES["documents"]
     for r in db.execute(select(d).where(d.c.organization_id == org_id, d.c.expires_on.is_not(None), d.c.expires_on <= today + timedelta(days=30))).all():
         days = (r.expires_on - today).days
@@ -460,6 +501,46 @@ def post_donation_income(db: Session, donation: dict, actor_id=None):
     db.execute(inc.insert().values(id=uuid.uuid4(), organization_id=donation["organization_id"], created_by_id=actor_id, created_at=now(), updated_at=now(),
                                    source=f"Donation: {name}", amount=donation["amount"], received_on=date.today(), method=method,
                                    reference=donation.get("reference"), notes=donation.get("message")))
+
+
+def post_invoice_income(db: Session, inv: dict, actor_id=None):
+    customer = label_of(db, "customers", [inv["customer_id"]]).get(str(inv["customer_id"]), "Customer")
+    t = TABLES["income"]
+    db.execute(t.insert().values(id=uuid.uuid4(), organization_id=inv["organization_id"], created_by_id=actor_id, created_at=now(), updated_at=now(),
+                                 source=f"Invoice {inv['number']}: {customer}", amount=inv["amount"], received_on=date.today(), method="bank",
+                                 reference=inv["number"], notes=inv.get("description")))
+
+
+def require_app(user, key: str) -> None:
+    app = MODULES[key].get("app")
+    installed = set(user.organization.installed_apps or [])
+    if app and app not in installed:
+        from .apps import APPS
+        name = next((a["name"] for a in APPS if a["key"] == app), app)
+        raise ErpError(404, f"Install the {name} app to use this.")
+
+
+def search(db: Session, user, q: str) -> list[dict]:
+    """One search box across every installed app."""
+    from .models import Activity, Commitment, Project
+    like = f"%{q.strip()}%"
+    installed = set(user.organization.installed_apps or [])
+    out = []
+    for key, m in MODULES.items():
+        if m.get("app") not in installed:
+            continue
+        cols = [TABLES[key].c[f["key"]] for f in m["fields"] if f.get("search")]
+        if not cols:
+            continue
+        t = TABLES[key]
+        for r in db.execute(select(t).where(t.c.organization_id == user.organization_id, or_(*[c.ilike(like) for c in cols])).limit(5)).all():
+            out.append({"kind": m["singular"], "app": m.get("app"), "title": str(getattr(r, m["title_field"]) or m["singular"]), "link": f"/app/m/{key}/{r.id}"})
+    if "projects" in installed:
+        for p in db.scalars(select(Project).where(Project.organization_id == user.organization_id, Project.name.ilike(like)).limit(5)).all():
+            out.append({"kind": "Project", "app": "projects", "title": p.name, "link": f"/app/projects/{p.id}"})
+        for a in db.scalars(select(Activity).join(Commitment).join(Project).where(Project.organization_id == user.organization_id, Activity.title.ilike(like)).limit(8)).all():
+            out.append({"kind": "Activity", "app": "projects", "title": a.title, "link": f"/app/activities/{a.id}"})
+    return out[:40]
 
 
 def stats(db: Session, user, key: str, by: str, sum_field: str | None, params: dict) -> list[dict]:

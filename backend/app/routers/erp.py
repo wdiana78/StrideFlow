@@ -45,10 +45,14 @@ def modules_spec(user: User = Depends(get_current_user)):
     return erp.SPEC
 
 
+def _gate(key: str, user: User):
+    _module(key)
+    erp.require_app(user, key)
+
+
 @router.get("/m/{key}")
 def list_module(key: str, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    _module(key)
-    return _run(lambda: erp.list_records(db, user, key, dict(request.query_params)))
+    return _run(lambda: (_gate(key, user), erp.list_records(db, user, key, dict(request.query_params)))[1])
 
 
 @router.post("/m/{key}", status_code=201)
@@ -56,7 +60,10 @@ def create_module(key: str, body: dict, user: User = Depends(get_current_user), 
     _module(key)
 
     def go():
+        erp.require_app(user, key)
         rec = erp.create_record(db, user, key, body, log)
+        if key == "events":
+            create_event_form(db, user, rec)
         rules.evaluate_org(db, user.organization_id, today())
         return rec
     return _run(go)
@@ -67,13 +74,21 @@ def get_module(key: str, rid: uuid.UUID, user: User = Depends(get_current_user),
     _module(key)
 
     def go():
+        erp.require_app(user, key)
         from ..models import AuditEvent
         from ..schemas import AuditOut
 
         rec = erp.get_record(db, user, key, rid)
         hist = db.scalars(select(AuditEvent).where(AuditEvent.organization_id == user.organization_id, AuditEvent.subject_id == str(rid))
                           .order_by(AuditEvent.at.desc(), AuditEvent.id.desc()).limit(40)).all()
-        return {**rec, "_history": [AuditOut.model_validate(h).model_dump(mode="json") for h in hist]}
+        extra = {}
+        if key == "events":
+            from ..models import Form, FormSubmission
+            f = db.scalar(select(Form).where(Form.event_id == rid))
+            if f:
+                extra["_form"] = {"id": str(f.id), "title": f.title, "is_public": f.is_public,
+                                  "responses": db.scalar(select(func.count()).select_from(FormSubmission).where(FormSubmission.form_id == f.id))}
+        return {**rec, **extra, "_history": [AuditOut.model_validate(h).model_dump(mode="json") for h in hist]}
     return _run(go)
 
 
@@ -82,6 +97,7 @@ def update_module(key: str, rid: uuid.UUID, body: dict, user: User = Depends(get
     _module(key)
 
     def go():
+        erp.require_app(user, key)
         rec = erp.update_record(db, user, key, rid, body, log)
         rules.evaluate_org(db, user.organization_id, today())
         return rec
@@ -93,6 +109,7 @@ def delete_module(key: str, rid: uuid.UUID, user: User = Depends(get_current_use
     _module(key)
 
     def go():
+        erp.require_app(user, key)
         erp.delete_record(db, user, key, rid, log)
         db.query(Flag).filter(Flag.subject_id == rid).delete()
         db.commit()
@@ -107,10 +124,48 @@ def transition_module(key: str, rid: uuid.UUID, body: TransitionIn, user: User =
     _module(key)
 
     def go():
+        erp.require_app(user, key)
         rec = erp.transition(db, user, key, rid, body.to, body.note, log)
         rules.evaluate_org(db, user.organization_id, today())
         return rec
     return _run(go)
+
+
+from ..apps import EVENT_FORM_FIELDS  # noqa: E402
+
+
+def create_event_form(db: Session, user: User, event: dict):
+    """Every event gets its own attendance and feedback form, with a public link, ready before the day."""
+    from ..models import Form
+    f = Form(organization_id=user.organization_id, event_id=uuid.UUID(event["id"]), project_id=uuid.UUID(event["project_id"]) if event.get("project_id") else None,
+             title=f"{event['title']}: attendance and feedback", description="Takes one minute. No names needed.",
+             fields=[{**x, "options": x.get("options", []), "min": None, "max": None} for x in EVENT_FORM_FIELDS], is_public=True, status="open", created_by_id=user.id)
+    db.add(f)
+    log(db, user.organization_id, user.id, "form_created", "events", event["id"], f"Attendance and feedback form created for {event['title']}")
+    db.commit()
+    return f
+
+
+@router.post("/events/{eid}/form", status_code=201)
+def add_event_form(eid: uuid.UUID, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from ..models import Form
+    if user.role.value not in ("admin", "manager"):
+        raise HTTPException(403, "Your role does not allow this action.")
+    def go():
+        erp.require_app(user, "events")
+        ev = erp.get_record(db, user, "events", eid)
+        existing = db.scalar(select(Form).where(Form.event_id == eid))
+        f = existing or create_event_form(db, user, ev)
+        return {"id": str(f.id)}
+    return _run(go)
+
+
+@router.get("/search")
+def global_search(q: str, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    rate_limit(f"search:{user.id}", 120, 60)
+    if len(q.strip()) < 2:
+        return []
+    return erp.search(db, user, q[:80])
 
 
 @router.get("/options/{ref}")
@@ -184,7 +239,21 @@ def dashboard(user: User = Depends(get_current_user), db: Session = Depends(get_
     reports_due = erp.serialize(db, "grants", db.execute(select(g).where(g.c.organization_id == org, g.c.stage.in_(["awarded", "reporting"]),
                                                                          g.c.next_report_due.is_not(None)).order_by(g.c.next_report_due).limit(5)).all())
     open_flags = db.scalar(select(func.count()).select_from(Flag).where(Flag.organization_id == org, Flag.status == FlagStatus.open))
+    iv, it, bk = T["invoices"], T["items"], T["bookings"]
+    stock = erp._computed(db, "items", [r.id for r in db.execute(select(it.c.id).where(it.c.organization_id == org)).all()])
+    low = sum(1 for r in db.execute(select(it).where(it.c.organization_id == org)).all() if r.reorder_level is not None and stock[str(r.id)]["stock"] <= float(r.reorder_level))
+    top_flags = [{"rule": f.rule.value, "title": f.title, "detail": f.detail, "severity": f.severity.value} for f in db.scalars(
+        select(Flag).where(Flag.organization_id == org, Flag.status == FlagStatus.open).order_by(Flag.severity.desc(), Flag.opened_at).limit(6)).all()]
     return {
+        "installed": user.organization.installed_apps or [], "industry": user.organization.industry, "top_flags": top_flags,
+        "sales": {"outstanding": _sum(db, iv, "amount", iv.c.organization_id == org, iv.c.status == "sent"),
+                  "paid": _sum(db, iv, "amount", iv.c.organization_id == org, iv.c.status == "paid"),
+                  "overdue": db.scalar(select(func.count()).where(iv.c.organization_id == org, iv.c.status == "sent", iv.c.due_on < t0)),
+                  "drafts": db.scalar(select(func.count()).where(iv.c.organization_id == org, iv.c.status == "draft"))},
+        "inventory": {"items": len(stock), "low_stock": low, "units": sum(v["stock"] for v in stock.values())},
+        "bookings": {"active": db.scalar(select(func.count()).where(bk.c.organization_id == org, bk.c.status.in_(["confirmed", "checked_in"]), bk.c.ends_on >= t0)),
+                     "in_house": db.scalar(select(func.count()).where(bk.c.organization_id == org, bk.c.status == "checked_in")),
+                     "value": _sum(db, bk, "amount", bk.c.organization_id == org, bk.c.status != "cancelled", bk.c.ends_on >= t0)},
         "today": t0.isoformat(),
         "programmes": programmes,
         "commitments": {"total": len(statuses), "on_track": statuses.count("on_track") + statuses.count("done"),
@@ -475,7 +544,7 @@ def mpesa_callback(token: str, payload: dict, db: Session = Depends(get_db)):
 @router.get("/m/{key}/stats")
 def module_stats(key: str, by: str, request: Request, sum: str | None = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):  # noqa: A002
     _module(key)
-    return _run(lambda: erp.stats(db, user, key, by, sum, dict(request.query_params)))
+    return _run(lambda: (erp.require_app(user, key), erp.stats(db, user, key, by, sum, dict(request.query_params)))[1])
 
 
 # ---------- M&E analytics ----------

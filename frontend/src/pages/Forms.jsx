@@ -231,10 +231,10 @@ function QuestionChart({ q, rows, color }) {
   } else if (q.type === "rating") {
     const avg = vals.reduce((s, v) => s + Number(v), 0) / (n || 1);
     body = <><div className="row" style={{ gap: 10 }}><b style={{ fontSize: 30, color }}>{avg.toFixed(1)}</b><span style={{ color: "var(--accent)", fontSize: 20 }}>{"★".repeat(Math.round(avg))}<span style={{ color: "#D5DBD7" }}>{"★".repeat(5 - Math.round(avg))}</span></span><span className="muted small">average of {n}</span></div>
-      <Columns data={[1, 2, 3, 4, 5].map((k) => ({ label: `${k}★`, value: vals.filter((v) => Number(v) === k).length }))} colors={["#E4572E", "#EE8A3C", "#F2B33D", "#7CB66A", "#3F9E6B"]} format={fmtNum} height={150} /></>;
+      <Columns data={[1, 2, 3, 4, 5].map((k) => ({ label: `${k}★`, value: vals.filter((v) => Number(v) === k).length }))} colors={["#F6C1CE", "#F7A6B8", "#F48AA2", "#EC6C8E", "#C93A63"]} format={fmtNum} height={150} /></>;
   } else if (q.type === "yesno") {
     const yes = vals.filter((v) => v === true).length;
-    body = <Donut data={[{ label: "Yes", value: yes }, { label: "No", value: n - yes }]} colors={["#3F9E6B", "#E4572E"]} size={140} center={`${n ? Math.round((yes / n) * 100) : 0}%`} sub="said yes" />;
+    body = <Donut data={[{ label: "Yes", value: yes }, { label: "No", value: n - yes }]} colors={["#E85D84", "#F6E0DA"]} size={140} center={`${n ? Math.round((yes / n) * 100) : 0}%`} sub="said yes" />;
   } else if (q.type === "number") {
     const ns = vals.map(Number); const mn = Math.min(...ns), mx = Math.max(...ns), avg = ns.reduce((s, v) => s + v, 0) / (n || 1);
     const step = (mx - mn) / 5 || 1;
@@ -306,7 +306,7 @@ export function PublicForm() {
     catch (e) { setState({ busy: false, err: e, done: false }); }
   };
   return (
-    <div style={{ minHeight: "100%", background: `linear-gradient(160deg, ${f.brand.primary} 0 260px, #F5F6F3 260px)`, padding: "40px 16px" }}>
+    <div style={{ minHeight: "100%", background: `linear-gradient(160deg, ${f.brand.primary} 0 260px, #FFF8F4 260px)`, padding: "40px 16px" }}>
       <div style={{ maxWidth: 640, margin: "0 auto" }} className="stack">
         <div className="stack-sm" style={{ color: "#fff" }}><span style={{ color: f.brand.accent, fontWeight: 700 }}>{f.organization}</span><h1 style={{ fontSize: 30, fontWeight: 800 }}>{f.title}</h1>{f.description && <span style={{ opacity: .85 }}>{f.description}</span>}</div>
         <section className="panel panel-body stack" style={{ boxShadow: "var(--shadow-float)" }}>

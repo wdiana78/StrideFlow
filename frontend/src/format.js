@@ -18,13 +18,14 @@ export const initials = (name = "") => name.split(/\s+/).filter(Boolean).slice(0
 // VITE_TODAY mirrors the backend KEPT_TODAY setting so due-date colouring matches the API.
 export const isoToday = () => import.meta.env.VITE_TODAY || new Date().toISOString().slice(0, 10);
 export const STATUS_LABEL = { not_started: "Not started", in_progress: "In progress", blocked: "Blocked", done: "Done" };
-export const RULE_LABEL = { behind_pace: "Behind pace", overdue: "Overdue", missing_proof: "Missing proof", blocked: "Blocked", due_soon: "Due soon", over_budget: "Budget", approval_waiting: "Approval waiting", expiring: "Expiring document", low_stock: "Low stock", report_due: "Funder deadline" };
+export const RULE_LABEL = { behind_pace: "Behind pace", overdue: "Overdue", missing_proof: "Missing proof", blocked: "Blocked", due_soon: "Due soon", invoice_overdue: "Overdue invoice", over_budget: "Budget", approval_waiting: "Approval waiting", expiring: "Expiring document", low_stock: "Low stock", report_due: "Funder deadline" };
 export const RULE_WHY = {
   behind_pace: "Progress is 15 or more points below where it should be today. This closes itself when the gap recovers.",
   overdue: "Past its due date and not done. After 2 days it escalates to the project manager.",
   missing_proof: "Someone tried to complete this without the required proof. It does not count until the proof is attached.",
   blocked: "This waits on another activity that is past due. Nothing here can finish until that is done.",
   due_soon: "Due within 3 days and not started. The owner has been reminded.",
+  invoice_overdue: "This invoice was sent and is past its due date. Follow up with the customer.",
   over_budget: "Approved spending has used 90% or more of this budget line, or gone over it. Funders usually query overspends.",
   approval_waiting: "Submitted more than 3 days ago and still waiting for someone to approve or reject it.",
   expiring: "This document expires within 30 days or has already expired. Renewal often takes weeks.",

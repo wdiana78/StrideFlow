@@ -1,0 +1,314 @@
+{
+ "apps": [
+  {
+   "key": "projects",
+   "name": "Projects and M&E",
+   "tagline": "Promises, work, proof and pace",
+   "color": "#E85D84",
+   "icon": "target"
+  },
+  {
+   "key": "forms",
+   "name": "Data collection",
+   "tagline": "Surveys and registers with live charts",
+   "color": "#FF8A65",
+   "icon": "clipboard"
+  },
+  {
+   "key": "events",
+   "name": "Events",
+   "tagline": "Every event gets its own attendance form",
+   "color": "#FFB570",
+   "icon": "calendar"
+  },
+  {
+   "key": "funding",
+   "name": "Funding",
+   "tagline": "Grants pipeline, donations, income",
+   "color": "#F48FB1",
+   "icon": "heart"
+  },
+  {
+   "key": "finance",
+   "name": "Budgets and expenses",
+   "tagline": "Approvals, receipts, budget vs actual",
+   "color": "#FF9E80",
+   "icon": "wallet"
+  },
+  {
+   "key": "sales",
+   "name": "Sales and invoicing",
+   "tagline": "Customers, invoices, overdue alerts",
+   "color": "#F6A5C0",
+   "icon": "receipt"
+  },
+  {
+   "key": "procurement",
+   "name": "Procurement",
+   "tagline": "Request, approve, order, receive",
+   "color": "#FFCC80",
+   "icon": "cart"
+  },
+  {
+   "key": "inventory",
+   "name": "Inventory and assets",
+   "tagline": "Stock levels and equipment",
+   "color": "#FFAB91",
+   "icon": "box"
+  },
+  {
+   "key": "bookings",
+   "name": "Bookings",
+   "tagline": "Rooms and venues, no double-booking",
+   "color": "#F8BBD0",
+   "icon": "key"
+  },
+  {
+   "key": "people",
+   "name": "People",
+   "tagline": "Volunteers, hours and leave",
+   "color": "#FF8FA3",
+   "icon": "users"
+  },
+  {
+   "key": "participants",
+   "name": "Participant registry",
+   "tagline": "Anonymised, disaggregated reach",
+   "color": "#FFB199",
+   "icon": "id"
+  },
+  {
+   "key": "documents",
+   "name": "Documents",
+   "tagline": "Contracts and certificates with expiry",
+   "color": "#FFD3A5",
+   "icon": "file"
+  },
+  {
+   "key": "governance",
+   "name": "Governance",
+   "tagline": "Meetings, decisions, actions",
+   "color": "#E7A1B0",
+   "icon": "gavel"
+  },
+  {
+   "key": "website",
+   "name": "Website",
+   "tagline": "Your public site, live numbers, inquiries",
+   "color": "#FF7E67",
+   "icon": "globe"
+  }
+ ],
+ "industries": [
+  {
+   "key": "community",
+   "name": "Community organization or NGO",
+   "template": "youth_advocacy",
+   "apps": [
+    "projects",
+    "forms",
+    "events",
+    "funding",
+    "finance",
+    "procurement",
+    "inventory",
+    "people",
+    "participants",
+    "documents",
+    "governance",
+    "website"
+   ]
+  },
+  {
+   "key": "agency",
+   "name": "Agency or consultancy",
+   "template": "client_engagement",
+   "apps": [
+    "projects",
+    "forms",
+    "events",
+    "sales",
+    "finance",
+    "people",
+    "documents",
+    "website"
+   ]
+  },
+  {
+   "key": "retail",
+   "name": "Retail shop or brand",
+   "template": null,
+   "apps": [
+    "sales",
+    "inventory",
+    "procurement",
+    "finance",
+    "forms",
+    "events",
+    "people",
+    "website"
+   ]
+  },
+  {
+   "key": "hospitality",
+   "name": "Hospitality and rentals",
+   "template": null,
+   "apps": [
+    "bookings",
+    "sales",
+    "inventory",
+    "finance",
+    "forms",
+    "people",
+    "documents",
+    "website"
+   ]
+  },
+  {
+   "key": "education",
+   "name": "School or training centre",
+   "template": "community_programme",
+   "apps": [
+    "projects",
+    "participants",
+    "events",
+    "forms",
+    "finance",
+    "sales",
+    "people",
+    "documents",
+    "website"
+   ]
+  },
+  {
+   "key": "health",
+   "name": "Clinic or health service",
+   "template": "community_programme",
+   "apps": [
+    "participants",
+    "bookings",
+    "forms",
+    "events",
+    "inventory",
+    "finance",
+    "sales",
+    "documents",
+    "website"
+   ]
+  }
+ ],
+ "palettes": {
+  "blossom": {
+   "name": "Blossom",
+   "primary": "#C93A63",
+   "accent": "#FF9F68",
+   "colors": [
+    "#E85D84",
+    "#FF8A65",
+    "#FFB570",
+    "#FBD3DD",
+    "#FFF1E8"
+   ]
+  },
+  "sunset": {
+   "name": "Sunset",
+   "primary": "#C2410C",
+   "accent": "#F9A8D4",
+   "colors": [
+    "#F97316",
+    "#FB923C",
+    "#FDBA74",
+    "#F9A8D4",
+    "#FFF7ED"
+   ]
+  },
+  "berry": {
+   "name": "Berry",
+   "primary": "#A21CAF",
+   "accent": "#FDA4AF",
+   "colors": [
+    "#C026D3",
+    "#E879F9",
+    "#FDA4AF",
+    "#FECDD3",
+    "#FDF4FF"
+   ]
+  },
+  "peach": {
+   "name": "Peach",
+   "primary": "#B4532A",
+   "accent": "#F7C59F",
+   "colors": [
+    "#E07A5F",
+    "#F2A07B",
+    "#F7C59F",
+    "#F4D6CC",
+    "#FFF8F3"
+   ]
+  }
+ },
+ "event_form_fields": [
+  {
+   "id": "gender",
+   "label": "Gender",
+   "type": "select",
+   "required": true,
+   "options": [
+    "Female",
+    "Male",
+    "Prefer not to say"
+   ]
+  },
+  {
+   "id": "age",
+   "label": "Age",
+   "type": "select",
+   "required": true,
+   "options": [
+    "Under 15",
+    "15-19",
+    "20-24",
+    "25-35",
+    "36 and over"
+   ]
+  },
+  {
+   "id": "ward",
+   "label": "Where do you live?",
+   "type": "text",
+   "required": false
+  },
+  {
+   "id": "heard",
+   "label": "How did you hear about this event?",
+   "type": "select",
+   "required": false,
+   "options": [
+    "Friend",
+    "WhatsApp",
+    "Radio",
+    "School or church",
+    "Poster",
+    "Other"
+   ]
+  },
+  {
+   "id": "rating",
+   "label": "How useful was this event?",
+   "type": "rating",
+   "required": true
+  },
+  {
+   "id": "again",
+   "label": "Would you come again?",
+   "type": "yesno",
+   "required": false
+  },
+  {
+   "id": "comment",
+   "label": "Anything we should improve?",
+   "type": "textarea",
+   "required": false
+  }
+ ]
+}
