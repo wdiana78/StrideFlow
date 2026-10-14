@@ -17,8 +17,8 @@ export const APP_ICONS = {
 };
 export function AppIcon({ app, size = 52 }) {
   return (
-    <span style={{ width: size, height: size, borderRadius: size * 0.28, background: `linear-gradient(145deg, ${app.color}, color-mix(in srgb, ${app.color} 70%, #1B1530))`, display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: `0 6px 14px color-mix(in srgb, ${app.color} 35%, transparent)`, flex: `0 0 ${size}px` }}>
-      <svg width={size * 0.5} height={size * 0.5} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={APP_ICONS[app.icon] || APP_ICONS.box} /></svg>
+    <span style={{ width: size, height: size, borderRadius: size * 0.26, background: "var(--surface-2)", border: "1px solid var(--rule)", display: "inline-flex", alignItems: "center", justifyContent: "center", flex: `0 0 ${size}px`, color: "var(--ink)" }}>
+      <svg width={size * 0.46} height={size * 0.46} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={APP_ICONS[app.icon] || APP_ICONS.box} /></svg>
     </span>
   );
 }
@@ -61,7 +61,7 @@ export default function Apps() {
             </div>
             <div className="row wrap" style={{ gap: 6 }}>{a.modules.map((m) => <span key={m.key} className="chip-tone" style={{ background: "var(--stone)", color: "var(--ink-2)", fontWeight: 500 }}>{m.label}</span>)}</div>
             <div className="row" style={{ marginTop: "auto" }}>
-              {a.installed ? <span className="chip-tone" style={{ background: "var(--ok-tint)", color: "var(--ok)" }}>✓ Installed</span> : <span className="chip-tone" style={{ background: "var(--stone)", color: "var(--slate)" }}>Not installed</span>}
+              <span className="small muted">{a.installed ? "Installed" : "Not installed"}</span>
               {a.installed && a.modules[0] && <Link className="btn btn-ghost" style={{ marginLeft: "auto" }} to={`/app/m/${a.modules[0].key}`}>Open</Link>}
               {can.admin && <button className={"btn " + (a.installed ? "btn-ghost-danger" : "btn-primary")} style={{ marginLeft: a.installed && a.modules[0] ? 0 : "auto" }} disabled={busy === a.key} onClick={() => toggle(a)}>{busy === a.key ? "…" : a.installed ? "Remove" : "Install"}</button>}
             </div>

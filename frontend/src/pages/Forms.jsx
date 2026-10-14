@@ -231,10 +231,10 @@ function QuestionChart({ q, rows, color }) {
   } else if (q.type === "rating") {
     const avg = vals.reduce((s, v) => s + Number(v), 0) / (n || 1);
     body = <><div className="row" style={{ gap: 10 }}><b style={{ fontSize: 30, color }}>{avg.toFixed(1)}</b><span style={{ color: "var(--accent)", fontSize: 20 }}>{"★".repeat(Math.round(avg))}<span style={{ color: "#D5DBD7" }}>{"★".repeat(5 - Math.round(avg))}</span></span><span className="muted small">average of {n}</span></div>
-      <Columns data={[1, 2, 3, 4, 5].map((k) => ({ label: `${k}★`, value: vals.filter((v) => Number(v) === k).length }))} colors={["#E8DFF4", "#C3A9EE", "#9A73E0", "#6D3FC9", "#3B2F6B"]} format={fmtNum} height={150} /></>;
+      <Columns data={[1, 2, 3, 4, 5].map((k) => ({ label: `${k}★`, value: vals.filter((v) => Number(v) === k).length }))} colors={["#E4E4E7", "#C4BEF6", "#7C6FE6", "#5B4CDB", "#18181B"]} format={fmtNum} height={150} /></>;
   } else if (q.type === "yesno") {
     const yes = vals.filter((v) => v === true).length;
-    body = <Donut data={[{ label: "Yes", value: yes }, { label: "No", value: n - yes }]} colors={["#6D3FC9", "#E8DFF4"]} size={140} center={`${n ? Math.round((yes / n) * 100) : 0}%`} sub="said yes" />;
+    body = <Donut data={[{ label: "Yes", value: yes }, { label: "No", value: n - yes }]} colors={["#5B4CDB", "#E4E4E7"]} size={140} center={`${n ? Math.round((yes / n) * 100) : 0}%`} sub="said yes" />;
   } else if (q.type === "number") {
     const ns = vals.map(Number); const mn = Math.min(...ns), mx = Math.max(...ns), avg = ns.reduce((s, v) => s + v, 0) / (n || 1);
     const step = (mx - mn) / 5 || 1;

@@ -707,27 +707,69 @@
   "site_settings": [
    {
     "slug": "timiza",
-    "tagline": "Empowering communities, transforming lives",
-    "intro": "We are a community-based organization in Kilifi, Kenya, advocating for health, gender, peace and security, climate action and disability inclusion for a healthy and safe Kilifi County.",
-    "about": "We work through young people: peer educators, ward dialogues, school clubs and volunteers who know their communities. We champion comprehensive sexual health education, work against gender-based violence, plant and protect indigenous trees, and push for public spaces everyone can use.",
+    "tagline": "Empowering Communities Transforming Lives",
+    "intro": "We are a CBO in Kilifi, Kenya that advocates for Health, Gender, Peace and Security, Climate Change and Disability Inclusion for a healthy and safe Kilifi County.",
+    "about": "We are the catalysts for change, tirelessly working towards a world liberated from the shackles of gender-based violence. We champion comprehensive sexual health education, sow the seeds of lasting peace and security, and engineer sustainable solutions to combat the looming threat of climate change. Join us in the pursuit of a transformed world, where lives flourish, ignorance dissipates, and a harmonious future becomes our shared reality.",
     "location": "Kilifi County, Kenya",
     "contact_email": "youthtimiza@gmail.com",
-    "phone": "+254 727 721 896",
+    "phone": "0727721896",
     "facebook": "Timiza Youth Initiative",
     "twitter": "@TimizaYouth",
     "instagram": "@timizayouth",
     "show_impact": true,
-    "mission": "To empower young people in Kilifi to lead change in health, gender equality, peace, climate action and disability inclusion.",
-    "vision": "A healthy, safe and inclusive Kilifi County where every young person thrives.",
+    "mission": "To empower vulnerable and marginalized groups in the community",
+    "vision": "To empower vulnerable and marginalized groups in the community",
     "founded": "Youth-led CBO, Kilifi County",
     "address": "Kibaoni, Kilifi estate, Kilifi County",
-    "brand_primary": "#0B4F71",
-    "brand_accent": "#F5A623",
+    "brand_primary": "#2563EB",
+    "brand_accent": "#EF4444",
     "donation_campaign": "Fund 1,000 more young people this year",
     "donation_goal": 500000,
-    "brand_deep": "#082F45",
+    "brand_deep": "#020617",
     "map_query": "Kibaoni, Kilifi, Kenya",
-    "heading_font": "fraunces"
+    "heading_font": "inter",
+    "work_intro": "Timiza Youth Initiative, a Community Based Organization (CBO) established in 2021 by a group of young volunteers, focuses on addressing the needs of vulnerable and marginalized groups in Kilifi County. Guided by a human-centered design approach, the organization is committed to finding innovative solutions to various challenges. Timiza Youth Initiative is dedicated to empowering children, young women, and youths through its core thematic programs: Health & Gender, climate change, peace & security, and disability inclusion. By prioritizing these areas, the organization aims to create positive change and opportunities for growth within the community.",
+    "story": "Timiza Youth Initiative is a Community Based Organization (CBO) formed in 2021 by a group of young volunteers. The Organization is driven by a human-centered design for solutions to problems faced by vulnerable and marginalized groups in Kilifi County. We are at the forefront to ensure children, young women, and youths get empowered through our core thematic programs including: Health & Gender, climate change, peace & security, and disability inclusion.",
+    "goal": "To empower vulnerable and marginalized groups in the community",
+    "values": "Access to healthcare\nEquity\nEmpowerment\nTransparency and Accountability\nInclusion",
+    "objectives": "To ensure that individuals have access to accurate and age appropriate information about sexual and reproductive health\nEncourage community involvement and participation in climate action through volunteer opportunities, community activities, and citizen science initiatives\nAdvocating for gender equality, women's empowerment, and sexual reproductive health education\nRaise community understanding of the security challenges through educating and training members on conflict prevention and resolution tactics\nPromotion of education and skills enhancement among women and young people\nProviding a channel of advocacy for issues affecting the communities\nInclusion and equal participation of people with disabilities in all aspects of society. This will include ensuring their access to education, healthcare, transportation, and other essential services.",
+    "phone2": "0715561186",
+    "logo": {
+     "asset": "logo.png"
+    },
+    "hero_image": {
+     "asset": "hero-collage.jpg"
+    },
+    "about_image": {
+     "asset": "how-we-work.jpg"
+    },
+    "story_image": {
+     "asset": "story.jpg"
+    },
+    "objectives_image": {
+     "asset": "objectives.jpg"
+    },
+    "hero_work": {
+     "asset": "hero-our-work.jpg"
+    },
+    "hero_contact": {
+     "asset": "hero-contact.jpg"
+    },
+    "hero_gallery": {
+     "asset": "hero-gallery.jpg"
+    },
+    "goal_icon": {
+     "asset": "why-goal.png"
+    },
+    "mission_icon": {
+     "asset": "why-mission.png"
+    },
+    "vision_icon": {
+     "asset": "why-vision.png"
+    },
+    "about_hero": {
+     "asset": "story.jpg"
+    }
    }
   ],
   "site_programmes": [
@@ -737,7 +779,11 @@
     "order": 1,
     "published": true,
     "focus": "SRH information, peer educators, youth-friendly services",
-    "summary": "Young people get accurate sexual and reproductive health information from trained peers, at schools, markets and youth centres across Kilifi."
+    "summary": "Young people get accurate sexual and reproductive health information from trained peers, at schools, markets and youth centres across Kilifi.",
+    "photo": {
+     "asset": "programme-1.jpg"
+    },
+    "slug": "health-advocacy"
    },
    {
     "title": "Gender, Peace and Security",
@@ -745,7 +791,11 @@
     "order": 2,
     "published": true,
     "focus": "Ward dialogues, GBV referrals, safety forums",
-    "summary": "Ward-level dialogues bring chiefs, parents and youth together on gender-based violence, and survivors are referred to trusted support services."
+    "summary": "Ward-level dialogues bring chiefs, parents and youth together on gender-based violence, and survivors are referred to trusted support services.",
+    "photo": {
+     "asset": "programme-2.jpg"
+    },
+    "slug": "gender-peace-security"
    },
    {
     "title": "Disability Inclusion",
@@ -753,7 +803,11 @@
     "order": 3,
     "published": true,
     "focus": "Accessibility audits, inclusive youth leadership",
-    "summary": "We audit public facilities for accessibility with the county and train youth leaders to make every programme open to people with disabilities."
+    "summary": "We audit public facilities for accessibility with the county and train youth leaders to make every programme open to people with disabilities.",
+    "photo": {
+     "asset": "programme-3.jpg"
+    },
+    "slug": "disability-inclusion"
    },
    {
     "title": "Climate Change",
@@ -761,7 +815,11 @@
     "order": 4,
     "published": true,
     "focus": "Indigenous trees, school climate clubs",
-    "summary": "Young people plant and protect indigenous trees before the rains and run climate clubs in schools across the county."
+    "summary": "Young people plant and protect indigenous trees before the rains and run climate clubs in schools across the county.",
+    "photo": {
+     "asset": "programme-4.jpg"
+    },
+    "slug": "climate-change"
    }
   ],
   "site_team": [
@@ -769,19 +827,28 @@
     "name": "Brian Mundia",
     "role": "Executive Director",
     "order": 1,
-    "published": true
+    "published": true,
+    "photo": {
+     "asset": "team-1.jpg"
+    }
    },
    {
     "name": "Violet Maangi",
     "role": "Finance",
     "order": 2,
-    "published": true
+    "published": true,
+    "photo": {
+     "asset": "team-2.jpg"
+    }
    },
    {
     "name": "Joel Baariu",
     "role": "Human Resource",
     "order": 3,
-    "published": true
+    "published": true,
+    "photo": {
+     "asset": "team-3.jpg"
+    }
    }
   ],
   "grants": [
@@ -2053,68 +2120,134 @@
   ],
   "site_gallery": [
    {
-    "caption": "Peer educators at the Mtwapa market health desk",
-    "project_id": "Health Advocacy",
-    "taken_on": "2026-08-29",
-    "place": "Mtwapa",
+    "caption": "Our Patron",
+    "photo": {
+     "asset": "gallery-1.jpg"
+    },
     "published": true,
     "order": 1
    },
    {
-    "caption": "Ward dialogue on GBV, Watamu social hall",
-    "project_id": "Gender, Peace and Security",
-    "taken_on": "2026-10-02",
-    "place": "Watamu",
+    "caption": "Growth and Mentorship",
+    "photo": {
+     "asset": "gallery-2.jpg"
+    },
     "published": true,
     "order": 2
    },
    {
-    "caption": "Planting indigenous seedlings at Kilifi creek",
-    "project_id": "Climate Change",
-    "taken_on": "2026-07-12",
-    "place": "Kilifi creek",
+    "caption": "Growth and Mentorship",
+    "photo": {
+     "asset": "gallery-3.jpg"
+    },
     "published": true,
     "order": 3
    },
    {
-    "caption": "Accessibility audit at a Kilifi North health centre",
-    "project_id": "Disability Inclusion",
-    "taken_on": "2026-09-10",
-    "place": "Kilifi North",
+    "caption": "Growth and Mentorship",
+    "photo": {
+     "asset": "gallery-4.jpg"
+    },
     "published": true,
     "order": 4
    },
    {
-    "caption": "Youth health day crowd, Kilifi town grounds",
-    "project_id": "Health Advocacy",
-    "taken_on": "2026-07-18",
-    "place": "Kilifi town",
+    "caption": "Timiza Officials",
+    "photo": {
+     "asset": "gallery-5.jpg"
+    },
     "published": true,
     "order": 5
    },
    {
-    "caption": "Climate club members, Kaloleni Secondary",
-    "project_id": "Climate Change",
-    "taken_on": "2026-10-06",
-    "place": "Kaloleni",
+    "caption": "Growth and Mentorship",
+    "photo": {
+     "asset": "gallery-6.jpg"
+    },
     "published": true,
     "order": 6
    },
    {
-    "caption": "Peer educator training, cohort 2",
-    "project_id": "Health Advocacy",
-    "taken_on": "2026-09-11",
-    "place": "Timiza office",
+    "caption": "Growth and Mentorship",
+    "photo": {
+     "asset": "gallery-7.jpg"
+    },
     "published": true,
     "order": 7
    },
    {
-    "caption": "Boda riders join the referral network",
-    "project_id": "Gender, Peace and Security",
-    "taken_on": "2026-10-02",
-    "place": "Watamu",
+    "caption": "Growth and Mentorship",
+    "photo": {
+     "asset": "gallery-8.jpg"
+    },
     "published": true,
     "order": 8
+   },
+   {
+    "caption": "Growth and Mentorship",
+    "photo": {
+     "asset": "gallery-9.jpg"
+    },
+    "published": true,
+    "order": 9
+   },
+   {
+    "caption": "Growth and Mentorship",
+    "photo": {
+     "asset": "gallery-10.jpg"
+    },
+    "published": true,
+    "order": 10
+   },
+   {
+    "caption": "Growth and Mentorship",
+    "photo": {
+     "asset": "gallery-11.jpg"
+    },
+    "published": true,
+    "order": 11
+   }
+  ],
+  "site_partners": [
+   {
+    "name": "Kenya Community Support Center",
+    "logo": {
+     "asset": "partner-kecosce.png"
+    },
+    "published": true,
+    "order": 1
+   },
+   {
+    "name": "LCVT Health",
+    "logo": {
+     "asset": "partner-lvct.png"
+    },
+    "published": true,
+    "order": 2
+   },
+   {
+    "name": "Kilifi County Government",
+    "logo": {
+     "asset": "partner-kilifi.png"
+    },
+    "published": true,
+    "order": 3
+   },
+   {
+    "name": "TICAH",
+    "logo": {
+     "asset": "partner-ticah.png"
+    },
+    "published": true,
+    "order": 4
+   },
+   {
+    "name": "Gender Violence Recovery Center",
+    "logo": {
+     "asset": "partner-gvrc.png"
+    },
+    "published": true,
+    "order": 5
    }
   ]
  },

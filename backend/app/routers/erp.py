@@ -337,7 +337,7 @@ def portfolio(slug: str, db: Session = Depends(get_db)):
         if site.show_impact and r.project_id:
             p = db.get(Project, r.project_id)
             results = [{"title": c.title, "unit": c.unit, "target": float(c.target_value), "actual": pace.compute(c, t0).actual} for c in p.commitments] if p else []
-        programmes.append({"id": str(r.id), "title": r.title, "summary": r.summary, "focus": r.focus, "results": results})
+        programmes.append({"id": str(r.id), "title": r.title, "summary": r.summary, "focus": r.focus, "results": results, "photo": r.photo, "slug": r.slug or str(r.id)})
     team = [{"name": r.name, "role": r.role, "bio": r.bio, "photo": r.photo} for r in
             db.execute(select(st).where(st.c.organization_id == org_id, st.c.published.is_(True)).order_by(st.c.order, st.c.name)).all()]
     partners = [s.name for s in db.scalars(select(Stakeholder).where(Stakeholder.organization_id == org_id, Stakeholder.kind == StakeholderKind.partner).order_by(Stakeholder.name)).all()]
@@ -373,7 +373,12 @@ def portfolio(slug: str, db: Session = Depends(get_db)):
     return {"organization": org.name, "slug": site.slug, "tagline": site.tagline, "intro": site.intro, "about": site.about,
             "mission": site.mission, "vision": site.vision, "founded": site.founded, "address": site.address,
             "brand": {"primary": site.brand_primary or "#6D3FC9", "accent": site.brand_accent or "#FFB020", "deep": site.brand_deep or "#1B1530"},
-            "map_query": site.map_query, "heading_font": site.heading_font or "fraunces", "industry": org.industry,
+            "map_query": site.map_query, "heading_font": site.heading_font or "inter", "industry": org.industry,
+            "logo": site.logo, "phone2": site.phone2, "work_intro": site.work_intro, "story": site.story, "goal": site.goal,
+            "values": [v.strip() for v in (site.values or "").split("\n") if v.strip()], "objectives": [v.strip() for v in (site.objectives or "").split("\n") if v.strip()],
+            "images": {k: getattr(site, k) for k in ("hero_image", "about_image", "story_image", "objectives_image", "hero_work", "hero_contact", "hero_gallery", "goal_icon", "mission_icon", "vision_icon", "about_hero")},
+            "partner_logos": [{"name": r.name, "logo": r.logo, "website": r.website} for r in db.execute(select(T["site_partners"]).where(T["site_partners"].c.organization_id == org_id,
+                              T["site_partners"].c.published.is_(True)).order_by(T["site_partners"].c.order, T["site_partners"].c.name)).all()],
             "gallery": [{"id": str(r.id), "caption": r.caption, "photo": r.photo, "place": r.place, "taken_on": r.taken_on.isoformat() if r.taken_on else None,
                          "programme": proj_names.get(str(r.project_id))} for r in db.execute(select(T["site_gallery"]).where(T["site_gallery"].c.organization_id == org_id,
                          T["site_gallery"].c.published.is_(True)).order_by(T["site_gallery"].c.order, T["site_gallery"].c.caption)).all()],

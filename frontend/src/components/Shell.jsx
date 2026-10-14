@@ -23,8 +23,7 @@ const I = {
 const Icon = ({ d }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
 export const Logo = ({ size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-    <defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6D3FC9" /><stop offset="1" stopColor="#3B2F6B" /></linearGradient></defs>
-    <rect width="24" height="24" rx="7" fill="url(#kg)" /><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /><circle cx="18.5" cy="5.5" r="2.4" fill="#FFB020" />
+    <rect width="24" height="24" rx="6" fill="currentColor" /><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="var(--bg)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 export const SITE_HOME = (slug) => `/site/${slug}`;
@@ -40,20 +39,20 @@ function Links({ openFlags, approvals, admin, onNavigate, installed, siteSlug })
   return (
     <>
       <L to="/app" end><Icon d={I.overview} />Home</L>
-      <L to="/app/attention"><Icon d={I.attention} />Attention{openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</L>
-      <L to="/app/approvals"><Icon d={I.check} />Approvals{approvals > 0 && <span className="nav-badge" style={{ background: "var(--accent)", color: "var(--accent-ink)" }}>{approvals}</span>}</L>
+      <L to="/app/attention"><Icon d={I.attention} />Alerts{openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</L>
+      <L to="/app/approvals"><Icon d={I.check} />Approvals{approvals > 0 && <span className="nav-badge">{approvals}</span>}</L>
       <L to="/app/calendar"><Icon d={I.calendar} />Calendar</L>
-      {(has("projects") || has("forms")) && <div className="nav-section">Programmes and M&amp;E</div>}
-      {has("projects") && <><L to="/app/projects"><Icon d={I.projects} />Projects</L><L to="/app/work"><Icon d={I.work} />Work</L><L to="/app/analytics"><Icon d={I.analytics} />M&amp;E analytics</L></>}
-      {has("forms") && <L to="/app/forms"><Icon d={I.forms} />Data collection</L>}
+      {(has("projects") || has("forms")) && <div className="nav-section">Programmes</div>}
+      {has("projects") && <><L to="/app/projects"><Icon d={I.projects} />Projects</L><L to="/app/work"><Icon d={I.work} />Tasks</L><L to="/app/analytics"><Icon d={I.analytics} />Insights</L></>}
+      {has("forms") && <L to="/app/forms"><Icon d={I.forms} />Forms</L>}
       {has("projects") && <L to="/app/reports"><Icon d={I.reports} />Reports</L>}
-      {groups.length > 0 && <div className="nav-section">Apps</div>}
+      {groups.length > 0 && <div className="nav-section">Operations</div>}
       {groups.map((g) => {
         const isOpen = open[g.label] !== false || groupOpen(g);
         return (
           <div key={g.label}>
             <button className="nav-group" aria-expanded={isOpen} onClick={() => setOpen({ ...open, [g.label]: !isOpen })}>
-              <span className="row" style={{ gap: 8 }}><span className="dot" style={{ background: GROUP_COLOR[g.label] }} />{g.label}</span>
+              <span>{g.label}</span>
               <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style={{ transform: isOpen ? "rotate(90deg)" : "none", transition: "transform .15s" }}><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
             </button>
             {isOpen && g.items.map(([k, label]) => k === "@site" ? (
@@ -118,7 +117,7 @@ export default function Shell() {
         <button className="btn btn-quiet" onClick={() => setMenu(true)} aria-label="Open menu"><Icon d="M4 6h16M4 12h16M4 18h16" /></button>
         <Link className="brand" to="/app" style={{ padding: "0 8px", fontSize: 15 }} aria-label="Dashboard home"><span className="org-chip" style={{ margin: 0, padding: 0, background: "none", border: 0 }}><span className="logo" style={{ background: orgColor, width: 28, height: 28, flex: "0 0 28px", fontSize: 11 }}>{initials(user.organization.name)}</span></span></Link>
         <NavLink to="/app" end className="nav-link">Home</NavLink>
-        <NavLink to="/app/attention" className="nav-link">Attention {openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</NavLink>
+        <NavLink to="/app/attention" className="nav-link">Alerts {openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</NavLink>
         <span style={{ flex: 1 }} />
         <button className="btn btn-quiet" onClick={() => setSearch(true)} aria-label="Search"><Icon d={I.search} /></button>
         <ThemeToggle />
@@ -166,7 +165,7 @@ function SearchDialog({ onClose }) {
           {res.map((r, i) => (
             <button key={r.link} role="option" aria-selected={i === sel} onMouseEnter={() => setSel(i)} onClick={() => go(r)}
               style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", border: 0, borderRadius: 10, background: i === sel ? "var(--cobalt-tint)" : "transparent", cursor: "pointer", textAlign: "left" }}>
-              <span className="chip-tone" style={{ background: "var(--accent-tint)", color: "var(--accent-ink)", minWidth: 90, justifyContent: "center" }}>{r.kind}</span>
+              <span className="small muted" style={{ minWidth: 96 }}>{r.kind}</span>
               <span style={{ flex: 1 }}>{r.title}</span>
             </button>
           ))}
@@ -186,7 +185,7 @@ function PreviewBar() {
   };
   return (
     <div className="row" style={{ gap: 8, marginLeft: "auto" }}>
-      <span className="chip-tone hide-sm" style={{ background: "var(--accent-tint)", color: "var(--accent-ink)" }}>Live demo · 13 Oct 2026</span>
+      <span className="small muted hide-sm">Demo · 13 Oct 2026</span>
       <button className="btn" onClick={() => { signOut(); nav("/login"); }}>Switch account</button>
       <button className="btn btn-quiet" onClick={reset}>Reset</button>
     </div>

@@ -46,12 +46,12 @@ export function Login() {
         {PREVIEW ? (
           <div className="stack-sm" style={{ borderTop: "1px solid var(--rule-soft)", paddingTop: 16 }}>
             <b style={{ fontSize: 14 }}>Try it as</b>
-            {[["zawadi@timiza.example", "🤝 Timiza Youth Initiative", "Community organization · manager"],
-              ["wairimu@mwangaza.example", "🎨 Mwangaza Creative Studio", "Agency · admin"],
-              ["wanjiru@hatua.example", "👟 Hatua Shoes", "Retail brand · admin"],
-              ["rehema@pwani.example", "🏝️ Pwani Coast Stays", "Hospitality · admin"],
-              ["admin@timiza.example", "🔑 Timiza admin", "Install apps, people, audit log"],
-              ["baraka@timiza.example", "🙋 Timiza field officer", "Member: only their own work"]].map(([email, name, what]) => (
+            {[["zawadi@timiza.example", "Timiza Youth Initiative", "Community organization · manager"],
+              ["wairimu@mwangaza.example", "Mwangaza Creative Studio", "Agency · admin"],
+              ["wanjiru@hatua.example", "Hatua Shoes", "Retail brand · admin"],
+              ["rehema@pwani.example", "Pwani Coast Stays", "Hospitality · admin"],
+              ["admin@timiza.example", "Timiza, administrator", "Install apps, people, audit log"],
+              ["baraka@timiza.example", "Timiza, field officer", "Member: only their own work"]].map(([email, name, what]) => (
               <button key={email} type="button" className="btn" style={{ height: "auto", padding: "10px 14px", justifyContent: "flex-start", textAlign: "left", whiteSpace: "normal" }}
                 onClick={async () => { try { signIn(await api("/auth/login", { method: "POST", body: { email, password: "kept-demo-2026" } })); nav("/app", { replace: true }); } catch (err) { setError(err); } }}>
                 <span style={{ display: "flex", flexDirection: "column" }}><span>{name}</span><span className="small muted" style={{ fontWeight: 400 }}>{what}</span></span>
@@ -98,7 +98,7 @@ export function Register() {
               {PLATFORM.industries.map((i, k) => (
                 <button type="button" key={i.key} aria-pressed={form.industry === i.key} onClick={() => setForm({ ...form, industry: i.key })}
                   className="stack-sm" style={{ textAlign: "left", padding: 16, borderRadius: 16, cursor: "pointer", border: form.industry === i.key ? "2px solid var(--cobalt)" : "1px solid var(--rule)", background: form.industry === i.key ? "linear-gradient(150deg, var(--cobalt-tint), #fff)" : "#fff" }}>
-                  <b style={{ fontSize: 16 }}>{INDUSTRY_EMOJI[i.key]} {i.name}</b>
+                  <b style={{ fontSize: 16 }}>{i.name}</b>
                   <span className="row wrap" style={{ gap: 4 }}>{i.apps.slice(0, 5).map((a) => <span key={a} className="dot" title={apps[a].name} style={{ background: apps[a].color, width: 10, height: 10 }} />)}<span className="small muted">{i.apps.length} apps</span></span>
                 </button>
               ))}
@@ -145,4 +145,4 @@ export function Register() {
   );
 }
 
-export const INDUSTRY_EMOJI = { community: "🤝", agency: "🎨", retail: "👟", hospitality: "🏝️", education: "🎓", health: "🩺" };
+export const INDUSTRY_EMOJI = {};

@@ -7,14 +7,13 @@ import { useApi } from "../hooks";
 import { moneyShort } from "../modules";
 import PLATFORM from "../platform.json";
 import { AppIcon } from "./Apps";
-import { Motif } from "../components/Motif";
 
 export const APP_HOME = { projects: "/app/projects", forms: "/app/forms", events: "/app/m/events", funding: "/app/m/grants", finance: "/app/finance", sales: "/app/m/invoices",
   procurement: "/app/m/purchase_requests", inventory: "/app/m/items", bookings: "/app/m/bookings", people: "/app/m/volunteers", participants: "/app/m/participants",
   documents: "/app/m/documents", governance: "/app/m/meetings", website: "/app/m/site_settings" };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const TONES = ["#6D3FC9", "#FF6B57", "#FF6B57", "#2E86DE", "#D4458A", "#3B2F6B"];
+const TONES = ["#5B4CDB", "#3B82F6", "#3B82F6", "#0EA5E9", "#7C6FE6", "#18181B"];
 const Ico = ({ d }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
 
 function Kpi({ label, value, sub, to, i, icon }) {
@@ -56,20 +55,19 @@ export default function Overview() {
   return (
     <>
       <div className="hero-navy">
-        <Motif style={{ right: -40, top: -20, width: 420, height: 220, opacity: .55, maskImage: "linear-gradient(90deg, transparent, #000 45%)", WebkitMaskImage: "linear-gradient(90deg, transparent, #000 45%)" }} />
         <div className="stack-sm" style={{ gap: 4 }}>
-          <span className="muted small">{fmtDate(d.today, true)} · {user.organization.name}</span>
-          <h1>Habari, {user.full_name.split(" ")[0]}</h1>
-          <span className="muted">{user.organization.name} dashboard · here is what needs you today.</span>
+          <span className="muted small">{fmtDate(d.today, true)}</span>
+          <h1>Good to see you, {user.full_name.split(" ")[0]}</h1>
+          <span className="muted">{user.organization.name}</span>
         </div>
         <div className="row wrap">
-          <Link className="btn btn-accent" to="/app/attention">{d.open_flags} need attention</Link>
+          <Link className="btn btn-primary" to="/app/attention">{d.open_flags} alerts</Link>
           <Link className="btn" to="/app/approvals">{d.approvals_waiting} to approve</Link>
         </div>
       </div>
 
       <section className="stack-sm" aria-labelledby="apps-h">
-        <div className="spread"><h2 id="apps-h" className="card-title">Your apps</h2><Link to="/app/apps" className="small">Manage apps</Link></div>
+        <div className="spread"><h2 id="apps-h" className="card-title">Apps</h2><Link to="/app/apps" className="small">Manage apps</Link></div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(104px, 1fr))", gap: 10 }}>
           {PLATFORM.apps.filter((a) => d.installed.includes(a.key)).map((a) => (
             <Link key={a.key} to={a.key === "people" && d.industry !== "community" ? "/app/m/leave_requests" : APP_HOME[a.key]} className="tile" style={{ alignItems: "center", textAlign: "center", padding: "14px 8px", gap: 8 }}>
@@ -92,7 +90,7 @@ export default function Overview() {
               <div className="panel-head"><h2 id="prog-h">Projects</h2><Link to="/app/analytics" className="btn btn-ghost">Analytics</Link></div>
               {d.programmes.map((pr, i) => (
                 <div key={pr.id} style={{ padding: "14px 22px", borderTop: "1px solid var(--rule-soft)" }} className="stack-sm">
-                  <Link to={`/app/projects/${pr.id}`} className="row strong" style={{ color: "var(--ink)", textDecoration: "none", fontSize: 16, gap: 8 }}><span className="dot" style={{ background: PALETTE[i % PALETTE.length], width: 10, height: 10, borderRadius: 3 }} />{pr.name}</Link>
+                  <Link to={`/app/projects/${pr.id}`} className="row strong" style={{ color: "var(--ink)", textDecoration: "none", fontSize: 16, gap: 8 }}>{pr.name}</Link>
                   {pr.commitments.map((c) => (
                     <div key={c.id} className="prog-row">
                       <span style={{ fontSize: 14 }}>{c.title}<span className="small muted"> · {fmtNum(c.pace.actual)}/{fmtNum(c.pace.target)}</span></span>
@@ -123,7 +121,7 @@ export default function Overview() {
           {has("participants") && p.participants > 0 && (
             <section className="panel panel-body stack-sm">
               <h2 className="card-title">Participants by gender</h2>
-              <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: g[k] || 0 }))} size={140} colors={["#FF6B57", "#6D3FC9", "#FFB020"]} />
+              <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: g[k] || 0 }))} size={140} colors={["#3B82F6", "#5B4CDB", "#A39BEF"]} />
             </section>
           )}
           {has("events") && (

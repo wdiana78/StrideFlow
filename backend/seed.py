@@ -276,6 +276,24 @@ def seed_case_study(db, pw):
     rules.evaluate_org(db, org.id, today())
 
 
+ASSETS = Path(__file__).resolve().parent.parent / "assets" / "timiza"
+
+
+def stored_asset(name: str) -> dict:
+    """Copy a bundled image into the uploads folder under a stable random-looking name the file route accepts."""
+    import hashlib
+    import shutil
+    from app.config import get_settings
+
+    src = ASSETS / name
+    ext = src.suffix.lower()
+    stored = hashlib.md5(name.encode()).hexdigest() + ext
+    folder = Path(get_settings().upload_dir)
+    folder.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src, folder / stored)
+    return {"name": name, "url": f"/files/{stored}", "size": src.stat().st_size}
+
+
 WARDS = ["Sokoni", "Mnarani", "Tezo", "Matsangoni", "Watamu", "Jaribuni", "Ganze", "Kaloleni", "Malindi Town", "Mtwapa"]
 
 
@@ -310,13 +328,13 @@ def seed_erp(db, org, people, stakes, projects, data):
     from app import erp
 
     keys: dict[str, uuid.UUID] = {}
-    order = ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "site_gallery", "donations", "grants", "income", "budget_lines", "expenses", "vendors", "purchase_requests",
+    order = ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "site_gallery", "site_partners", "donations", "grants", "income", "budget_lines", "expenses", "vendors", "purchase_requests",
              "items", "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests", "events", "documents", "inquiries",
              "meetings", "decisions"]
     records = dict(data["erp"])
     records["participants"] = participants_for(data["participants"])
     order.append("participants")
-    order.sort(key=lambda k: ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "site_gallery", "grants", "donations", "income", "budget_lines", "vendors", "expenses",
+    order.sort(key=lambda k: ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "site_gallery", "site_partners", "grants", "donations", "income", "budget_lines", "vendors", "expenses",
                               "purchase_requests", "items", "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests",
                               "events", "documents", "inquiries", "meetings", "decisions", "participants"].index(k))
     stamp = datetime.now(timezone.utc)
@@ -335,7 +353,7 @@ def seed_erp(db, org, people, stakes, projects, data):
                 elif f["type"] == "date":
                     v = date.fromisoformat(v)
                 elif f["type"] == "file":
-                    v = {"name": v["name"], "url": "", "size": None}
+                    v = stored_asset(v["asset"]) if "asset" in v else {"name": v["name"], "url": "", "size": None}
                 values[k] = v
             rid = uuid.uuid4()
             created = stamp - timedelta(days=rec.get("_age_days", 6))

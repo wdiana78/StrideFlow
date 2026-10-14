@@ -36,18 +36,9 @@ Kept is the product. Its home page sells the platform: apps, industries and live
 
 ## Design system
 
-**Kept's own identity** (workspace and kept.africa) is inspired by Kenya, not borrowed from any template:
+**Kept** (the dashboard and kept.africa) is deliberately quiet: one accent (`#5B4CDB`), a neutral zinc scale, Inter throughout, and hierarchy carried by type size and weight rather than colour. No gradients, decorative patterns, emoji or badge pills. Labels are short and plain: Home, Alerts, Approvals, Calendar, Projects, Tasks, Insights, Forms, Reports, Apps, Settings. Light and dark themes share the same tokens.
 
-| Name | Colour | Use |
-|---|---|---|
-| Night | `#1B1530` | Text, hero and footer surfaces |
-| Jacaranda | `#6D3FC9` | Primary actions, links, focus (Nairobi's jacaranda trees) |
-| Mango | `#FFB020` | Highlights and key calls to action |
-| Coral | `#FF6B57` | Alerts and emphasis (the reef) |
-| Sand | `#FAF7F2` | Warm neutral background |
-| Ocean | `#2E86DE` | Tertiary, for data only |
-
-Signature motif: a kitenge-inspired lattice of four-petal jacaranda flowers, mango seeds and coral dots (`components/Motif.jsx`). Display face: Bricolage Grotesque. Light and dark themes share the same tokens.
+**Timiza's website** follows timiza.vercel.app exactly: dark contact bar with both phone numbers, white header with their logo and centred navigation (Home, About Us, Our Work, Contact Us, Gallery), red Donate button, Inter headings with blue eyebrows, photo page headers with a title card, white cards on light grey, and the dark "Connect with Us" footer. Their logo, photos, partner logos and copy are used as published on their site (`assets/timiza`). Additions in the same visual language: live impact figures, a page per program with progress from verified records, a gallery lightbox, a map on Contact Us, a volunteer form, the donation flow and Staff login. Any organization on the community template gets this structure in its own colours and photos (`pages/CommunitySite.jsx`).
 
 **Tenant websites** wear the organization's own brand (primary, accent, deep colour and a heading font chosen in Website → Site settings) and get an industry-specific design:
 

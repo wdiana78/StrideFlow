@@ -7,7 +7,7 @@ import SPEC from "../modules.json";
 import PLATFORM from "../platform.json";
 import { SEED } from "./seed";
 
-const KEY = "kept_preview_db_v9";
+const KEY = "kept_preview_db_v11";
 export const TODAY = "2026-10-13";
 const AT_RISK_GAP = 15, DUE_SOON = 3, ESCALATE = 2;
 
@@ -683,7 +683,7 @@ on("GET", "/calendar", (u, { params }) => {
 const siteFor = (slug) => { const s2 = mrows("site_settings").find((r) => String(r.slug).toLowerCase() === String(slug).toLowerCase()); if (!s2) E(404, "This organization has no public page."); return s2; };
 on("GET", "/public/:slug", (_, __, slug) => {
   const site = siteFor(slug), org = site.organization_id; const mine = (k) => mrows(k).filter((r) => r.organization_id === org);
-  const programmes = mine("site_programmes").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ id: r.id, title: r.title, summary: r.summary, focus: r.focus,
+  const programmes = mine("site_programmes").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ id: r.id, title: r.title, summary: r.summary, focus: r.focus, photo: r.photo, slug: r.slug || r.id,
     results: site.show_impact && r.project_id ? commitmentsOf(r.project_id).map((c) => ({ title: c.title, unit: c.unit, target: Number(c.target_value), actual: pace(c).actual })) : [] }));
   const projs = T("projects").filter((p) => p.organization_id === org);
   const people = ["people", "young", "youth", "participants", "educators", "leaders"];
@@ -785,7 +785,11 @@ if (_portfolioRoute) {
     const conf = mine("donations").filter((d) => d.status === "confirmed");
     const names = Object.fromEntries(T("projects").filter((p) => p.organization_id === org).map((p) => [p.id, p.name]));
     return { ...out, mission: site.mission, vision: site.vision, founded: site.founded, address: site.address, map_query: site.map_query,
-      heading_font: site.heading_font || "fraunces", industry: byId("orgs", org).industry,
+      heading_font: site.heading_font || "inter", industry: byId("orgs", org).industry,
+      logo: site.logo, phone2: site.phone2, work_intro: site.work_intro, story: site.story, goal: site.goal,
+      values: (site.values || "").split("\n").map((v) => v.trim()).filter(Boolean), objectives: (site.objectives || "").split("\n").map((v) => v.trim()).filter(Boolean),
+      images: Object.fromEntries(["hero_image", "about_image", "story_image", "objectives_image", "hero_work", "hero_contact", "hero_gallery", "goal_icon", "mission_icon", "vision_icon", "about_hero"].map((k) => [k, site[k] || null])),
+      partner_logos: mine("site_partners").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ name: r.name, logo: r.logo, website: r.website })),
       brand: { primary: site.brand_primary || "#6D3FC9", accent: site.brand_accent || "#FFB020", deep: site.brand_deep || "#1B1530" },
       gallery: mine("site_gallery").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ id: r.id, caption: r.caption, photo: r.photo, place: r.place, taken_on: r.taken_on, programme: names[r.project_id] })),
       services: mine("site_services").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ title: r.title, description: r.description, icon: r.icon })),

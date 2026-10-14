@@ -7,6 +7,7 @@ import { ErrorNotice, Field, Loading } from "../components/ui";
 import { fmtDate, fmtNum, initials } from "../format";
 import { useApi } from "../hooks";
 import { isoToday } from "../format";
+import { TzAbout, TzContact, TzDonate, TzGallery, TzHome, TzLayout, TzLogin, TzProgramme, TzVolunteer, TzWork } from "./CommunitySite";
 import { BriefForm, CommunityArt, CottageArt, Count, Rooms, Shop, ShoeArt, StaySearch, useReveal, Work } from "./SiteKits";
 
 // The organization's public website. Content is edited in Website; numbers come live from verified records.
@@ -48,6 +49,32 @@ export default function PublicSite({ slugOverride }) {
       : ind === "agency" ? [["", "Studio"], ["/work", "Work"], ["/services", "Services"], ["/about", "About"], ["/contact", "Contact"]]
         : [["", "Home"], ["/about", "About"], ["/programmes", "Programmes"], ["/services", "Services"], ["/stories", "Stories"], ["/gallery", "Gallery"], ["/impact", "Impact"], ["/contact", "Contact"]];
   const cta = ind === "retail" ? ["/shop", "Shop now"] : ind === "hospitality" ? ["/rooms", "Book a stay"] : ind === "agency" ? ["/contact", "Start a project"] : ["/donate", "♥ Donate"];
+  if (["community", "education", "health"].includes(data.industry)) {
+    const ctx = { ...data, base, reload, palette: brandPalette(data.brand), today: isoToday() };
+    const R = (to) => <Navigate to={`${base}${to}`} replace />;
+    return (
+      <Site.Provider value={ctx}>
+        <div className="site" style={vars}>
+          <TzLayout s={ctx}>
+            <Routes>
+              <Route index element={<TzHome s={ctx} />} />
+              <Route path="about-us" element={<TzAbout s={ctx} />} />
+              <Route path="our-work" element={<TzWork s={ctx} />} />
+              <Route path="our-work/:slug" element={<TzProgramme s={ctx} />} />
+              <Route path="contact-us" element={<TzContact s={ctx} SiteMap={SiteMap} />} />
+              <Route path="gallery" element={<TzGallery s={ctx} />} />
+              <Route path="donate" element={<TzDonate s={ctx} />} />
+              <Route path="volunteer" element={<TzVolunteer s={ctx} />} />
+              <Route path="login" element={<TzLogin s={ctx} demo={STAFF_DEMO[ctx.slug]} />} />
+              <Route path="about" element={R("/about-us")} /><Route path="programmes" element={R("/our-work")} /><Route path="impact" element={R("/our-work")} />
+              <Route path="contact" element={R("/contact-us")} /><Route path="get-involved" element={R("/volunteer")} /><Route path="services" element={R("/our-work")} /><Route path="stories" element={R("/our-work")} />
+              <Route path="*" element={<TzHome s={ctx} />} />
+            </Routes>
+          </TzLayout>
+        </div>
+      </Site.Provider>
+    );
+  }
   return (
     <Site.Provider value={{ ...data, base, reload, palette: brandPalette(data.brand), today: isoToday() }}>
       <div className="site" style={{ ...vars, background: "#fff", color: "var(--s-ink)", minHeight: "100%" }}>
@@ -179,18 +206,16 @@ function ShopHome() {
       <section style={{ background: "var(--s-deep)", color: "#fff", overflow: "hidden" }}>
         <div className="container" style={{ padding: "72px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 380px), 1fr))", gap: 40, alignItems: "center" }}>
           <div className="stack reveal" style={{ gap: 22 }}>
-            <span className="site-chip" style={{ background: "var(--s-accent)", color: "#111", alignSelf: "flex-start", fontWeight: 800 }}>New: Safari chukka boot</span>
+            <span style={{ color: "var(--s-accent)", fontWeight: 600 }}>New: the Safari chukka boot</span>
             <h1 style={{ fontSize: "clamp(48px, 7vw, 92px)", lineHeight: .95, fontWeight: 800, letterSpacing: "-2.5px" }}>{s.tagline}</h1>
             <p style={{ fontSize: 19, lineHeight: "30px", opacity: .85, maxWidth: 520 }}>{s.intro}</p>
             <div className="row wrap"><Link to={`${s.base}/shop`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "#111", fontWeight: 800 }}>Shop the collection</Link><Link to={`${s.base}/about`} className="btn btn-lg" style={{ background: "transparent", color: "#fff", borderColor: "rgba(255,255,255,.35)" }}>Meet the makers</Link></div>
           </div>
           <div className="reveal" style={{ position: "relative" }}>
-            <div style={{ position: "absolute", inset: "8% 6%", borderRadius: "46% 54% 58% 42% / 48% 42% 58% 52%", background: "var(--s-primary)" }} />
             <div style={{ position: "relative", transform: "rotate(-8deg)" }}><ShoeArt color={s.brand.accent} accent={s.brand.primary} kind={0} /></div>
             <div style={{ position: "relative", width: "62%", marginLeft: "auto", marginTop: -40, transform: "rotate(6deg)" }}><ShoeArt color="#F2E9DC" accent={s.brand.accent} kind={1} /></div>
           </div>
         </div>
-        <div style={{ background: "var(--s-accent)", color: "#111", fontWeight: 800, overflow: "hidden", whiteSpace: "nowrap" }}><div className="marquee">{Array.from({ length: 2 }).map((_, k) => <span key={k}>HANDMADE IN NAIROBI ✦ REPAIRS FOR LIFE ✦ PAY WITH M-PESA ✦ DELIVERED COUNTRYWIDE ✦ RECYCLED SOLES ✦ </span>)}</div></div>
       </section>
       <section className="container stack" style={{ padding: "80px 32px", gap: 28 }}>
         <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="Bestsellers" title="Walk in something made by hand" /><Link to={`${s.base}/shop`} className="btn">All products →</Link></div>
@@ -198,8 +223,8 @@ function ShopHome() {
       </section>
       <section style={{ background: "var(--s-sand)" }}>
         <div className="container" style={{ padding: "72px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
-          {[["✂", "Cut and stitched in Gikomba", "Every pair passes through three artisans' hands."], ["♻", "Recycled tyre soles", "Each sole keeps a tyre out of the dump."], ["🛠", "Repairs for life", "Bring any pair back for free stitching."], ["📱", "M-Pesa, delivered", "Order online, pay on confirmation, delivery in 48 hours."]].map(([i, t, d]) => (
-            <div key={t} className="site-card stack-sm reveal" style={{ gap: 8 }}><span className="site-ic">{i}</span><b style={{ fontSize: 18 }}>{t}</b><span style={{ color: "#57434D" }}>{d}</span></div>
+          {[["Cut and stitched in Gikomba", "Every pair passes through three artisans' hands."], ["Recycled tyre soles", "Each sole keeps a tyre out of the dump."], ["Repairs for life", "Bring any pair back for free stitching."], ["M-Pesa, delivered", "Order online, pay on confirmation, delivery in 48 hours."]].map(([t, d]) => (
+            <div key={t} className="stack-sm reveal" style={{ gap: 8, paddingTop: 18, borderTop: "1px solid #24161C" }}><b style={{ fontSize: 18 }}>{t}</b><span style={{ color: "#57434D" }}>{d}</span></div>
           ))}
         </div>
       </section>
@@ -215,7 +240,7 @@ function StayHome() {
   const s = useSite();
   return (
     <>
-      <section style={{ background: "linear-gradient(170deg, var(--s-deep), var(--s-primary))", color: "#fff" }}>
+      <section style={{ background: "var(--s-deep)", color: "#fff" }}>
         <div className="container" style={{ padding: "64px 32px 120px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 380px), 1fr))", gap: 40, alignItems: "center" }}>
           <div className="stack reveal" style={{ gap: 20 }}>
             <span style={{ color: "var(--s-accent)", fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase", fontSize: 13 }}>{s.location}</span>
@@ -246,7 +271,7 @@ function StudioHome() {
     <>
       <section style={{ background: "#0A0A0A", color: "#fff" }}>
         <div className="container stack" style={{ padding: "96px 32px 72px", gap: 28 }}>
-          <span className="site-chip" style={{ background: "var(--s-accent)", color: "#111", alignSelf: "flex-start", fontWeight: 800 }}>{s.location} · taking projects for Q1</span>
+          <span style={{ color: "var(--s-accent)", fontWeight: 600 }}>{s.location}. Taking projects for Q1.</span>
           <h1 className="reveal" style={{ fontSize: "clamp(52px, 9vw, 130px)", lineHeight: .9, fontWeight: 700, letterSpacing: "-4px" }}>
             {s.tagline.split(" ").map((w, i) => <span key={i} style={{ color: i === 1 ? "var(--s-accent)" : "#fff" }}>{w} </span>)}
           </h1>
@@ -557,7 +582,7 @@ function SiteHeader({ links, cta, menu, setMenu }) {
     <>
       <div className="no-print" style={{ background: "var(--s-deep)", color: "rgba(255,255,255,.85)", fontSize: 13 }}>
         <div className="container spread" style={{ padding: "7px 32px", flexWrap: "nowrap" }}>
-          <span className="row hide-sm" style={{ gap: 18 }}>{s.contact_email && <a href={`mailto:${s.contact_email}`} style={{ color: "inherit", textDecoration: "none" }}>✉ {s.contact_email}</a>}{s.phone && <span>☏ {s.phone}</span>}</span>
+          <span className="row hide-sm" style={{ gap: 18 }}>{s.contact_email && <a href={`mailto:${s.contact_email}`} style={{ color: "inherit", textDecoration: "none" }}>{s.contact_email}</a>}{s.phone && <span>{s.phone}</span>}</span>
           <span className="row" style={{ gap: 16, marginLeft: "auto" }}>
             {user && user.organization.name === s.organization ? <Link to="/app" style={{ color: "#fff", fontWeight: 700 }}>Go to dashboard →</Link> : <Link to={`${s.base}/login`} style={{ color: "#fff", fontWeight: 700 }}>Staff login →</Link>}
           </span>

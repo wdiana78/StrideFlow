@@ -22,8 +22,8 @@ function Chart({ s, asOf }) {
       <text x="48" y="226" fontSize="12" style={{ fill: "var(--slate)" }}>{fmtDate(s.start)}</text>
       <text x="728" y="226" fontSize="12" style={{ fill: "var(--slate)" }} textAnchor="end">{fmtDate(asOf)}</text>
       <path d={`M48 200 L728 ${Y(expectedEnd).toFixed(1)}`} fill="none" stroke="#B3A9C4" strokeWidth="2" strokeDasharray="6 5" />
-      <path d={actual} fill="none" stroke="#6D3FC9" strokeWidth="3" strokeLinejoin="round" />
-      <circle cx={X(last.date)} cy={Y(Math.min(last.value, s.target))} r="4.5" fill="#6D3FC9" />
+      <path d={actual} fill="none" stroke="#5B4CDB" strokeWidth="3" strokeLinejoin="round" />
+      <circle cx={X(last.date)} cy={Y(Math.min(last.value, s.target))} r="4.5" fill="#5B4CDB" />
     </svg>
   );
 }

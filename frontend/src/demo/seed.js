@@ -1,5 +1,6 @@
 import SPEC from "../modules.json";
 import TIMIZA from "./timiza.json";
+import ASSETS from "./timizaAssets";
 import TENANTS from "./tenants.json";
 import PLATFORM from "../platform.json";
 // Same fictional data and templates as backend/seed.py and backend/app/templates_builtin.py.
@@ -202,7 +203,7 @@ function participantsFor(spec) {
 function seedErp(db, id, org, ppl, sk, projects) {
   const mods = Object.fromEntries(SPEC.modules.map((m) => [m.key, m]));
   const keys = {};
-  const order = ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "site_gallery", "grants", "donations", "income", "budget_lines", "vendors", "expenses", "purchase_requests", "items",
+  const order = ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "site_gallery", "site_partners", "grants", "donations", "income", "budget_lines", "vendors", "expenses", "purchase_requests", "items",
     "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests", "events", "documents", "inquiries", "meetings", "decisions", "participants"];
   const records = { ...TIMIZA.erp, participants: participantsFor(TIMIZA.participants) };
   const stampDays = (n2) => new Date(Date.UTC(2026, 9, 13, 9) - n2 * 86400000).toISOString();
@@ -213,7 +214,7 @@ function seedErp(db, id, org, ppl, sk, projects) {
       for (const [k, v] of Object.entries(rec)) {
         if (k.startsWith("_") || !fields[k]) continue; const f = fields[k];
         row[k] = f.type === "ref" ? (f.ref === "users" ? ppl[v].id : f.ref === "stakeholders" ? sk[v].id : f.ref === "projects" ? projects[v].id : keys[v])
-          : f.type === "file" ? { name: v.name, url: "", size: null } : v;
+          : f.type === "file" ? (v.asset ? { name: v.asset, url: ASSETS[v.asset] || "", size: null } : { name: v.name, url: "", size: null }) : v;
       }
       const created = stampDays(rec._age_days ?? 6);
       const r = { id: id(key.slice(0, 3)), organization_id: org.id, created_by_id: (rec._by ? ppl[rec._by] : ppl.zawadi).id, created_at: created, updated_at: created, ...row };

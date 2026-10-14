@@ -115,12 +115,13 @@ export function Shop({ s, compact }) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 250px), 1fr))", gap: 18 }}>
         {list.slice(0, compact ? 4 : 99).map((p, i) => (
           <article key={p.id} className="site-card reveal stack-sm" style={{ padding: 0, overflow: "hidden", gap: 0 }}>
-            <div style={{ background: i % 2 ? "color-mix(in srgb, var(--s-accent) 35%, #fff)" : "color-mix(in srgb, var(--s-primary) 12%, #fff)", padding: "26px 20px 10px", position: "relative" }}>
-              {p.in_stock === 0 ? <span className="site-tag" style={{ background: "#24161C" }}>Sold out</span> : p.low && <span className="site-tag">Only {p.in_stock} left</span>}
+            <div style={{ background: "#F4F1EC", padding: "26px 20px 10px", position: "relative" }}>
+              
               <ShoeArt color={s.palette[i % s.palette.length]} accent={i % 2 ? s.brand.primary : s.brand.accent} kind={i} />
             </div>
             <div className="stack-sm" style={{ padding: 18, gap: 6 }}>
-              <div className="spread" style={{ flexWrap: "nowrap" }}><b style={{ fontSize: 17 }}>{p.name}</b><b style={{ color: "var(--s-primary)", whiteSpace: "nowrap" }}>{kes(p.price)}</b></div>
+              <div className="spread" style={{ flexWrap: "nowrap" }}><b style={{ fontSize: 17 }}>{p.name}</b><b style={{ whiteSpace: "nowrap" }}>{kes(p.price)}</b></div>
+              <span className="small" style={{ color: p.in_stock === 0 ? "#B42318" : p.low ? "#B54708" : "#6B5A55" }}>{p.in_stock === 0 ? "Sold out" : p.low ? `Only ${p.in_stock} left` : "In stock"}</span>
               <span className="small" style={{ color: "#6B5A55", lineHeight: "20px" }}>{p.description}</span>
               <button className="btn site-donate" style={{ justifyContent: "center", marginTop: 8 }} disabled={!p.in_stock || (cart[p.id] || 0) >= p.in_stock} onClick={() => add(p)}>{p.in_stock ? "Add to bag" : "Sold out"}</button>
             </div>
@@ -147,7 +148,7 @@ function Bag({ s, lines, total, setCart, onClose, onDone }) {
         <div className="spread"><h2 style={{ fontSize: 22, fontWeight: 800 }}>Your bag</h2><button className="btn btn-icon" aria-label="Close" onClick={onClose}>✕</button></div>
         {state.ok ? (
           <div className="stack" style={{ textAlign: "center", alignItems: "center", paddingTop: 30 }}>
-            <span className="site-ic" style={{ width: 64, height: 64, fontSize: 30 }}>✓</span>
+            
             <b style={{ fontSize: 20 }}>Order {state.ok.reference}</b><span style={{ color: "#6B5A55" }}>{state.ok.message}</span>
             <button className="btn" onClick={onClose}>Keep shopping</button>
           </div>
@@ -206,14 +207,14 @@ export function Rooms({ s, today, bare }) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", gap: 20 }}>
         {list.map((r, i) => (
           <article key={r.id} className="site-card reveal" style={{ padding: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-            <div style={{ height: 170, position: "relative", background: `radial-gradient(160px 120px at ${30 + i * 20}% 20%, color-mix(in srgb, var(--s-accent) 70%, transparent), transparent 70%), linear-gradient(140deg, var(--s-deep), var(--s-primary))` }}>
-              <span className="site-tag" style={{ background: r.available ? "#13865B" : "#24161C" }}>{r.available ? "Available" : "Booked"}</span>
+            <div style={{ height: 150, position: "relative", background: "var(--s-deep)" }}>
               <svg viewBox="0 0 100 60" style={{ position: "absolute", right: 16, bottom: 10, width: 90, opacity: .85 }} aria-hidden="true"><path d="M10 40 L50 12 L90 40Z" fill="#fff" fillOpacity=".85" /><rect x="22" y="40" width="56" height="18" fill="#fff" fillOpacity=".7" /></svg>
             </div>
             <div className="stack-sm" style={{ padding: 20, gap: 8, flex: 1 }}>
+              <span className="small" style={{ color: r.available ? "#067647" : "#6B5A55", fontWeight: 600 }}>{r.available ? "Available for your dates" : "Booked for your dates"}</span>
               <div className="spread" style={{ flexWrap: "nowrap" }}><b style={{ fontSize: 19 }}>{r.name}</b><span><b style={{ color: "var(--s-primary)" }}>{kes(r.rate)}</b><span className="small" style={{ color: "#6B5A55" }}> / {r.kind === "venue" ? "day" : "night"}</span></span></div>
               <span style={{ color: "#57434D", lineHeight: "23px" }}>{r.description}</span>
-              {r.amenities && <div className="row wrap" style={{ gap: 6 }}>{r.amenities.split("·").map((a) => <span key={a} className="site-chip">{a.trim()}</span>)}</div>}
+              {r.amenities && <span className="small" style={{ color: "#6B5A55" }}>{r.amenities}</span>}
               <button className="btn site-donate" style={{ justifyContent: "center", marginTop: "auto" }} disabled={!r.available} onClick={() => setPick(r)}>{r.available ? `Request ${nights} night${nights > 1 ? "s" : ""} · ${kes(r.rate * nights)}` : "Not free on these dates"}</button>
             </div>
           </article>
@@ -238,7 +239,7 @@ function BookDialog({ s, room, start, end, onClose }) {
         <div className="spread"><h2 style={{ fontSize: 22, fontWeight: 800 }}>{room.name}</h2><button className="btn btn-icon" aria-label="Close" onClick={onClose}>✕</button></div>
         <span style={{ color: "#6B5A55" }}>{start} to {end}</span>
         {state.ok ? (
-          <div className="stack" style={{ alignItems: "center", textAlign: "center", paddingTop: 24 }}><span className="site-ic" style={{ width: 64, height: 64, fontSize: 30 }}>✓</span><b style={{ fontSize: 19 }}>Request received</b><span style={{ color: "#57434D" }}>{state.ok.message}</span><button className="btn" onClick={onClose}>Done</button></div>
+          <div className="stack" style={{ alignItems: "center", textAlign: "center", paddingTop: 24 }}><b style={{ fontSize: 19 }}>Request received</b><span style={{ color: "#57434D" }}>{state.ok.message}</span><button className="btn" onClick={onClose}>Done</button></div>
         ) : (
           <>
             <ErrorNotice error={state.error} />

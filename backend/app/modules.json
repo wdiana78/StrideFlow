@@ -2478,6 +2478,10 @@
      "type": "select",
      "options": [
       [
+       "inter",
+       "Inter (clean sans)"
+      ],
+      [
        "fraunces",
        "Fraunces (warm serif)"
       ],
@@ -2494,6 +2498,96 @@
        "Space Grotesk (modern)"
       ]
      ]
+    },
+    {
+     "key": "logo",
+     "label": "Logo",
+     "type": "file"
+    },
+    {
+     "key": "hero_image",
+     "label": "Home hero image",
+     "type": "file"
+    },
+    {
+     "key": "phone2",
+     "label": "Second phone",
+     "type": "text"
+    },
+    {
+     "key": "work_intro",
+     "label": "Our work introduction",
+     "type": "textarea"
+    },
+    {
+     "key": "story",
+     "label": "Our story",
+     "type": "textarea"
+    },
+    {
+     "key": "story_image",
+     "label": "Story image",
+     "type": "file"
+    },
+    {
+     "key": "goal",
+     "label": "Goal",
+     "type": "textarea"
+    },
+    {
+     "key": "values",
+     "label": "Core values (one per line)",
+     "type": "textarea"
+    },
+    {
+     "key": "objectives",
+     "label": "Objectives (one per line)",
+     "type": "textarea"
+    },
+    {
+     "key": "objectives_image",
+     "label": "Objectives image",
+     "type": "file"
+    },
+    {
+     "key": "about_image",
+     "label": "How we work image",
+     "type": "file"
+    },
+    {
+     "key": "hero_work",
+     "label": "Our work page image",
+     "type": "file"
+    },
+    {
+     "key": "hero_contact",
+     "label": "Contact page image",
+     "type": "file"
+    },
+    {
+     "key": "hero_gallery",
+     "label": "Gallery page image",
+     "type": "file"
+    },
+    {
+     "key": "goal_icon",
+     "label": "Goal illustration",
+     "type": "file"
+    },
+    {
+     "key": "mission_icon",
+     "label": "Mission illustration",
+     "type": "file"
+    },
+    {
+     "key": "vision_icon",
+     "label": "Vision illustration",
+     "type": "file"
+    },
+    {
+     "key": "about_hero",
+     "label": "About page image",
+     "type": "file"
     }
    ],
    "create": [
@@ -2553,6 +2647,16 @@
      "label": "Published",
      "type": "bool",
      "list": true
+    },
+    {
+     "key": "photo",
+     "label": "Photo",
+     "type": "file"
+    },
+    {
+     "key": "slug",
+     "label": "Web address",
+     "type": "text"
     }
    ],
    "create": [
@@ -3331,6 +3435,59 @@
      "key": "order",
      "label": "Order",
      "type": "number"
+    }
+   ],
+   "create": [
+    "admin",
+    "manager"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin",
+    "manager"
+   ]
+  },
+  {
+   "key": "site_partners",
+   "app": "website",
+   "label": "Partners",
+   "singular": "Partner",
+   "group": "Website",
+   "description": "Partner logos shown on the website.",
+   "title_field": "name",
+   "fields": [
+    {
+     "key": "name",
+     "label": "Name",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "logo",
+     "label": "Logo",
+     "type": "file"
+    },
+    {
+     "key": "website",
+     "label": "Website",
+     "type": "text"
+    },
+    {
+     "key": "order",
+     "label": "Order",
+     "type": "number",
+     "list": true
+    },
+    {
+     "key": "published",
+     "label": "Published",
+     "type": "bool",
+     "list": true
     }
    ],
    "create": [

@@ -82,7 +82,7 @@ export default function ModulePage() {
     <>
       <div className="spread" style={{ alignItems: "flex-end" }}>
         <div className="stack-sm" style={{ gap: 6 }}>
-          <span className="chip-tone" style={{ background: `${GROUP_COLOR[m.group]}22`, color: GROUP_COLOR[m.group], alignSelf: "flex-start" }}><span className="dot" style={{ background: GROUP_COLOR[m.group] }} />{m.group}</span>
+          <span className="small muted">{m.group}</span>
           <h1 className="page-title">{m.label}</h1>
         </div>
         <div className="row wrap">
