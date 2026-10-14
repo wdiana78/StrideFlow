@@ -236,7 +236,7 @@ def public_form(fid: uuid.UUID, db: Session = Depends(get_db)):
     site = db.execute(select(st).where(st.c.organization_id == f.organization_id)).first()
     from ..models import Organization
     return {"id": str(f.id), "title": f.title, "description": f.description, "fields": f.fields, "organization": db.get(Organization, f.organization_id).name,
-            "brand": {"primary": (site.brand_primary if site else None) or "#2C3D9B", "accent": (site.brand_accent if site else None) or "#F2B33D"}}
+            "brand": {"primary": (site.brand_primary if site else None) or "#6A4DF4", "accent": (site.brand_accent if site else None) or "#FFC226"}}
 
 
 @public.post("/{fid}", status_code=201)

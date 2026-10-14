@@ -1276,10 +1276,10 @@
   ],
   "items": [
    {
-    "_key": "i_condoms",
-    "name": "Condoms",
-    "category": "health",
-    "unit": "boxes",
+    "_key": "i_tshirts",
+    "name": "Event T-shirts",
+    "category": "other",
+    "unit": "pieces",
     "reorder_level": 20,
     "location": "Kilifi office store"
    },
@@ -1318,14 +1318,14 @@
   ],
   "stock_moves": [
    {
-    "item_id": "i_condoms",
+    "item_id": "i_tshirts",
     "direction": "in",
     "quantity": 60,
     "moved_on": "2026-07-05",
-    "note": "From county health office"
+    "note": "Printed for outreach days"
    },
    {
-    "item_id": "i_condoms",
+    "item_id": "i_tshirts",
     "direction": "out",
     "quantity": 22,
     "moved_on": "2026-08-29",
@@ -1333,7 +1333,7 @@
     "note": "Mtwapa market outreach"
    },
    {
-    "item_id": "i_condoms",
+    "item_id": "i_tshirts",
     "direction": "out",
     "quantity": 26,
     "moved_on": "2026-10-03",
@@ -1964,7 +1964,7 @@
     "stat_value": "260",
     "stat_label": "young people reached in one day",
     "summary": "A market-day outreach reached more young people than any event this year.",
-    "body": "Traders' children and boda riders rarely come to youth centres, so the team went to them. Twelve peer educators ran a health desk, quiz and condom demonstration through the market day.",
+    "body": "Traders' children and boda riders rarely come to youth centres, so the team went to them. Twelve peer educators ran a health desk, quiz and health quiz through the market day.",
     "quote": "I learned more in ten minutes at the stand than in school.",
     "quote_by": "Participant, 19"
    },

@@ -102,3 +102,26 @@ def test_dashboard_and_calendar(client):
     assert d["finance"]["budget"] == 10000 and len(d["upcoming_events"]) == 1
     cal = client.get("/api/calendar", headers=admin, params={"start": "2026-10-01", "end": "2026-10-31"}).json()
     assert any(i["kind"] == "event" for i in cal)
+
+
+def test_delete_explains_and_cascades_owned_records(client):
+    admin = register(client)
+    _, manager = add_user(client, admin, "mgr2@test.example", "manager")
+    item = mk(client, manager, "items", {"name": "T-shirts", "unit": "pieces", "reorder_level": 5})
+    mk(client, manager, "stock_moves", {"item_id": item["id"], "direction": "in", "quantity": 10, "moved_on": "2026-10-01"})
+    r = client.delete(f"/api/m/items/{item['id']}", headers=manager)
+    assert r.status_code == 409 and r.json()["detail"].startswith("CASCADE:")
+    assert client.delete(f"/api/m/items/{item['id']}", headers=manager, params={"cascade": "true"}).status_code == 204
+    assert client.get("/api/m/stock_moves", headers=manager).json()["total"] == 0
+    g = mk(client, admin, "grants", {"title": "Grant A", "amount": 5})
+    assert "Only admins" in client.delete(f"/api/m/grants/{g['id']}", headers=manager).json()["detail"]
+
+
+def test_site_login_only_admits_that_organizations_staff(client):
+    a = register(client, "Org A", "a@test.example")
+    mk(client, a, "site_settings", {"slug": "org-a", "tagline": "Hi", "intro": "About"})
+    register(client, "Org B", "b@test.example")
+    ok = client.post("/api/auth/login", json={"email": "a@test.example", "password": "Coastal-Breeze-2026", "site_slug": "org-a"})
+    assert ok.status_code == 200
+    other = client.post("/api/auth/login", json={"email": "b@test.example", "password": "Coastal-Breeze-2026", "site_slug": "org-a"})
+    assert other.status_code == 401

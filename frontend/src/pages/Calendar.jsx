@@ -4,7 +4,7 @@ import { ErrorNotice, Loading } from "../components/ui";
 import { isoToday } from "../format";
 import { useApi } from "../hooks";
 
-const KIND = { event: ["Event", "#2F5BE8"], activity: ["Activity due", "#13865B"], report: ["Deadline", "#A3284F"], leave: ["Leave", "#D99A0B"] };
+const KIND = { event: ["Event", "#6A4DF4"], activity: ["Activity due", "#13865B"], report: ["Deadline", "#F26A1B"], leave: ["Leave", "#D99A0B"] };
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 

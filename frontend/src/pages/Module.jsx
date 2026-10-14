@@ -20,6 +20,19 @@ export function useOptions(ref) {
 }
 export const clearOptions = () => Object.keys(optionCache).forEach((k) => delete optionCache[k]);
 
+// Delete with a clear explanation; records that own others (an item and its movements) ask once and delete together.
+export async function deleteRecord(key, id, title) {
+  if (!confirm(`Delete ${title}? This cannot be undone.`)) return false;
+  try { await api(`/m/${key}/${id}`, { method: "DELETE" }); return true; }
+  catch (e) {
+    if (e.status === 409 && e.message.startsWith("CASCADE:")) {
+      if (!confirm(e.message.slice(8))) return false;
+      await api(`/m/${key}/${id}`, { method: "DELETE", params: { cascade: "true" } }); return true;
+    }
+    throw e;
+  }
+}
+
 export function StatusPill({ m, value }) {
   const tone = STATUS_TONE[value] || "neutral";
   return <span className="status" style={{ color: TONE_COLOR[tone] }}><svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4" fill={tone === "neutral" ? "none" : TONE_COLOR[tone]} stroke={TONE_COLOR[tone]} strokeWidth="1.5" /></svg>{statusLabel(m, value)}</span>;
@@ -155,7 +168,7 @@ export default function ModulePage() {
                     {m.status && <td><StatusPill m={m} value={r[m.status.field]} /></td>}
                     <td style={{ textAlign: "right", whiteSpace: "nowrap" }} onClick={(e) => e.stopPropagation()}>
                       {can("edit") && <button className="btn btn-icon btn-ghost" title="Edit" aria-label={`Edit ${r._title}`} onClick={() => setEditing(r)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4" /></svg></button>}
-                      {can("delete") && <button className="btn btn-icon btn-ghost-danger" title="Delete" aria-label={`Delete ${r._title}`} onClick={async () => { if (!confirm(`Delete ${r._title}?`)) return; try { await api(`/m/${key}/${r.id}`, { method: "DELETE" }); done("Deleted"); } catch (e) { setToast(e.message); } }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></svg></button>}
+                      {user.role !== "viewer" && <button className="btn btn-icon btn-ghost-danger" title="Delete" aria-label={`Delete ${r._title}`} onClick={async () => { try { if (await deleteRecord(key, r.id, r._title)) done("Deleted"); } catch (e) { setToast(e.message); } }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></svg></button>}
                     </td>
                   </tr>
                 ))}</tbody>
@@ -219,14 +232,13 @@ function RecordPanel({ m, id, onClose, onEdit, onChanged }) {
     catch (e) { setErr(e); } finally { setBusy(false); }
   };
   const del = async () => {
-    if (!confirm(`Delete this ${m.singular.toLowerCase()}? This cannot be undone.`)) return;
-    try { await api(`/m/${m.key}/${id}`, { method: "DELETE" }); onChanged("Deleted"); onClose(); } catch (e) { setErr(e); }
+    try { if (await deleteRecord(m.key, id, r?._title || m.singular.toLowerCase())) { onChanged("Deleted"); onClose(); } } catch (e) { setErr(e); }
   };
   const all = [...m.fields, ...(m.computed || [])];
   return (
     <Dialog title={r ? r._title : m.singular} onClose={onClose}
       footer={r && <>
-        {m.delete.includes(user.role) && <button className="btn btn-danger" style={{ marginRight: "auto" }} onClick={del}>Delete</button>}
+        {user.role !== "viewer" && <button className="btn btn-danger" style={{ marginRight: "auto" }} onClick={del}>Delete</button>}
         {m.edit.includes(user.role) && <button className="btn" onClick={() => onEdit(r)}>Edit</button>}
         {steps.map((tr) => <button key={tr.to} className={"btn" + (["approved", "awarded", "paid", "active", "held", "done", "received", "converted"].includes(tr.to) ? " btn-primary" : "")} disabled={busy} onClick={() => go(tr)}>{tr.label}</button>)}
       </>}>

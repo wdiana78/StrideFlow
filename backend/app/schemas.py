@@ -32,6 +32,7 @@ class RegisterIn(BaseModel):
 class LoginIn(BaseModel):
     email: EmailStr
     password: str
+    site_slug: str | None = None  # signing in from an organization's website
 
 
 class OrgOut(ORM):

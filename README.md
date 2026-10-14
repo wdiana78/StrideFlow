@@ -40,11 +40,11 @@ Kept is the product. Its home page sells the platform: apps, industries and live
 
 | Role | Colour | Use |
 |---|---|---|
-| Navy | `#0F1E46` | Text, hero and footer surfaces |
-| Royal blue | `#2F5BE8` | Primary actions, links, focus |
-| Sunflower | `#FFC53D` | Accent calls to action, highlights |
-| Sky | `#5BB6F8` | Data and secondary charts |
-| Maroon | `#8E2243` | Sparing emphasis: badges, alerts, chart contrast |
+| Ink | `#14142B` | Text, hero and footer surfaces |
+| Purple | `#6A4DF4` | Primary actions, links, focus (lavender `#EFEAFF` for tints) |
+| Sunflower | `#FFC226` | Accent calls to action, highlights |
+| Orange | `#F26A1B` | Alerts, emphasis, the hero stripe motif |
+| Blue | `#4F8CFF` | Tertiary only: charts and data |
 
 Light and dark themes share the same token names (`styles.css`), the choice is remembered per browser, and the first visit follows the device setting.
 

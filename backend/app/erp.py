@@ -331,20 +331,39 @@ def update_record(db: Session, user, key: str, rid, data: dict, log) -> dict:
     return get_record(db, user, key, rid)
 
 
-def delete_record(db: Session, user, key: str, rid, log):
-    from sqlalchemy.exc import IntegrityError
+def dependents(db: Session, org_id, key: str, rid) -> list[dict]:
+    """Records in other modules that point at this one through a required link."""
+    out = []
+    for m in SPEC["modules"]:
+        for f in m["fields"]:
+            if f["type"] == "ref" and f["ref"] == key and (f.get("required") or f.get("cascade")):
+                t = TABLES[m["key"]]
+                n = db.scalar(select(func.count()).where(t.c[f["key"]] == rid, t.c.organization_id == org_id))
+                if n:
+                    out.append({"module": m["key"], "label": m["label"].lower(), "count": n, "field": f["key"], "cascade": bool(f.get("cascade"))})
+    return out
 
+
+def delete_record(db: Session, user, key: str, rid, log, cascade: bool = False):
     m, t = MODULES[key], TABLES[key]
     if not _role_ok(user, m["delete"]):
-        raise ErpError(403, "Your role does not allow this action.")
+        who = " or ".join(r + "s" for r in m["delete"])
+        raise ErpError(403, f"Only {who} can delete {m['label'].lower()}.")
     rec = get_record(db, user, key, rid)
-    try:
-        db.execute(t.delete().where(t.c.id == rid))
-        log(db, user.organization_id, user.id, f"{key}_deleted", key, rid, f"{user.full_name} deleted {m['singular'].lower()}: {rec['_title']}")
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise ErpError(409, f"Other records still use this {m['singular'].lower()}. Remove or reassign them first.")
+    deps = dependents(db, user.organization_id, key, rid)
+    blocking = [d for d in deps if not d["cascade"]]
+    if blocking:
+        what = ", ".join(f"{d['count']} {d['label']}" for d in blocking)
+        raise ErpError(409, f"{rec['_title']} is still used by {what}. Remove or reassign those first.")
+    if deps and not cascade:
+        what = ", ".join(f"{d['count']} {d['label']}" for d in deps)
+        raise ErpError(409, f"CASCADE:{rec['_title']} has {what}. Delete them too?")
+    for d in deps:
+        db.execute(TABLES[d["module"]].delete().where(TABLES[d["module"]].c[d["field"]] == rid))
+    db.execute(t.delete().where(t.c.id == rid))
+    extra = f" and {', '.join(str(d['count']) + ' ' + d['label'] for d in deps)}" if deps else ""
+    log(db, user.organization_id, user.id, f"{key}_deleted", key, rid, f"{user.full_name} deleted {m['singular'].lower()}: {rec['_title']}{extra}")
+    db.commit()
 
 
 def transition(db: Session, user, key: str, rid, to: str, note: str | None, log) -> dict:

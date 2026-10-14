@@ -33,16 +33,16 @@ function ProductMock() {
           {["Home", "Attention", "Projects", "Finance", "Sales", "Website"].map((l, i) => <span key={l} style={{ fontSize: 11.5, fontWeight: 600, padding: "6px 8px", borderRadius: 6, background: i === 0 ? "var(--cobalt-tint)" : "transparent", color: i === 0 ? "var(--cobalt-dark)" : "var(--slate)" }}>{l}</span>)}
         </div>
         <div className="stack-sm" style={{ padding: 14, gap: 10 }}>
-          <div style={{ borderRadius: 10, padding: "12px 14px", color: "#fff", background: "linear-gradient(120deg,#0F1E46,#2F5BE8)" }}><b style={{ fontSize: 14 }}>Habari, Zawadi</b><div style={{ fontSize: 11, opacity: .8 }}>9 items need you today</div></div>
+          <div style={{ borderRadius: 10, padding: "12px 14px", color: "#fff", background: "linear-gradient(120deg,#14142B,#6A4DF4)" }}><b style={{ fontSize: 14 }}>Habari, Zawadi</b><div style={{ fontSize: 11, opacity: .8 }}>9 items need you today</div></div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
-            {[["Budget used", "45%", "#2F5BE8"], ["Raised", "KES 4.1M", "#F5A524"], ["Reach", "1,026", "#A3284F"]].map(([l, v, c]) => (
+            {[["Budget used", "45%", "#6A4DF4"], ["Raised", "KES 4.1M", "#F26A1B"], ["Reach", "1,026", "#F26A1B"]].map(([l, v, c]) => (
               <div key={l} style={{ border: "1px solid var(--rule)", borderRadius: 8, padding: 8 }}><span style={{ fontSize: 10, color: "var(--slate)" }}>{l}</span><b style={{ display: "block", fontSize: 15, color: c }}>{v}</b></div>
             ))}
           </div>
           <div style={{ border: "1px solid var(--rule)", borderRadius: 8, padding: 10, display: "flex", alignItems: "flex-end", gap: 8, height: 110 }}>
-            {bars.map((h, i) => <span key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 4, background: i === bars.length - 1 ? "#FFC53D" : "#2F5BE8", opacity: i === bars.length - 1 ? 1 : .35 + i * .1 }} />)}
+            {bars.map((h, i) => <span key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 4, background: i === bars.length - 1 ? "#FFC226" : "#6A4DF4", opacity: i === bars.length - 1 ? 1 : .35 + i * .1 }} />)}
           </div>
-          {["Transport budget 108% used", "GBV referral MoU expired"].map((t, i) => <div key={t} className="row" style={{ gap: 8, fontSize: 11.5, padding: "6px 8px", borderRadius: 6, background: i ? "var(--maroon-tint)" : "var(--accent-tint)" }}><span className="dot" style={{ background: i ? "#A3284F" : "#F5A524" }} />{t}</div>)}
+          {["Transport budget 108% used", "GBV referral MoU expired"].map((t, i) => <div key={t} className="row" style={{ gap: 8, fontSize: 11.5, padding: "6px 8px", borderRadius: 6, background: i ? "var(--maroon-tint)" : "var(--accent-tint)" }}><span className="dot" style={{ background: i ? "#F26A1B" : "#F26A1B" }} />{t}</div>)}
         </div>
       </div>
     </div>
@@ -88,13 +88,20 @@ export default function Landing() {
       </header>
 
       {/* ---------- hero ---------- */}
-      <section style={{ position: "relative", overflow: "hidden", color: "#fff", background: "radial-gradient(900px 500px at 85% -10%, rgba(91,182,248,.35), transparent 60%), radial-gradient(700px 400px at -10% 110%, rgba(255,197,61,.22), transparent 60%), linear-gradient(160deg, #0B1636 0%, #0F1E46 45%, #1B3487 100%)" }}>
-        <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px)", backgroundSize: "48px 48px", maskImage: "radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%)", WebkitMaskImage: "radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%)" }} />
+      <section style={{ position: "relative", overflow: "hidden", color: "#fff", background: "radial-gradient(700px 420px at 10% 0%, rgba(106,77,244,.35), transparent 60%), #14142B" }}>
+        <svg aria-hidden="true" viewBox="0 0 700 600" preserveAspectRatio="xMaxYMax slice" style={{ position: "absolute", right: 0, bottom: 0, width: "min(62%, 760px)", height: "100%", opacity: .95 }}>
+          <g fill="none" strokeWidth="26" strokeLinecap="round">
+            <path d="M720 120 H520 a90 90 0 0 0 -90 90 V640" stroke="#8E5CFF" />
+            <path d="M720 175 H540 a70 70 0 0 0 -70 70 V640" stroke="#C04CF5" />
+            <path d="M720 230 H560 a50 50 0 0 0 -50 50 V640" stroke="#FFC226" />
+            <path d="M720 285 H580 a30 30 0 0 0 -30 30 V640" stroke="#F26A1B" />
+          </g>
+        </svg>
         <div className="container" style={{ position: "relative", padding: "88px 32px 100px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 440px), 1fr))", gap: 56, alignItems: "center" }}>
           <div className="stack" style={{ gap: 24 }}>
-            <span className="eyebrow" style={{ background: "rgba(255,255,255,.1)", color: "#FFD873", alignSelf: "flex-start", border: "1px solid rgba(255,255,255,.15)" }}>★ Built in Nairobi for African organizations</span>
+            <span className="eyebrow" style={{ background: "rgba(255,255,255,.08)", color: "#FFC226", alignSelf: "flex-start", border: "1px solid rgba(255,255,255,.15)" }}>★ Built in Nairobi for African organizations</span>
             <h1 style={{ fontSize: "clamp(40px, 5.6vw, 70px)", lineHeight: 1.02, fontWeight: 800, letterSpacing: "-2px" }}>
-              Run your organization <span style={{ color: "#FFC53D" }}>and</span> its website from one place.
+              Run your organization <span style={{ background: "linear-gradient(90deg, #B9A8FF, #FFC226 60%, #F26A1B)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>and its website</span> from one place.
             </h1>
             <p style={{ fontSize: 19, lineHeight: "30px", color: "rgba(255,255,255,.8)", maxWidth: 540 }}>Pick your industry, install the apps you need, and publish a website whose numbers update themselves.</p>
             <div className="row wrap" style={{ gap: 12 }}>
@@ -118,13 +125,14 @@ export default function Landing() {
       </section>
 
       {/* ---------- how it works ---------- */}
-      <section id="how" className="container stack" style={{ padding: "96px 32px", gap: 48, scrollMarginTop: 80 }}>
+      <section id="how" className="container stack" style={{ padding: "96px 32px", gap: 48, scrollMarginTop: 80, position: "relative" }}>
+        <span aria-hidden="true" style={{ position: "absolute", left: -120, top: 40, width: 260, height: 260, borderRadius: "50%", border: "28px solid var(--cobalt-tint)", zIndex: 0 }} />
         <Title eyebrow="How it works" sub="Every organization gets two front doors on one platform.">One account. A public website and a private workspace.</Title>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
-          {[["1", "The public types their address", "Someone searches “Timiza Youth Initiative” and lands on timiza.or.ke, their own domain, served by Kept with their own colours.", "#2F5BE8"],
-            ["2", "Staff press “Staff login”", "Every tenant website has a staff login. Managers sign in with their work email and land on their Home.", "#F5A524"],
-            ["3", "Home is the launcher", "Like Odoo: the apps their organization installed, what needs attention today, and their numbers.", "#A3284F"],
-            ["4", "The website feeds itself", "Donations, volunteer sign-ups and survey answers land in the workspace; verified results flow back to the site.", "#0EA5E9"]].map(([n, t, d, c]) => (
+          {[["1", "The public types their address", "Someone searches “Timiza Youth Initiative” and lands on timiza.or.ke, their own domain, served by Kept with their own colours.", "#6A4DF4"],
+            ["2", "Staff press “Staff login”", "Every tenant website has a staff login. Managers sign in with their work email and land on their Home.", "#F26A1B"],
+            ["3", "Home is the launcher", "Like Odoo: the apps their organization installed, what needs attention today, and their numbers.", "#F26A1B"],
+            ["4", "The website feeds itself", "Donations, volunteer sign-ups and survey answers land in the workspace; verified results flow back to the site.", "#4F8CFF"]].map(([n, t, d, c]) => (
             <div key={n} className="panel panel-body stack-sm" style={{ gap: 10 }}>
               <span style={{ width: 40, height: 40, borderRadius: 12, background: c, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 18 }}>{n}</span>
               <b style={{ fontSize: 18 }}>{t}</b><p className="muted">{d}</p>
@@ -206,7 +214,7 @@ export default function Landing() {
 
       {/* ---------- trust ---------- */}
       <section className="container" style={{ padding: "80px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 16 }}>
-        {[["Locked-down sign-in", "Lockouts, strong passwords, instant sign-out everywhere.", "#2F5BE8"], ["Your data stays yours", "Every organization is sealed off from the rest.", "#A3284F"], ["Payments that post themselves", "M-Pesa and card donations land in your books.", "#F5A524"], ["Numbers you can check", "Websites show results counted from real records.", "#0EA5E9"]].map(([t, d, c]) => (
+        {[["Locked-down sign-in", "Lockouts, strong passwords, instant sign-out everywhere.", "#6A4DF4"], ["Your data stays yours", "Every organization is sealed off from the rest.", "#F26A1B"], ["Payments that post themselves", "M-Pesa and card donations land in your books.", "#F26A1B"], ["Numbers you can check", "Websites show results counted from real records.", "#4F8CFF"]].map(([t, d, c]) => (
           <div key={t} className="stack-sm" style={{ padding: 22, gap: 10 }}>
             <span style={{ width: 36, height: 4, borderRadius: 2, background: c }} /><b style={{ fontSize: 17 }}>{t}</b><span className="muted">{d}</span>
           </div>
@@ -233,14 +241,14 @@ export default function Landing() {
       {/* ---------- CTA ---------- */}
       <section className="container" style={{ paddingBottom: 96 }}>
         <div style={{ borderRadius: 24, padding: "48px 40px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 24, flexWrap: "wrap",
-          background: "radial-gradient(500px 240px at 100% 0%, rgba(255,197,61,.35), transparent 65%), linear-gradient(120deg, #0F1E46, #2F5BE8)" }}>
+          background: "radial-gradient(500px 240px at 100% 0%, rgba(255,194,38,.35), transparent 65%), linear-gradient(120deg, #14142B, #6A4DF4)" }}>
           <div className="stack-sm"><h2 style={{ fontSize: "clamp(26px, 3vw, 38px)", fontWeight: 800, letterSpacing: "-.8px", color: "#fff" }}>Set up your workspace in five minutes.</h2><span style={{ opacity: .8 }}>Free while you set up. No card needed.</span></div>
           <Link className="btn btn-lg btn-accent" to="/register">Start free</Link>
         </div>
       </section>
 
       {/* ---------- footer ---------- */}
-      <footer style={{ background: "#0B1636", color: "rgba(255,255,255,.72)" }}>
+      <footer style={{ background: "#0E0D22", color: "rgba(255,255,255,.72)" }}>
         <div className="container" style={{ padding: "64px 32px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 32 }}>
           <div className="stack-sm foot-brand" style={{ minWidth: 0, gap: 14 }}>
             <span className="row" style={{ gap: 10, color: "#fff", fontWeight: 800, fontSize: 20 }}><Logo size={30} />Kept</span>

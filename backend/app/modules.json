@@ -795,7 +795,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "procurement"
   },
@@ -946,7 +947,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "procurement"
   },
@@ -955,7 +957,7 @@
    "label": "Stock items",
    "singular": "Stock item",
    "group": "Inventory",
-   "description": "Consumables: condoms, IEC materials, seedlings, stationery.",
+   "description": "Consumables: event supplies, IEC materials, seedlings, stationery.",
    "title_field": "name",
    "fields": [
     {
@@ -1031,7 +1033,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "inventory"
   },
@@ -1050,7 +1053,8 @@
      "ref": "items",
      "required": true,
      "list": true,
-     "filter": true
+     "filter": true,
+     "cascade": true
     },
     {
      "key": "direction",
@@ -1110,7 +1114,8 @@
     "admin"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "inventory"
   },
@@ -1273,7 +1278,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "inventory"
   },
@@ -1449,7 +1455,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "people"
   },
@@ -1468,7 +1475,8 @@
      "ref": "volunteers",
      "required": true,
      "list": true,
-     "filter": true
+     "filter": true,
+     "cascade": true
     },
     {
      "key": "worked_on",
@@ -1637,7 +1645,8 @@
     "admin"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "people"
   },
@@ -1757,7 +1766,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "participants"
   },
@@ -1996,7 +2006,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "documents"
   },
@@ -2134,7 +2145,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "website"
   },
@@ -2207,7 +2219,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "governance"
   },
@@ -2233,7 +2246,8 @@
      "type": "ref",
      "ref": "meetings",
      "list": true,
-     "filter": true
+     "filter": true,
+     "cascade": true
     },
     {
      "key": "owner_id",
@@ -2303,7 +2317,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "governance"
   },
@@ -2500,7 +2515,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "website"
   },
@@ -2559,7 +2575,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "website"
   },
@@ -2639,7 +2656,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "website"
   },
@@ -2720,7 +2738,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ],
    "app": "website"
   },
@@ -2818,7 +2837,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ]
   },
   {
@@ -3030,7 +3050,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ]
   },
   {
@@ -3188,7 +3209,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ]
   },
   {
@@ -3254,7 +3276,8 @@
     "manager"
    ],
    "delete": [
-    "admin"
+    "admin",
+    "manager"
    ]
   }
  ]

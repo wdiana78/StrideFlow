@@ -7,7 +7,7 @@ import SPEC from "../modules.json";
 import PLATFORM from "../platform.json";
 import { SEED } from "./seed";
 
-const KEY = "kept_preview_db_v6";
+const KEY = "kept_preview_db_v7";
 export const TODAY = "2026-10-13";
 const AT_RISK_GAP = 15, DUE_SOON = 3, ESCALATE = 2;
 
@@ -179,6 +179,7 @@ on("POST", "/auth/login", (_, { body }) => {
   const u = T("users").find((x) => x.email.toLowerCase() === (body.email || "").toLowerCase());
   if (!u || u.password !== body.password) E(401, "Email or password is incorrect.");
   if (!u.is_active) E(403, "This account has been deactivated by an administrator.");
+  if (body.site_slug) { const st = mrows("site_settings").find((x) => String(x.slug).toLowerCase() === String(body.site_slug).toLowerCase()); if (!st || st.organization_id !== u.organization_id) E(401, "Email or password is incorrect."); }
   return { access_token: u.id, token_type: "bearer", user: meOut(u) };
 });
 on("POST", "/auth/register", (_, { body }) => {
@@ -542,11 +543,18 @@ on("PATCH", "/m/:key/:id", (u, { body }, key, id) => {
     log(u.organization_id, u.id, `${key}_updated`, key, id, `${u.full_name} changed ${changed.map((k) => lab[k]).join(", ")}`); }
   evaluateOrg(u.organization_id); return mser(key, r);
 });
-on("DELETE", "/m/:key/:id", (u, _, key, id) => {
-  const m = needMod(key); if (!roleOk(u, m.delete)) E(403, "Your role does not allow this action.");
+on("DELETE", "/m/:key/:id", (u, { params }, key, id) => {
+  const m = needMod(key);
+  if (!roleOk(u, m.delete)) E(403, `Only ${m.delete.map((r) => r + "s").join(" or ")} can delete ${m.label.toLowerCase()}.`);
   const r = getRec(u, key, id);
-  for (const om of SPEC.modules) for (const f of om.fields) if (f.type === "ref" && f.ref === key && f.required && mrows(om.key).some((x) => x[f.key] === id))
-    E(409, `Other records still use this ${m.singular.toLowerCase()}. Remove or reassign them first.`);
+  const deps = [];
+  for (const om of SPEC.modules) for (const f of om.fields) if (f.type === "ref" && f.ref === key && (f.required || f.cascade)) {
+    const n2 = mrows(om.key).filter((x) => x[f.key] === id).length; if (n2) deps.push({ module: om.key, label: om.label.toLowerCase(), count: n2, field: f.key, cascade: !!f.cascade });
+  }
+  const blocking = deps.filter((d) => !d.cascade);
+  if (blocking.length) E(409, `${r[m.title_field]} is still used by ${blocking.map((d) => `${d.count} ${d.label}`).join(", ")}. Remove or reassign those first.`);
+  if (deps.length && params.cascade !== "true") E(409, `CASCADE:${r[m.title_field]} has ${deps.map((d) => `${d.count} ${d.label}`).join(", ")}. Delete them too?`);
+  for (const d of deps) db.m[d.module] = mrows(d.module).filter((x) => x[d.field] !== id);
   for (const om of SPEC.modules) for (const f of om.fields) if (f.type === "ref" && f.ref === key) mrows(om.key).forEach((x) => { if (x[f.key] === id) x[f.key] = null; });
   db.m[key] = mrows(key).filter((x) => x.id !== id); db.flags = db.flags.filter((f) => f.subject_id !== id);
   log(u.organization_id, u.id, `${key}_deleted`, key, id, `${u.full_name} deleted ${m.singular.toLowerCase()}: ${r[m.title_field] ?? ""}`); evaluateOrg(u.organization_id); return null;
@@ -777,7 +785,7 @@ if (_portfolioRoute) {
     const conf = mine("donations").filter((d) => d.status === "confirmed");
     const names = Object.fromEntries(T("projects").filter((p) => p.organization_id === org).map((p) => [p.id, p.name]));
     return { ...out, mission: site.mission, vision: site.vision, founded: site.founded, address: site.address, map_query: site.map_query,
-      brand: { primary: site.brand_primary || "#2F5BE8", accent: site.brand_accent || "#FFC53D", deep: site.brand_deep || "#0F1E46" },
+      brand: { primary: site.brand_primary || "#6A4DF4", accent: site.brand_accent || "#FFC226", deep: site.brand_deep || "#14142B" },
       gallery: mine("site_gallery").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ id: r.id, caption: r.caption, photo: r.photo, place: r.place, taken_on: r.taken_on, programme: names[r.project_id] })),
       services: mine("site_services").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ title: r.title, description: r.description, icon: r.icon })),
       stories: mine("site_stories").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ id: r.id, title: r.title, programme: names[r.project_id], summary: r.summary, body: r.body, quote: r.quote, quote_by: r.quote_by, stat_value: r.stat_value, stat_label: r.stat_label })),
@@ -865,7 +873,7 @@ on("DELETE", "/forms/:id/submissions/:sid", (u, _, id2, sid) => { manage(u); con
   db.form_submissions = subs().filter((s2) => s2.id !== sid); log(u.organization_id, u.id, "form_response_deleted", "form", f.id, `${u.full_name} deleted a response to '${f.title}'`); return null; });
 const publicForm = (id2) => { const f = forms().find((x) => x.id === id2); if (!f || !f.is_public || f.status !== "open") E(404, "This form is not available."); return f; };
 on("GET", "/public/forms/:id", (_, __, id2) => { const f = publicForm(id2); const site = mrows("site_settings").find((s2) => s2.organization_id === f.organization_id);
-  return { id: f.id, title: f.title, description: f.description, fields: f.fields, organization: byId("orgs", f.organization_id).name, brand: { primary: site?.brand_primary || "#2C3D9B", accent: site?.brand_accent || "#F2B33D" } }; });
+  return { id: f.id, title: f.title, description: f.description, fields: f.fields, organization: byId("orgs", f.organization_id).name, brand: { primary: site?.brand_primary || "#6A4DF4", accent: site?.brand_accent || "#FFC226" } }; });
 on("POST", "/public/forms/:id", (_, { body }, id2) => { const f = publicForm(id2); const b2 = { ...body }; if (b2.website) return { ok: true }; delete b2.website;
   subs().push({ id: uid(), form_id: f.id, organization_id: f.organization_id, data: validateAnswers(f.fields, b2), source: "public", submitted_by_id: null, created_at: nowIso() }); return { ok: true }; });
 on("POST", "/auth/password", (u, { body }) => {

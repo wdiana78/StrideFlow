@@ -13,7 +13,7 @@ def reg(client, industry, email, slug=None):
 def test_industry_installs_the_right_apps_and_site(client):
     h, org = reg(client, "retail", "shop@test.example", slug="my-shop")
     assert {"sales", "inventory", "website"} <= set(org["installed_apps"]) and "participants" not in org["installed_apps"]
-    assert client.get("/api/public/my-shop").json()["brand"]["primary"] == "#2F5BE8"  # royal palette by default
+    assert client.get("/api/public/my-shop").json()["brand"]["primary"] == "#6A4DF4"  # studio palette by default
     assert client.post("/api/auth/register", json={"organization_name": "Copy Org", "full_name": "Bo Bee", "email": "b@test.example",
                                                    "password": "Coastal-Breeze-2026", "site_slug": "my-shop"}).status_code == 409
 

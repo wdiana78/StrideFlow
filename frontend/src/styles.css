@@ -1,33 +1,33 @@
 /* =====================================================================
    Kept design system
-   Brand: Navy (ink), Royal Blue (primary), Sunflower (accent), Sky (data), Maroon (emphasis)
+   Brand: Ink, Purple (primary), Lavender (surface tint), Sunflower and Orange (accents); blue is a tertiary data colour
    Light and dark themes share the same token names.
    ===================================================================== */
 :root {
-  --navy: #0F1E46; --blue: #2F5BE8; --sunflower: #FFC53D; --sky: #5BB6F8; --maroon: #8E2243;
-  --bg: #F5F7FB; --surface: #FFFFFF; --surface-2: #F0F3FA; --elev: #FFFFFF;
-  --ink: #0F1E46; --ink-2: #3A4668; --slate: #5D6888;
-  --rule: #E3E8F2; --rule-soft: #EDF1F7; --control: #CDD5E5; --stone: #F2F5FB; --track: #E6EBF5;
-  --cobalt: #2F5BE8; --cobalt-dark: #1E44C4; --cobalt-tint: #E8EEFE; --cobalt-soft: #9DB3F6;
-  --accent: #FFC53D; --accent-ink: #5C4300; --accent-tint: #FFF4D6;
-  --maroon-tint: #F9E6EC; --sky-tint: #E3F3FE;
+  --navy: #14142B; --blue: #6A4DF4; --purple: #6A4DF4; --lavender: #EFEAFF; --sunflower: #FFC226; --orange: #F26A1B; --sky: #4F8CFF; --maroon: #F26A1B;
+  --bg: #F7F6FD; --surface: #FFFFFF; --surface-2: #F2F0FB; --elev: #FFFFFF;
+  --ink: #14142B; --ink-2: #3F3C66; --slate: #67648C;
+  --rule: #E7E3F5; --rule-soft: #EFECF8; --control: #D5CFEA; --stone: #F4F2FC; --track: #ECE8F7;
+  --cobalt: #6A4DF4; --cobalt-dark: #5536D9; --cobalt-tint: #EFEAFF; --cobalt-soft: #B9A8FF;
+  --accent: #FFC226; --accent-ink: #5C4300; --accent-tint: #FFF3D1;
+  --maroon-tint: #FFE8DA; --sky-tint: #E6EEFF;
   --ok: #13865B; --ok-tint: #E3F5EC; --risk: #B45309; --risk-tint: #FEF0DC; --bad: #C62839; --bad-tint: #FDE8EB;
   --radius-sm: 8px; --radius: 12px; --radius-lg: 18px;
-  --shadow-1: 0 1px 2px rgba(15, 30, 70, .05), 0 1px 1px rgba(15, 30, 70, .03);
-  --shadow-2: 0 4px 14px rgba(15, 30, 70, .07), 0 1px 3px rgba(15, 30, 70, .05);
-  --shadow-float: 0 18px 50px rgba(15, 30, 70, .18);
+  --shadow-1: 0 1px 2px rgba(20, 20, 43, .05), 0 1px 1px rgba(20, 20, 43, .03);
+  --shadow-2: 0 4px 14px rgba(20, 20, 43, .07), 0 1px 3px rgba(20, 20, 43, .05);
+  --shadow-float: 0 18px 50px rgba(20, 20, 43, .18);
   --font: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
   color-scheme: light;
   /* legacy aliases used by older components */
   --ground: var(--bg); --radius-control: var(--radius-sm); --radius-panel: var(--radius); --shadow-soft: var(--shadow-1);
 }
 :root[data-theme="dark"] {
-  --bg: #0A1020; --surface: #111A30; --surface-2: #16213D; --elev: #18243F;
-  --ink: #E8EDF8; --ink-2: #B8C2DA; --slate: #8D99B8;
-  --rule: #233054; --rule-soft: #1B2745; --control: #33426A; --stone: #16213D; --track: #24314F;
-  --cobalt: #7B97FF; --cobalt-dark: #A3B6FF; --cobalt-tint: #1C2A55; --cobalt-soft: #4A62B8;
-  --accent: #FFC53D; --accent-ink: #FFE7A3; --accent-tint: #3A2F0F;
-  --maroon-tint: #3A1524; --sky-tint: #12304A;
+  --bg: #0E0D1F; --surface: #17162E; --surface-2: #1E1C3A; --elev: #211F40;
+  --ink: #EEEDFB; --ink-2: #C3C0E0; --slate: #9A97BE;
+  --rule: #2E2B52; --rule-soft: #23213F; --control: #3D3970; --stone: #1E1C3A; --track: #2B2850;
+  --cobalt: #9C86FF; --cobalt-dark: #C2B5FF; --cobalt-tint: #2A2257; --cobalt-soft: #6A55C8;
+  --accent: #FFC226; --accent-ink: #FFE7A3; --accent-tint: #3A2F0F;
+  --maroon-tint: #3A2112; --sky-tint: #1A2650;
   --ok: #3BCB93; --ok-tint: #10392B; --risk: #F2A93B; --risk-tint: #3A2A10; --bad: #FF6B7D; --bad-tint: #3D1720;
   --shadow-1: 0 1px 2px rgba(0, 0, 0, .4); --shadow-2: 0 6px 20px rgba(0, 0, 0, .35); --shadow-float: 0 20px 60px rgba(0, 0, 0, .55);
   color-scheme: dark;
@@ -57,10 +57,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
   transition: background .15s, border-color .15s, color .15s, box-shadow .15s, transform .05s; }
 .btn:hover { background: var(--surface-2); color: var(--ink); }
 .btn:active { transform: translateY(1px); }
-.btn-primary { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 1px 2px rgba(47, 91, 232, .35), inset 0 1px 0 rgba(255, 255, 255, .15); }
-.btn-primary:hover { background: #2450D6; border-color: #2450D6; color: #fff; }
-.btn-accent { background: var(--sunflower); border-color: var(--sunflower); color: #3D2C00; }
-.btn-accent:hover { background: #F5B820; border-color: #F5B820; color: #3D2C00; }
+.btn-primary { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 1px 2px rgba(106, 77, 244, .35), inset 0 1px 0 rgba(255, 255, 255, .15); }
+.btn-primary:hover { background: #5536D9; border-color: #5536D9; color: #fff; }
+.btn-accent { background: var(--sunflower); border-color: var(--sunflower); color: #2B2000; }
+.btn-accent:hover { background: #F2B000; border-color: #F2B000; color: #2B2000; }
 .btn-quiet { border-color: transparent; background: transparent; color: var(--cobalt); padding: 0 10px; }
 .btn-quiet:hover { background: var(--cobalt-tint); color: var(--cobalt-dark); }
 .btn-ghost { color: var(--ink-2); border-color: transparent; background: transparent; }
@@ -149,12 +149,12 @@ table.table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .page-hero h1 { font-size: 28px; line-height: 34px; font-weight: 800; letter-spacing: -.5px; color: var(--ink); }
 .page-hero .muted { color: var(--slate); }
 .hero-navy { position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: 26px 28px; color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
-  background: radial-gradient(520px 260px at 92% -20%, rgba(91, 182, 248, .45), transparent 65%), radial-gradient(420px 220px at 10% 140%, rgba(255, 197, 61, .28), transparent 60%), linear-gradient(120deg, #0F1E46, #1B3487 70%, #2F5BE8); }
+  background: radial-gradient(520px 260px at 92% -20%, rgba(106, 77, 244, .45), transparent 65%), radial-gradient(420px 220px at 10% 140%, rgba(255, 194, 38, .28), transparent 60%), linear-gradient(120deg, #14142B, #2D2A6E 70%, #6A4DF4); }
 .hero-navy h1 { font-size: 30px; line-height: 36px; font-weight: 800; color: #fff; letter-spacing: -.6px; }
 .hero-navy .muted { color: rgba(255, 255, 255, .78); }
 .hero-navy .btn { background: rgba(255, 255, 255, .12); color: #fff; border-color: rgba(255, 255, 255, .25); }
 .hero-navy .btn:hover { background: rgba(255, 255, 255, .2); }
-.hero-navy .btn-accent { background: var(--sunflower); color: #3D2C00; border-color: var(--sunflower); }
+.hero-navy .btn-accent { background: var(--sunflower); color: #2B2000; border-color: var(--sunflower); }
 
 /* ---------- KPIs ---------- */
 .kpi { position: relative; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 16px 18px; display: flex; flex-direction: column; gap: 2px;
@@ -210,7 +210,7 @@ dl.facts dt { color: var(--slate); } dl.facts dd { margin: 0; }
 .skeleton { background: linear-gradient(90deg, var(--surface-2), var(--rule-soft), var(--surface-2)); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 12px 18px; border-radius: 10px; box-shadow: var(--shadow-float); font-size: 14px; z-index: 60; }
-:root[data-theme="dark"] .toast { background: #E8EDF8; color: #0F1E46; }
+:root[data-theme="dark"] .toast { background: #EEEDFB; color: #14142B; }
 
 /* ---------- dialog ---------- */
 .overlay { position: fixed; inset: 0; background: rgba(10, 16, 32, .5); backdrop-filter: blur(3px); display: flex; align-items: flex-start; justify-content: center; padding: 6vh 16px; z-index: 50; overflow-y: auto; }

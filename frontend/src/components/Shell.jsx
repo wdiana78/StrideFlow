@@ -23,8 +23,8 @@ const I = {
 const Icon = ({ d }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
 export const Logo = ({ size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-    <defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#2F5BE8" /><stop offset="1" stopColor="#1B3487" /></linearGradient></defs>
-    <rect width="24" height="24" rx="7" fill="url(#kg)" /><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /><circle cx="18.5" cy="5.5" r="2.4" fill="#FFC53D" />
+    <defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6A4DF4" /><stop offset="1" stopColor="#2D2A6E" /></linearGradient></defs>
+    <rect width="24" height="24" rx="7" fill="url(#kg)" /><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /><circle cx="18.5" cy="5.5" r="2.4" fill="#FFC226" />
   </svg>
 );
 export const SITE_HOME = (slug) => `/site/${slug}`;
@@ -79,7 +79,7 @@ export default function Shell() {
   const [menu, setMenu] = useState(false);
   const [search, setSearch] = useState(false);
   const [siteSlug, setSiteSlug] = useState(null);
-  const [orgColor, setOrgColor] = useState("#2F5BE8");
+  const [orgColor, setOrgColor] = useState("#6A4DF4");
   const installed = user.organization.installed_apps || [];
   useEffect(() => {
     if (installed.includes("website")) {
@@ -96,13 +96,13 @@ export default function Shell() {
     window.addEventListener("keydown", key);
     return () => { window.removeEventListener("kept:changed", load); window.removeEventListener("keydown", key); };
   }, [installed.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
-  const out = () => { signOut(); nav("/"); };
+  const out = () => { nav(siteSlug ? `/site/${siteSlug}` : "/"); setTimeout(signOut, 0); };
   const linkProps = { openFlags, approvals, admin: can.admin, installed, siteSlug };
   return (
     <div className="shell">
       <aside className={"sidebar" + (menu ? " open" : "")} aria-label="Main">
-        <Link className="brand" to="/app"><Logo size={28} />Kept</Link>
-        <div className="org-chip"><span className="logo" style={{ background: orgColor }}>{initials(user.organization.name)}</span><span style={{ minWidth: 0 }}><b style={{ fontSize: 14, display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.organization.name}</b><span className="small muted" style={{ textTransform: "capitalize" }}>{installed.length} apps</span></span></div>
+        <Link to="/app" className="org-chip" style={{ textDecoration: "none", color: "var(--ink)" }}><span className="logo" style={{ background: orgColor }}>{initials(user.organization.name)}</span><span style={{ minWidth: 0 }}><b style={{ fontSize: 14.5, display: "block", lineHeight: "18px" }}>{user.organization.name}</b><span className="small muted">Staff dashboard</span></span></Link>
+        {siteSlug && <Link to={`/site/${siteSlug}`} className="nav-link" style={{ fontSize: 13.5 }}><Icon d="M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" />View public website ↗</Link>}
         <nav className="stack-sm side-scroll" style={{ gap: 2 }} aria-label="Sections"><Links {...linkProps} onNavigate={() => setMenu(false)} /></nav>
         <div className="user-box">
           <span className="avatar">{initials(user.full_name)}</span>
@@ -112,10 +112,11 @@ export default function Shell() {
           </span>
           <button className="btn btn-quiet" onClick={out} aria-label="Sign out" title="Sign out"><Icon d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11" /></button>
         </div>
+        <span className="row small muted" style={{ gap: 6, padding: "6px 8px 0" }}><Logo size={14} />Powered by Kept</span>
       </aside>
       <nav className="topbar" aria-label="Quick links">
         <button className="btn btn-quiet" onClick={() => setMenu(true)} aria-label="Open menu"><Icon d="M4 6h16M4 12h16M4 18h16" /></button>
-        <Link className="brand" to="/app" style={{ padding: "0 8px" }} aria-label="Kept home"><Logo size={22} /></Link>
+        <Link className="brand" to="/app" style={{ padding: "0 8px", fontSize: 15 }} aria-label="Dashboard home"><span className="org-chip" style={{ margin: 0, padding: 0, background: "none", border: 0 }}><span className="logo" style={{ background: orgColor, width: 28, height: 28, flex: "0 0 28px", fontSize: 11 }}>{initials(user.organization.name)}</span></span></Link>
         <NavLink to="/app" end className="nav-link">Home</NavLink>
         <NavLink to="/app/attention" className="nav-link">Attention {openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</NavLink>
         <span style={{ flex: 1 }} />

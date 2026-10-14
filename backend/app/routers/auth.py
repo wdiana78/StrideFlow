@@ -71,6 +71,12 @@ def login(body: LoginIn, request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email or password is incorrect.")
     if not user.is_active:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "This account has been deactivated by an administrator.")
+    if body.site_slug:
+        from .. import erp
+        st = erp.TABLES["site_settings"]
+        site_org = db.scalar(select(st.c.organization_id).where(func.lower(st.c.slug) == body.site_slug.lower()))
+        if site_org != user.organization_id:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email or password is incorrect.")
     user.failed_logins, user.locked_until, user.last_login_at = 0, None, now
     log(db, user.organization_id, user.id, "login", "user", user.id, f"{user.full_name} signed in from {ip}")
     db.commit()

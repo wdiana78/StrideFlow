@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { Link, NavLink, Route, Routes, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api, PREVIEW } from "../api";
 import { useAuth } from "../auth";
 import { Meter } from "../components/charts";
@@ -54,6 +54,7 @@ export default function PublicSite({ slugOverride }) {
             <Route path="get-involved" element={<GetInvolved />} />
             <Route path="contact" element={<Contact />} />
             <Route path="donate" element={<Donate />} />
+            <Route path="login" element={<StaffLogin />} />
             <Route path="*" element={<Home />} />
           </Routes>
         </main>
@@ -420,7 +421,7 @@ function Footer({ links }) {
       </div>
       <div className="container spread small" style={{ padding: "18px 32px 28px", borderTop: "1px solid rgba(255,255,255,.14)" }}>
         <span>© 2026 {s.organization}. All rights reserved.</span>
-        <span className="row" style={{ gap: 16 }}><Link to="/login" className="site-foot-link">Staff login</Link><Link to="/" className="site-foot-link">Website by Kept</Link></span>
+        <span className="row" style={{ gap: 16 }}><Link to={`${s.base}/login`} className="site-foot-link">Staff login</Link><Link to="/" className="site-foot-link">Powered by Kept</Link></span>
       </div>
     </footer>
   );
@@ -435,7 +436,7 @@ function SiteHeader({ links, menu, setMenu }) {
         <div className="container spread" style={{ padding: "7px 32px", flexWrap: "nowrap" }}>
           <span className="row hide-sm" style={{ gap: 18 }}>{s.contact_email && <a href={`mailto:${s.contact_email}`} style={{ color: "inherit", textDecoration: "none" }}>✉ {s.contact_email}</a>}{s.phone && <span>☏ {s.phone}</span>}</span>
           <span className="row" style={{ gap: 16, marginLeft: "auto" }}>
-            {user ? <Link to="/app" style={{ color: "#fff", fontWeight: 700 }}>Open workspace →</Link> : <Link to="/login" style={{ color: "#fff", fontWeight: 700 }}>Staff login →</Link>}
+            {user && user.organization.name === s.organization ? <Link to="/app" style={{ color: "#fff", fontWeight: 700 }}>Go to dashboard →</Link> : <Link to={`${s.base}/login`} style={{ color: "#fff", fontWeight: 700 }}>Staff login →</Link>}
           </span>
         </div>
       </div>
@@ -468,6 +469,56 @@ function SiteHeader({ links, menu, setMenu }) {
 
 const GALLERY_ICONS = { "Health Advocacy": "M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z", "Gender, Peace and Security": "M4 5h12v8H8l-4 4V5zM20 9v8l-3-3h-5",
   "Disability Inclusion": "M12 4a2 2 0 100 4 2 2 0 000-4zM9 10h6l-1 5h3l2 5M11 15a4 4 0 104 4", "Climate Change": "M12 22V12M12 12C12 6 7 3 3 3c0 5 3 9 9 9zM12 14c0-5 4-8 9-8 0 5-4 8-9 8z" };
+
+const STAFF_DEMO = {
+  timiza: [["zawadi@timiza.example", "Zawadi Kahindi", "Programme manager"], ["admin@timiza.example", "Amani Charo", "Administrator"], ["baraka@timiza.example", "Baraka Katana", "Field officer"]],
+  tumaini: [["achieng@tumaini.example", "Achieng Otieno", "Manager"], ["admin@tumaini.example", "Grace Nduta", "Administrator"]],
+  hatua: [["wanjiru@hatua.example", "Wanjiru Mbugua", "Owner"]], mwangaza: [["wairimu@mwangaza.example", "Wairimu Kamau", "Studio lead"]], pwani: [["rehema@pwani.example", "Rehema Salim", "Owner"]],
+};
+
+function StaffLogin() {
+  const s = useSite();
+  const { user, signIn } = useAuth();
+  const nav = useNavigate();
+  const [f, setF] = useState({ email: "", password: "" });
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  if (user && user.organization.name === s.organization) return <Navigate to="/app" replace />;
+  const go2 = async (body) => {
+    setBusy(true); setError(null);
+    try { signIn(await api("/auth/login", { method: "POST", body: { ...body, site_slug: s.slug } })); nav("/app"); }
+    catch (e) { setError(e); } finally { setBusy(false); }
+  };
+  return (
+    <section style={{ minHeight: "70vh", background: "linear-gradient(135deg, var(--s-deep), var(--s-primary))", padding: "64px 16px" }}>
+      <div style={{ maxWidth: 940, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", borderRadius: 24, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,.3)", background: "#fff" }}>
+        <div className="stack" style={{ padding: 36, color: "#fff", background: "radial-gradient(300px 200px at 100% 0%, color-mix(in srgb, var(--s-accent) 55%, transparent), transparent 70%), var(--s-deep)", gap: 18 }}>
+          <span className="site-logo" style={{ background: "#fff", color: "var(--s-deep)" }}>{initials(s.organization)}</span>
+          <h1 style={{ fontSize: 30, lineHeight: "36px", fontWeight: 900 }}>{s.organization}<br /><span style={{ opacity: .8, fontWeight: 600, fontSize: 20 }}>Staff dashboard</span></h1>
+          <span style={{ opacity: .85, lineHeight: "24px" }}>Programmes, finance, volunteers, events, data collection and this website, all in one place.</span>
+          <Link to={s.base || "/"} style={{ color: "#fff", fontWeight: 700 }}>← Back to the website</Link>
+        </div>
+        <form className="stack" style={{ padding: 36, gap: 16 }} onSubmit={(e) => { e.preventDefault(); go2(f); }} noValidate>
+          <h2 style={{ fontSize: 24, fontWeight: 800 }}>Sign in</h2>
+          <ErrorNotice error={error} />
+          <Field label="Work email"><input className="input" type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
+          <Field label="Password"><input className="input" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></Field>
+          <button className="btn btn-lg site-donate" style={{ justifyContent: "center" }} disabled={busy}>{busy ? "Signing in…" : "Sign in to dashboard"}</button>
+          {PREVIEW && STAFF_DEMO[s.slug] && (
+            <div className="stack-sm" style={{ borderTop: "1px solid #F0E3DC", paddingTop: 14 }}>
+              <span className="small" style={{ color: "#7A6470", fontWeight: 700 }}>Demo: sign in as</span>
+              {STAFF_DEMO[s.slug].map(([email, name, role]) => (
+                <button type="button" key={email} className="btn" style={{ justifyContent: "space-between", height: 46 }} disabled={busy} onClick={() => go2({ email, password: "kept-demo-2026" })}>
+                  <span>{name}</span><span className="small" style={{ color: "#7A6470", fontWeight: 500 }}>{role}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </form>
+      </div>
+    </section>
+  );
+}
 
 function GalleryTile({ g, i, onOpen, big }) {
   const hasPhoto = g.photo?.url;

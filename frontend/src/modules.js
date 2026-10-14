@@ -32,7 +32,7 @@ export function display(f, rec) {
   }
 }
 
-export const GROUP_COLOR = { Funding: "#A3284F", Finance: "#1B3487", Sales: "#3FA7D6", Procurement: "#D97706", Inventory: "#5B6CB8", Bookings: "#E07AA0", People: "#2563EB", Participants: "#0EA5E9", Operations: "#F5A524", Governance: "#7A1C3A", Website: "#F2B705" };
+export const GROUP_COLOR = { Funding: "#F26A1B", Finance: "#2D2A6E", Sales: "#4F8CFF", Procurement: "#F26A1B", Inventory: "#8E75FF", Bookings: "#C04CF5", People: "#8E75FF", Participants: "#4F8CFF", Operations: "#F26A1B", Governance: "#C04CF5", Website: "#FFC226" };
 export const NAV = [
   { label: "Funding", items: [["grants", "Grants"], ["donations", "Donations"], ["income", "Income"]] },
   { label: "Finance", items: [["@finance", "Budget against actual"], ["budget_lines", "Budget lines"], ["expenses", "Expenses"]] },

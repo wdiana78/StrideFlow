@@ -13,7 +13,7 @@ export const APP_HOME = { projects: "/app/projects", forms: "/app/forms", events
   documents: "/app/m/documents", governance: "/app/m/meetings", website: "/app/m/site_settings" };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const TONES = ["#2F5BE8", "#F5A524", "#A3284F", "#0EA5E9", "#7C6CF2", "#1B3487"];
+const TONES = ["#6A4DF4", "#F26A1B", "#F26A1B", "#4F8CFF", "#C04CF5", "#2D2A6E"];
 const Ico = ({ d }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
 
 function Kpi({ label, value, sub, to, i, icon }) {
@@ -58,7 +58,7 @@ export default function Overview() {
         <div className="stack-sm" style={{ gap: 4 }}>
           <span className="muted small">{fmtDate(d.today, true)} · {user.organization.name}</span>
           <h1>Habari, {user.full_name.split(" ")[0]}</h1>
-          <span className="muted">Here is what needs you today.</span>
+          <span className="muted">{user.organization.name} dashboard · here is what needs you today.</span>
         </div>
         <div className="row wrap">
           <Link className="btn btn-accent" to="/app/attention">{d.open_flags} need attention</Link>
@@ -121,7 +121,7 @@ export default function Overview() {
           {has("participants") && p.participants > 0 && (
             <section className="panel panel-body stack-sm">
               <h2 className="card-title">Participants by gender</h2>
-              <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: g[k] || 0 }))} size={140} colors={["#A3284F", "#2F5BE8", "#F5B520"]} />
+              <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: g[k] || 0 }))} size={140} colors={["#F26A1B", "#6A4DF4", "#FFC226"]} />
             </section>
           )}
           {has("events") && (

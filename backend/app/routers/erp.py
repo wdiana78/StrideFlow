@@ -105,12 +105,12 @@ def update_module(key: str, rid: uuid.UUID, body: dict, user: User = Depends(get
 
 
 @router.delete("/m/{key}/{rid}", status_code=204)
-def delete_module(key: str, rid: uuid.UUID, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def delete_module(key: str, rid: uuid.UUID, cascade: bool = False, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     _module(key)
 
     def go():
         erp.require_app(user, key)
-        erp.delete_record(db, user, key, rid, log)
+        erp.delete_record(db, user, key, rid, log, cascade)
         db.query(Flag).filter(Flag.subject_id == rid).delete()
         db.commit()
         rules.evaluate_org(db, user.organization_id, today())
@@ -372,7 +372,7 @@ def portfolio(slug: str, db: Session = Depends(get_db)):
               db.execute(select(dn).where(dn.c.organization_id == org_id, dn.c.status == "confirmed").order_by(dn.c.updated_at.desc()).limit(5)).all()]
     return {"organization": org.name, "slug": site.slug, "tagline": site.tagline, "intro": site.intro, "about": site.about,
             "mission": site.mission, "vision": site.vision, "founded": site.founded, "address": site.address,
-            "brand": {"primary": site.brand_primary or "#2F5BE8", "accent": site.brand_accent or "#FFC53D", "deep": site.brand_deep or "#0F1E46"},
+            "brand": {"primary": site.brand_primary or "#6A4DF4", "accent": site.brand_accent or "#FFC226", "deep": site.brand_deep or "#14142B"},
             "map_query": site.map_query,
             "gallery": [{"id": str(r.id), "caption": r.caption, "photo": r.photo, "place": r.place, "taken_on": r.taken_on.isoformat() if r.taken_on else None,
                          "programme": proj_names.get(str(r.project_id))} for r in db.execute(select(T["site_gallery"]).where(T["site_gallery"].c.organization_id == org_id,
