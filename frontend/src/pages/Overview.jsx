@@ -7,13 +7,14 @@ import { useApi } from "../hooks";
 import { moneyShort } from "../modules";
 import PLATFORM from "../platform.json";
 import { AppIcon } from "./Apps";
+import { Motif } from "../components/Motif";
 
 export const APP_HOME = { projects: "/app/projects", forms: "/app/forms", events: "/app/m/events", funding: "/app/m/grants", finance: "/app/finance", sales: "/app/m/invoices",
   procurement: "/app/m/purchase_requests", inventory: "/app/m/items", bookings: "/app/m/bookings", people: "/app/m/volunteers", participants: "/app/m/participants",
   documents: "/app/m/documents", governance: "/app/m/meetings", website: "/app/m/site_settings" };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const TONES = ["#6A4DF4", "#F26A1B", "#F26A1B", "#4F8CFF", "#C04CF5", "#2D2A6E"];
+const TONES = ["#6D3FC9", "#FF6B57", "#FF6B57", "#2E86DE", "#D4458A", "#3B2F6B"];
 const Ico = ({ d }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
 
 function Kpi({ label, value, sub, to, i, icon }) {
@@ -55,6 +56,7 @@ export default function Overview() {
   return (
     <>
       <div className="hero-navy">
+        <Motif style={{ right: -40, top: -20, width: 420, height: 220, opacity: .55, maskImage: "linear-gradient(90deg, transparent, #000 45%)", WebkitMaskImage: "linear-gradient(90deg, transparent, #000 45%)" }} />
         <div className="stack-sm" style={{ gap: 4 }}>
           <span className="muted small">{fmtDate(d.today, true)} · {user.organization.name}</span>
           <h1>Habari, {user.full_name.split(" ")[0]}</h1>
@@ -121,7 +123,7 @@ export default function Overview() {
           {has("participants") && p.participants > 0 && (
             <section className="panel panel-body stack-sm">
               <h2 className="card-title">Participants by gender</h2>
-              <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: g[k] || 0 }))} size={140} colors={["#F26A1B", "#6A4DF4", "#FFC226"]} />
+              <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: g[k] || 0 }))} size={140} colors={["#FF6B57", "#6D3FC9", "#FFB020"]} />
             </section>
           )}
           {has("events") && (

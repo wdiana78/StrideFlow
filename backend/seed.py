@@ -455,8 +455,8 @@ def seed_tenants(db, pw):
         db.flush()
         owner = people.get("admin") or db.scalar(select(User).where(User.organization_id == org.id, User.role == Role.admin))
         keys = {}
-        records = {"site_settings": [t["site_settings"]], "site_services": t.get("site_services", []), **t.get("modules", {})}
-        order = ["site_settings", "site_services", "vendors", "customers", "items", "stock_moves", "resources", "invoices", "bookings", "events"]
+        records = {"site_settings": [t["site_settings"]], "site_services": t.get("site_services", []), "site_stories": t.get("site_stories", []), **t.get("modules", {})}
+        order = ["site_settings", "site_services", "site_stories", "vendors", "customers", "items", "stock_moves", "resources", "invoices", "bookings", "events"]
         for key in [k for k in order if k in records]:
             m, tbl = erp.MODULES[key], erp.TABLES[key]
             fields = {f["key"]: f for f in m["fields"]}

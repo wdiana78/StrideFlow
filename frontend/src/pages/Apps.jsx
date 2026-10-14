@@ -17,7 +17,7 @@ export const APP_ICONS = {
 };
 export function AppIcon({ app, size = 52 }) {
   return (
-    <span style={{ width: size, height: size, borderRadius: size * 0.28, background: `linear-gradient(145deg, ${app.color}, color-mix(in srgb, ${app.color} 70%, #14142B))`, display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: `0 6px 14px color-mix(in srgb, ${app.color} 35%, transparent)`, flex: `0 0 ${size}px` }}>
+    <span style={{ width: size, height: size, borderRadius: size * 0.28, background: `linear-gradient(145deg, ${app.color}, color-mix(in srgb, ${app.color} 70%, #1B1530))`, display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: `0 6px 14px color-mix(in srgb, ${app.color} 35%, transparent)`, flex: `0 0 ${size}px` }}>
       <svg width={size * 0.5} height={size * 0.5} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={APP_ICONS[app.icon] || APP_ICONS.box} /></svg>
     </span>
   );

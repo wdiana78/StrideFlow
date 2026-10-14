@@ -6,11 +6,16 @@ import { Meter } from "../components/charts";
 import { ErrorNotice, Field, Loading } from "../components/ui";
 import { fmtDate, fmtNum, initials } from "../format";
 import { useApi } from "../hooks";
+import { isoToday } from "../format";
+import { BriefForm, CommunityArt, CottageArt, Count, Rooms, Shop, ShoeArt, StaySearch, useReveal, Work } from "./SiteKits";
 
 // The organization's public website. Content is edited in Website; numbers come live from verified records.
 const Site = createContext(null);
 const useSite = () => useContext(Site);
-const PROG_COLORS = ["#E85D84", "#FF8A65", "#F59E3B", "#C93A63", "#E5734F", "#B5838D"];
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const mix = (a, b, t) => "#" + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t).toString(16).padStart(2, "0")).join("");
+const FONTS = { fraunces: '"Fraunces", Georgia, serif', bricolage: '"Bricolage Grotesque", system-ui, sans-serif', dmserif: '"DM Serif Display", Georgia, serif', space: '"Space Grotesk", system-ui, sans-serif' };
+const brandPalette = (b) => [b.primary, mix(b.accent, b.deep, 0.25), mix(b.primary, "#FFFFFF", 0.3), b.deep, mix(b.primary, b.accent, 0.5), mix(b.accent, "#000000", 0.2)];
 const ICONS = {
   outreach: "M3 11l18-8-8 18-2-8-8-2z", training: "M12 3l10 5-10 5L2 8l10-5zM6 10v5c3 2 9 2 12 0v-5",
   dialogue: "M4 5h12v8H8l-4 4V5zM20 9v8l-3-3h-5", research: "M11 4a7 7 0 100 14 7 7 0 000-14zM21 21l-5-5",
@@ -33,17 +38,26 @@ export default function PublicSite({ slugOverride }) {
   const [menu, setMenu] = useState(false);
   useEffect(() => { window.scrollTo(0, 0); setMenu(false); }, [loc.pathname]);
   useEffect(() => { if (data) document.title = data.organization; }, [data]);
+  useReveal([loc.pathname, !!data]);
   if (loading && !data) return <div style={{ padding: 40 }}><Loading rows={8} /></div>;
   if (error) return <div style={{ padding: 40 }}><ErrorNotice error={error} onRetry={reload} /></div>;
-  const vars = { "--s-primary": data.brand.primary, "--s-accent": data.brand.accent, "--s-deep": data.brand.deep || data.brand.primary, "--s-ink": "#24161C", "--s-sand": `color-mix(in srgb, ${data.brand.accent} 9%, #FFFBF8)` };
-  const links = [["", "Home"], ["/about", "About"], ["/programmes", "Programmes"], ["/services", "Services"], ["/stories", "Stories"], ["/gallery", "Gallery"], ["/impact", "Impact"], ["/contact", "Contact"]];
+  const vars = { "--s-display": FONTS[data.heading_font] || FONTS.fraunces, "--s-primary": data.brand.primary, "--s-accent": data.brand.accent, "--s-deep": data.brand.deep || data.brand.primary, "--s-ink": "#24161C", "--s-sand": `color-mix(in srgb, ${data.brand.accent} 9%, #FFFBF8)` };
+  const ind = data.industry;
+  const links = ind === "retail" ? [["", "Home"], ["/shop", "Shop"], ["/about", "Our story"], ["/services", "Repairs and care"], ["/contact", "Contact"]]
+    : ind === "hospitality" ? [["", "Home"], ["/rooms", "Rooms"], ["/about", "About"], ["/services", "Experiences"], ["/contact", "Find us"]]
+      : ind === "agency" ? [["", "Studio"], ["/work", "Work"], ["/services", "Services"], ["/about", "About"], ["/contact", "Contact"]]
+        : [["", "Home"], ["/about", "About"], ["/programmes", "Programmes"], ["/services", "Services"], ["/stories", "Stories"], ["/gallery", "Gallery"], ["/impact", "Impact"], ["/contact", "Contact"]];
+  const cta = ind === "retail" ? ["/shop", "Shop now"] : ind === "hospitality" ? ["/rooms", "Book a stay"] : ind === "agency" ? ["/contact", "Start a project"] : ["/donate", "♥ Donate"];
   return (
-    <Site.Provider value={{ ...data, base, reload }}>
+    <Site.Provider value={{ ...data, base, reload, palette: brandPalette(data.brand), today: isoToday() }}>
       <div className="site" style={{ ...vars, background: "#fff", color: "var(--s-ink)", minHeight: "100%" }}>
-        <SiteHeader links={links} menu={menu} setMenu={setMenu} />
+        <SiteHeader links={links} cta={cta} menu={menu} setMenu={setMenu} />
         <main>
           <Routes>
-            <Route index element={<Home />} />
+            <Route index element={ind === "retail" ? <ShopHome /> : ind === "hospitality" ? <StayHome /> : ind === "agency" ? <StudioHome /> : <Home />} />
+            <Route path="shop" element={<><PageHead eyebrow="Shop" title="The collection" sub="Handmade in Nairobi. Stock updates live from the workshop." /><section className="container" style={{ padding: "48px 32px 80px" }}><ShopPage /></section></>} />
+            <Route path="rooms" element={<><PageHead eyebrow="Stay" title="Rooms and venue" sub="Live availability. Hold your dates in a minute." /><RoomsPage /></>} />
+            <Route path="work" element={<><PageHead eyebrow="Work" title="Selected work" /><section className="container" style={{ padding: "48px 32px 80px" }}><WorkPage /></section></>} />
             <Route path="about" element={<About />} />
             <Route path="programmes" element={<Programmes />} />
             <Route path="services" element={<Services />} />
@@ -55,7 +69,7 @@ export default function PublicSite({ slugOverride }) {
             <Route path="contact" element={<Contact />} />
             <Route path="donate" element={<Donate />} />
             <Route path="login" element={<StaffLogin />} />
-            <Route path="*" element={<Home />} />
+            <Route path="*" element={ind === "retail" ? <ShopHome /> : ind === "hospitality" ? <StayHome /> : ind === "agency" ? <StudioHome /> : <Home />} />
           </Routes>
         </main>
         <Footer links={links} />
@@ -80,23 +94,26 @@ function Home() {
               <Link to={`${s.base}/get-involved`} className="btn btn-lg" style={{ background: "transparent", borderColor: "rgba(255,255,255,.5)", color: "#fff" }}>Get involved</Link>
             </div>
           </div>
+          <div style={{ flex: "1 1 340px", minWidth: 0 }} className="stack">
+          <CommunityArt />
           {imp && (
-            <div style={{ flex: "1 1 340px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: -40 }}>
               {[[imp.people_reached, "young people reached", "#FFD7A8"], [imp.participants_registered, "participants registered", "#FFE3EA"], [imp.activities_done, "activities delivered", "#FFC9B3"], [imp.volunteer_hours, "volunteer hours", "#FFF0D6"]].map(([n, l, c]) => (
                 <div key={l} style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.16)", borderRadius: 16, padding: 20 }}>
-                  <b style={{ fontSize: 38, lineHeight: "42px", color: c, display: "block" }}>{fmtNum(n)}</b><span style={{ color: "rgba(255,255,255,.9)", fontSize: 14 }}>{l}</span>
+                  <Count n={n} style={{ fontSize: 34, lineHeight: "40px", color: c, display: "block" }} /><span style={{ color: "rgba(255,255,255,.9)", fontSize: 14 }}>{l}</span>
                 </div>
               ))}
               <span className="small" style={{ gridColumn: "1 / -1", color: "rgba(255,255,255,.8)" }}>✓ Counted from {fmtNum(imp.evidence_items)} verified records · {fmtDate(imp.as_of, true)}</span>
             </div>
           )}
+          </div>
         </div>
       </section>
 
       <section className="container stack" style={{ padding: "80px 32px", gap: 30 }}>
         <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="What we do" title="Our programmes" /><Link to={`${s.base}/programmes`} className="btn">All programmes →</Link></div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>
-          {s.programmes.map((p, i) => <ProgrammeCard key={p.id} p={p} color={PROG_COLORS[i % PROG_COLORS.length]} compact />)}
+          {s.programmes.map((p, i) => <ProgrammeCard key={p.id} p={p} color={s.palette[i % s.palette.length]} compact />)}
         </div>
       </section>
 
@@ -105,7 +122,7 @@ function Home() {
       <section className="container stack" style={{ padding: "80px 32px", gap: 30 }}>
         <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="How we help" title="Services" /><Link to={`${s.base}/services`} className="btn">All services →</Link></div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>
-          {s.services.slice(0, 3).map((x, i) => <ServiceCard key={x.title} x={x} color={PROG_COLORS[i % PROG_COLORS.length]} />)}
+          {s.services.slice(0, 3).map((x, i) => <ServiceCard key={x.title} x={x} color={s.palette[i % s.palette.length]} />)}
         </div>
       </section>
 
@@ -153,6 +170,110 @@ function Home() {
   );
 }
 
+function ShopPage() { const s = useSite(); return <Shop s={s} />; }
+
+function ShopHome() {
+  const s = useSite();
+  return (
+    <>
+      <section style={{ background: "var(--s-deep)", color: "#fff", overflow: "hidden" }}>
+        <div className="container" style={{ padding: "72px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 380px), 1fr))", gap: 40, alignItems: "center" }}>
+          <div className="stack reveal" style={{ gap: 22 }}>
+            <span className="site-chip" style={{ background: "var(--s-accent)", color: "#111", alignSelf: "flex-start", fontWeight: 800 }}>New: Safari chukka boot</span>
+            <h1 style={{ fontSize: "clamp(48px, 7vw, 92px)", lineHeight: .95, fontWeight: 800, letterSpacing: "-2.5px" }}>{s.tagline}</h1>
+            <p style={{ fontSize: 19, lineHeight: "30px", opacity: .85, maxWidth: 520 }}>{s.intro}</p>
+            <div className="row wrap"><Link to={`${s.base}/shop`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "#111", fontWeight: 800 }}>Shop the collection</Link><Link to={`${s.base}/about`} className="btn btn-lg" style={{ background: "transparent", color: "#fff", borderColor: "rgba(255,255,255,.35)" }}>Meet the makers</Link></div>
+          </div>
+          <div className="reveal" style={{ position: "relative" }}>
+            <div style={{ position: "absolute", inset: "8% 6%", borderRadius: "46% 54% 58% 42% / 48% 42% 58% 52%", background: "var(--s-primary)" }} />
+            <div style={{ position: "relative", transform: "rotate(-8deg)" }}><ShoeArt color={s.brand.accent} accent={s.brand.primary} kind={0} /></div>
+            <div style={{ position: "relative", width: "62%", marginLeft: "auto", marginTop: -40, transform: "rotate(6deg)" }}><ShoeArt color="#F2E9DC" accent={s.brand.accent} kind={1} /></div>
+          </div>
+        </div>
+        <div style={{ background: "var(--s-accent)", color: "#111", fontWeight: 800, overflow: "hidden", whiteSpace: "nowrap" }}><div className="marquee">{Array.from({ length: 2 }).map((_, k) => <span key={k}>HANDMADE IN NAIROBI ✦ REPAIRS FOR LIFE ✦ PAY WITH M-PESA ✦ DELIVERED COUNTRYWIDE ✦ RECYCLED SOLES ✦ </span>)}</div></div>
+      </section>
+      <section className="container stack" style={{ padding: "80px 32px", gap: 28 }}>
+        <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="Bestsellers" title="Walk in something made by hand" /><Link to={`${s.base}/shop`} className="btn">All products →</Link></div>
+        <Shop s={s} compact />
+      </section>
+      <section style={{ background: "var(--s-sand)" }}>
+        <div className="container" style={{ padding: "72px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
+          {[["✂", "Cut and stitched in Gikomba", "Every pair passes through three artisans' hands."], ["♻", "Recycled tyre soles", "Each sole keeps a tyre out of the dump."], ["🛠", "Repairs for life", "Bring any pair back for free stitching."], ["📱", "M-Pesa, delivered", "Order online, pay on confirmation, delivery in 48 hours."]].map(([i, t, d]) => (
+            <div key={t} className="site-card stack-sm reveal" style={{ gap: 8 }}><span className="site-ic">{i}</span><b style={{ fontSize: 18 }}>{t}</b><span style={{ color: "#57434D" }}>{d}</span></div>
+          ))}
+        </div>
+      </section>
+      <CallToAction />
+    </>
+  );
+}
+
+function RoomsPage() { const s = useSite(); return <Rooms s={s} today={s.today} />; }
+function WorkPage() { const s = useSite(); return <Work s={s} />; }
+
+function StayHome() {
+  const s = useSite();
+  return (
+    <>
+      <section style={{ background: "linear-gradient(170deg, var(--s-deep), var(--s-primary))", color: "#fff" }}>
+        <div className="container" style={{ padding: "64px 32px 120px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 380px), 1fr))", gap: 40, alignItems: "center" }}>
+          <div className="stack reveal" style={{ gap: 20 }}>
+            <span style={{ color: "var(--s-accent)", fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase", fontSize: 13 }}>{s.location}</span>
+            <h1 style={{ fontSize: "clamp(44px, 6vw, 80px)", lineHeight: 1, fontWeight: 400 }}>{s.tagline}</h1>
+            <p style={{ fontSize: 19, lineHeight: "30px", opacity: .88, maxWidth: 520 }}>{s.intro}</p>
+          </div>
+          <div className="reveal"><CottageArt /></div>
+        </div>
+      </section>
+      <div className="container" style={{ marginTop: -70, position: "relative" }}><StaySearch s={s} today={s.today} /></div>
+      <section className="container stack" style={{ padding: "64px 32px", gap: 26 }}>
+        <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="Stay with us" title="Rooms and venue" /><Link to={`${s.base}/rooms`} className="btn">See availability →</Link></div>
+        <Rooms s={s} today={s.today} bare />
+      </section>
+      <section style={{ background: "var(--s-sand)" }}>
+        <div className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))", gap: 24, alignItems: "center" }}>
+          <div className="stack reveal"><H2 eyebrow="Getting here" title="Ten minutes' walk to the beach" /><p style={{ color: "#57434D", fontSize: 17, lineHeight: "28px" }}>{s.about}</p></div>
+          <div className="reveal"><SiteMap query={s.map_query || s.location} label={s.location} /></div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function StudioHome() {
+  const s = useSite();
+  return (
+    <>
+      <section style={{ background: "#0A0A0A", color: "#fff" }}>
+        <div className="container stack" style={{ padding: "96px 32px 72px", gap: 28 }}>
+          <span className="site-chip" style={{ background: "var(--s-accent)", color: "#111", alignSelf: "flex-start", fontWeight: 800 }}>{s.location} · taking projects for Q1</span>
+          <h1 className="reveal" style={{ fontSize: "clamp(52px, 9vw, 130px)", lineHeight: .9, fontWeight: 700, letterSpacing: "-4px" }}>
+            {s.tagline.split(" ").map((w, i) => <span key={i} style={{ color: i === 1 ? "var(--s-accent)" : "#fff" }}>{w} </span>)}
+          </h1>
+          <div className="spread" style={{ alignItems: "flex-end" }}>
+            <p style={{ fontSize: 20, lineHeight: "31px", opacity: .8, maxWidth: 560 }}>{s.intro}</p>
+            <Link to={`${s.base}/contact`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "#111", fontWeight: 800 }}>Start a project →</Link>
+          </div>
+        </div>
+      </section>
+      <section className="container stack" style={{ padding: "80px 32px", gap: 28 }}>
+        <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="Selected work" title="Results, not just pretty pictures" /><Link to={`${s.base}/work`} className="btn">All work →</Link></div>
+        <Work s={s} />
+      </section>
+      <section style={{ background: "#F4F1EA" }}>
+        <div className="container" style={{ padding: "72px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>
+          {s.services.map((x, i) => (
+            <div key={x.title} className="stack-sm reveal" style={{ padding: 24, borderRadius: 20, background: "#fff", gap: 10 }}>
+              <b style={{ fontSize: 56, lineHeight: 1, color: i === 0 ? "#111" : "#C9C3B6", letterSpacing: "-2px" }}>0{i + 1}</b><b style={{ fontSize: 22 }}>{x.title}</b><span style={{ color: "#57534D" }}>{x.description}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="container" style={{ padding: "80px 32px" }}><BriefForm s={s} /></section>
+    </>
+  );
+}
+
 function ProgrammeCard({ p, color, compact }) {
   const s = useSite();
   return (
@@ -193,7 +314,7 @@ function DonationBand() {
       <div className="container" style={{ padding: "56px 32px", display: "flex", flexWrap: "wrap", gap: 32, alignItems: "center" }}>
         <div className="stack-sm" style={{ flex: "1 1 420px" }}>
           <b style={{ fontSize: 13, letterSpacing: ".08em", textTransform: "uppercase" }}>Campaign</b>
-          <h2 style={{ fontSize: 34, fontWeight: 900, letterSpacing: "-.6px" }}>{d.campaign}</h2>
+          <h2 style={{ fontSize: 34, fontWeight: 900, letterSpacing: "-.6px", marginBottom: 10 }}>{d.campaign}</h2>
           <Meter value={d.raised} max={d.goal} color="var(--s-ink)" height={14} />
           <span><b>{kes(d.raised)}</b> raised of {kes(d.goal)} · {d.donors} donors</span>
         </div>
@@ -209,7 +330,7 @@ function Partners() {
     <section className="container stack" style={{ padding: "64px 32px", gap: 22 }}>
       <H2 eyebrow="We are credible" title="Our partners" />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
-        {s.partners.map((p, i) => <div key={p} className="row" style={{ border: "1px solid #F3E0D8", borderRadius: 14, padding: "16px 18px", gap: 12, fontWeight: 700 }}><span style={{ width: 36, height: 36, borderRadius: 10, background: `${PROG_COLORS[i % 6]}1F`, color: PROG_COLORS[i % 6], display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>{initials(p)}</span>{p}</div>)}
+        {s.partners.map((p, i) => <div key={p} className="row" style={{ border: "1px solid #F3E0D8", borderRadius: 14, padding: "16px 18px", gap: 12, fontWeight: 700 }}><span style={{ width: 36, height: 36, borderRadius: 10, background: `${s.palette[i % s.palette.length]}1F`, color: s.palette[i % s.palette.length], display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>{initials(p)}</span>{p}</div>)}
       </div>
     </section>
   );
@@ -253,7 +374,7 @@ function About() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 18 }}>
             {s.team.map((t, i) => (
               <div key={t.name} className="stack-sm" style={{ background: "#fff", borderRadius: 18, padding: 24, alignItems: "center", textAlign: "center" }}>
-                <span style={{ width: 88, height: 88, borderRadius: "50%", background: `linear-gradient(135deg, ${PROG_COLORS[i % 6]}, var(--s-accent))`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 28 }}>{initials(t.name)}</span>
+                <span style={{ width: 88, height: 88, borderRadius: "50%", background: `linear-gradient(135deg, ${s.palette[i % s.palette.length]}, var(--s-accent))`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 28 }}>{initials(t.name)}</span>
                 <b style={{ fontSize: 19 }}>{t.name}</b><span style={{ color: "#7A6470" }}>{t.role}</span>
               </div>
             ))}
@@ -271,7 +392,7 @@ function Programmes() {
     <>
       <PageHead eyebrow="Programmes" title="Four programmes, one Kilifi" sub="Live progress against every promise we have made to partners and funders." />
       <section className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 22 }}>
-        {s.programmes.map((p, i) => <ProgrammeCard key={p.id} p={p} color={PROG_COLORS[i % 6]} />)}
+        {s.programmes.map((p, i) => <ProgrammeCard key={p.id} p={p} color={s.palette[i % s.palette.length]} />)}
       </section>
     </>
   );
@@ -283,7 +404,7 @@ function Services() {
     <>
       <PageHead eyebrow="Services" title="What we offer" sub="For schools, the county, partners and community groups." />
       <section className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
-        {s.services.map((x, i) => <ServiceCard key={x.title} x={x} color={PROG_COLORS[i % 6]} />)}
+        {s.services.map((x, i) => <ServiceCard key={x.title} x={x} color={s.palette[i % s.palette.length]} />)}
       </section>
       <section style={{ background: "var(--s-sand)" }}>
         <div className="container stack" style={{ padding: "72px 32px", gap: 28 }}>
@@ -309,8 +430,8 @@ function Stories() {
       <section className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 22 }}>
         {s.stories.map((x, i) => (
           <Link key={x.id} to={`${s.base}/stories/${x.id}`} className="stack" style={{ textDecoration: "none", color: "inherit", borderRadius: 18, overflow: "hidden", border: "1px solid #F3E0D8" }}>
-            <div style={{ background: `linear-gradient(135deg, ${PROG_COLORS[i % 6]}, var(--s-deep))`, color: "#fff", padding: 26 }}><b style={{ fontSize: 52, lineHeight: 1 }}>{x.stat_value}</b><div style={{ opacity: .9 }}>{x.stat_label}</div></div>
-            <div className="stack-sm" style={{ padding: "0 24px 24px" }}><span className="small" style={{ color: PROG_COLORS[i % 6], fontWeight: 800 }}>{x.programme}</span><h3 style={{ fontSize: 20, fontWeight: 800 }}>{x.title}</h3><p style={{ color: "#57434D" }}>{x.summary}</p><span style={{ color: "var(--s-primary)", fontWeight: 700 }}>Read story →</span></div>
+            <div style={{ background: `linear-gradient(135deg, ${s.palette[i % s.palette.length]}, var(--s-deep))`, color: "#fff", padding: 26 }}><b style={{ fontSize: 52, lineHeight: 1 }}>{x.stat_value}</b><div style={{ opacity: .9 }}>{x.stat_label}</div></div>
+            <div className="stack-sm" style={{ padding: "0 24px 24px" }}><span className="small" style={{ color: s.palette[i % s.palette.length], fontWeight: 800 }}>{x.programme}</span><h3 style={{ fontSize: 20, fontWeight: 800 }}>{x.title}</h3><p style={{ color: "#57434D" }}>{x.summary}</p><span style={{ color: "var(--s-primary)", fontWeight: 700 }}>Read story →</span></div>
           </Link>
         ))}
       </section>
@@ -343,11 +464,11 @@ function Impact() {
       <PageHead eyebrow="Impact" title="Results you can check" sub="Counted automatically from attendance sheets, photos and reports recorded when the work happens." />
       <section className="container" style={{ padding: "56px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 16 }}>
         {[[imp.people_reached, "young people reached"], [imp.activities_done, "activities delivered"], [imp.events_held, "community events"], [imp.volunteer_hours, "volunteer hours"], [imp.participants_registered, "participants registered"], [imp.evidence_items, "evidence records"]].map(([n, l], i) => (
-          <div key={l} style={{ borderRadius: 18, padding: 22, background: `${PROG_COLORS[i % 6]}12`, borderBottom: `5px solid ${PROG_COLORS[i % 6]}` }}><b style={{ fontSize: 40, color: PROG_COLORS[i % 6] }}>{fmtNum(n)}</b><div>{l}</div></div>
+          <div key={l} style={{ borderRadius: 18, padding: 22, background: `${s.palette[i % s.palette.length]}12`, borderBottom: `5px solid ${s.palette[i % s.palette.length]}` }}><b style={{ fontSize: 40, color: s.palette[i % s.palette.length] }}>{fmtNum(n)}</b><div>{l}</div></div>
         ))}
       </section>
       <section className="container" style={{ padding: "0 32px 64px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 22 }}>
-        {s.programmes.map((p, i) => <ProgrammeCard key={p.id} p={p} color={PROG_COLORS[i % 6]} />)}
+        {s.programmes.map((p, i) => <ProgrammeCard key={p.id} p={p} color={s.palette[i % s.palette.length]} />)}
       </section>
     </>
   );
@@ -393,7 +514,7 @@ function Contact() {
           <SiteMap query={s.map_query || s.address || s.location} label={s.address || s.location} />
           <span className="small" style={{ color: "#7A6470" }}>Office hours: Monday to Friday, 8:30 to 17:00</span>
         </div>
-        <InquiryForm />
+        {s.industry === "agency" ? <BriefForm s={s} /> : <InquiryForm />}
       </section>
     </>
   );
@@ -411,12 +532,14 @@ function Footer({ links }) {
           <div className="row" style={{ gap: 8 }}>{social.map(([k, v]) => <span key={k} title={`${k}: ${v}`} className="site-social">{k[0].toUpperCase()}</span>)}</div>
         </div>
         <div className="stack-sm" style={{ gap: 10 }}><b className="site-foot-h">Explore</b>{links.map(([p, l]) => <Link key={l} to={`${s.base}${p}` || "/"} className="site-foot-link">{l}</Link>)}</div>
-        <div className="stack-sm" style={{ gap: 10 }}><b className="site-foot-h">Programmes</b>{s.programmes.map((p) => <Link key={p.id} to={`${s.base}/programmes`} className="site-foot-link">{p.title}</Link>)}<Link to={`${s.base}/get-involved`} className="site-foot-link">Volunteer</Link></div>
+        <div className="stack-sm" style={{ gap: 10 }}><b className="site-foot-h">{s.programmes.length ? "Programmes" : "What we do"}</b>
+          {s.programmes.length ? s.programmes.map((p) => <Link key={p.id} to={`${s.base}/programmes`} className="site-foot-link">{p.title}</Link>) : s.services.map((x) => <Link key={x.title} to={`${s.base}/services`} className="site-foot-link">{x.title}</Link>)}
+          {s.programmes.length > 0 && <Link to={`${s.base}/get-involved`} className="site-foot-link">Volunteer</Link>}</div>
         <div className="stack-sm" style={{ gap: 10 }}>
           <b className="site-foot-h">Visit or call</b>
           {s.address && <span>{s.address}</span>}{s.phone && <a href={`tel:${s.phone.replace(/\s/g, "")}`} className="site-foot-link">{s.phone}</a>}
           {s.contact_email && <a href={`mailto:${s.contact_email}`} className="site-foot-link">{s.contact_email}</a>}
-          <Link to={`${s.base}/donate`} className="btn" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "#24161C", fontWeight: 800, alignSelf: "flex-start", marginTop: 6 }}>♥ Donate</Link>
+          {s.industry === "community" || s.industry === "education" || s.industry === "health" ? <Link to={`${s.base}/donate`} className="btn" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "#24161C", fontWeight: 800, alignSelf: "flex-start", marginTop: 6 }}>♥ Donate</Link> : null}
         </div>
       </div>
       <div className="container spread small" style={{ padding: "18px 32px 28px", borderTop: "1px solid rgba(255,255,255,.14)" }}>
@@ -427,7 +550,7 @@ function Footer({ links }) {
   );
 }
 
-function SiteHeader({ links, menu, setMenu }) {
+function SiteHeader({ links, cta, menu, setMenu }) {
   const s = useSite();
   const { user } = useAuth();
   return (
@@ -449,7 +572,7 @@ function SiteHeader({ links, menu, setMenu }) {
           <nav className="site-nav" aria-label="Site">
             {links.map(([p, l]) => <NavLink key={l} to={`${s.base}${p}` || "/"} end={p === ""} className="site-link">{l}</NavLink>)}
           </nav>
-          <Link to={`${s.base}/donate`} className="btn site-donate">♥ Donate</Link>
+          <Link to={`${s.base}${cta[0]}`} className="btn site-donate">{cta[1]}</Link>
           <button className="btn btn-icon site-menu" aria-label="Open menu" aria-expanded={menu} onClick={() => setMenu(true)}>☰</button>
         </div>
       </header>
@@ -459,7 +582,7 @@ function SiteHeader({ links, menu, setMenu }) {
             <div className="spread"><b>{s.organization}</b><button className="btn btn-icon" aria-label="Close menu" onClick={() => setMenu(false)}>✕</button></div>
             {links.map(([p, l]) => <NavLink key={l} to={`${s.base}${p}` || "/"} end={p === ""} className="site-link" onClick={() => setMenu(false)}>{l}</NavLink>)}
             <Link to={`${s.base}/get-involved`} className="site-link" onClick={() => setMenu(false)}>Get involved</Link>
-            <Link to={`${s.base}/donate`} className="btn site-donate" style={{ justifyContent: "center", marginTop: 8 }} onClick={() => setMenu(false)}>♥ Donate</Link>
+            <Link to={`${s.base}${cta[0]}`} className="btn site-donate" style={{ justifyContent: "center", marginTop: 8 }} onClick={() => setMenu(false)}>{cta[1]}</Link>
           </nav>
         </div>
       )}

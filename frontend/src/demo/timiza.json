@@ -721,12 +721,13 @@
     "vision": "A healthy, safe and inclusive Kilifi County where every young person thrives.",
     "founded": "Youth-led CBO, Kilifi County",
     "address": "Kibaoni, Kilifi estate, Kilifi County",
-    "brand_primary": "#D6336C",
-    "brand_accent": "#F28C38",
+    "brand_primary": "#0B4F71",
+    "brand_accent": "#F5A623",
     "donation_campaign": "Fund 1,000 more young people this year",
     "donation_goal": 500000,
-    "brand_deep": "#7A1C3A",
-    "map_query": "Kibaoni, Kilifi, Kenya"
+    "brand_deep": "#082F45",
+    "map_query": "Kibaoni, Kilifi, Kenya",
+    "heading_font": "fraunces"
    }
   ],
   "site_programmes": [

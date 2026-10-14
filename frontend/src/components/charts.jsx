@@ -1,7 +1,7 @@
 // Small, dependency-free SVG charts. Every chart has a text alternative for screen readers.
 import { fmtNum } from "../format";
 
-export const PALETTE = ["#6A4DF4", "#FFC226", "#F26A1B", "#4F8CFF", "#C04CF5", "#F07B5A", "#2D2A6E", "#A9A3C9", "#C04CF5", "#4F8CFF"];
+export const PALETTE = ["#6D3FC9", "#FFB020", "#FF6B57", "#2E86DE", "#D4458A", "#F07B5A", "#3B2F6B", "#B3A9C4", "#D4458A", "#2E86DE"];
 const short = (n) => (Math.abs(n) >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : Math.abs(n) >= 1e3 ? `${Math.round(n / 1e3)}k` : fmtNum(Math.round(n * 10) / 10));
 
 export function Bars({ data, format = fmtNum, color, colors, max }) {
@@ -31,7 +31,7 @@ export function Columns({ data, format = short, colors = PALETTE, height = 170, 
         const x = (i * w * 400) / 100 + 8, bw = (w * 400) / 100 - 16;
         return (
           <g key={d.label + i}>
-            <rect x={x} y={height - 26 - h} width={Math.max(bw, 4)} height={Math.max(h, d.value ? 2 : 0)} rx="5" fill={highlightLast ? (i === data.length - 1 ? colors[0] : "#D8CFFF") : colors[i % colors.length]} />
+            <rect x={x} y={height - 26 - h} width={Math.max(bw, 4)} height={Math.max(h, d.value ? 2 : 0)} rx="5" fill={highlightLast ? (i === data.length - 1 ? colors[0] : "#DCCDF5") : colors[i % colors.length]} />
             {d.value > 0 && <text x={x + bw / 2} y={height - 32 - h} textAnchor="middle" fontSize="12" fontWeight="600" style={{ fill: "var(--ink)" }}>{format(d.value)}</text>}
             <text x={x + bw / 2} y={height - 8} textAnchor="middle" fontSize="11.5" style={{ fill: "var(--slate)" }}>{d.label.length > 14 ? d.label.slice(0, 13) + "…" : d.label}</text>
           </g>
@@ -82,7 +82,7 @@ export function Lines({ series, height = 220, target, format = short }) {
     <svg viewBox={`0 0 400 ${height}`} style={{ width: "100%", height: "auto" }} role="img"
       aria-label={series.map((s) => `${s.name}: ${format(s.points[s.points.length - 1]?.value || 0)}`).join(", ")}>
       {ticks.map((t) => <g key={t}><line x1="44" x2="388" y1={Y(t)} y2={Y(t)} style={{ stroke: "var(--rule)" }} /><text x="38" y={Y(t) + 4} textAnchor="end" fontSize="11" style={{ fill: "var(--slate)" }}>{format(t)}</text></g>)}
-      {target != null && <><line x1="44" x2="388" y1={Y(target)} y2={Y(target)} stroke="#F26A1B" strokeDasharray="5 4" /><text x="386" y={Y(target) - 5} textAnchor="end" fontSize="11" fill="#F26A1B">target {format(target)}</text></>}
+      {target != null && <><line x1="44" x2="388" y1={Y(target)} y2={Y(target)} stroke="#FF6B57" strokeDasharray="5 4" /><text x="386" y={Y(target) - 5} textAnchor="end" fontSize="11" fill="#FF6B57">target {format(target)}</text></>}
       {series.map((s, i) => {
         const col = s.color || PALETTE[i % PALETTE.length];
         const d = s.points.map((p, k) => `${k ? "L" : "M"}${X(p.date).toFixed(1)} ${Y(p.value).toFixed(1)}`).join(" ");

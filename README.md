@@ -36,19 +36,28 @@ Kept is the product. Its home page sells the platform: apps, industries and live
 
 ## Design system
 
-**Kept (the workspace and kept.africa)** always wears Kept's brand, so no customer is confused with the product:
+**Kept's own identity** (workspace and kept.africa) is inspired by Kenya, not borrowed from any template:
 
-| Role | Colour | Use |
+| Name | Colour | Use |
 |---|---|---|
-| Ink | `#14142B` | Text, hero and footer surfaces |
-| Purple | `#6A4DF4` | Primary actions, links, focus (lavender `#EFEAFF` for tints) |
-| Sunflower | `#FFC226` | Accent calls to action, highlights |
-| Orange | `#F26A1B` | Alerts, emphasis, the hero stripe motif |
-| Blue | `#4F8CFF` | Tertiary only: charts and data |
+| Night | `#1B1530` | Text, hero and footer surfaces |
+| Jacaranda | `#6D3FC9` | Primary actions, links, focus (Nairobi's jacaranda trees) |
+| Mango | `#FFB020` | Highlights and key calls to action |
+| Coral | `#FF6B57` | Alerts and emphasis (the reef) |
+| Sand | `#FAF7F2` | Warm neutral background |
+| Ocean | `#2E86DE` | Tertiary, for data only |
 
-Light and dark themes share the same token names (`styles.css`), the choice is remembered per browser, and the first visit follows the device setting.
+Signature motif: a kitenge-inspired lattice of four-petal jacaranda flowers, mango seeds and coral dots (`components/Motif.jsx`). Display face: Bricolage Grotesque. Light and dark themes share the same tokens.
 
-**Tenant websites** use the organization's own colours (primary, accent and a deep anchor colour, set in Website → Site settings) and are always light. Timiza keeps its warm pink and orange, anchored with a deep maroon for headers, footers and text.
+**Tenant websites** wear the organization's own brand (primary, accent, deep colour and a heading font chosen in Website → Site settings) and get an industry-specific design:
+
+| Organization | Industry | Palette and type | Website features |
+|---|---|---|---|
+| Timiza Youth Initiative | Community organization | Ocean blue, mango, Fraunces | Programmes with live progress, impact counters, gallery, stories, donations, volunteer sign-up |
+| Tumaini Community Network | Community organization | Forest green, harvest gold, DM Serif | Same community layout, different brand |
+| Hatua Shoes | Retail | Cognac, lime, Bricolage | Shop from live inventory, bag, stock-checked orders that land in Inquiries |
+| Pwani Coast Stays | Hospitality | Deep sea, coral, DM Serif | Availability search, rooms, booking requests that create tentative bookings with double-booking checks |
+| Mwangaza Creative Studio | Agency | Black, electric yellow, Space Grotesk | Portfolio case studies, services, project brief form |
 
 ## What Timiza sees first
 

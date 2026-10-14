@@ -13,7 +13,7 @@ def reg(client, industry, email, slug=None):
 def test_industry_installs_the_right_apps_and_site(client):
     h, org = reg(client, "retail", "shop@test.example", slug="my-shop")
     assert {"sales", "inventory", "website"} <= set(org["installed_apps"]) and "participants" not in org["installed_apps"]
-    assert client.get("/api/public/my-shop").json()["brand"]["primary"] == "#6A4DF4"  # studio palette by default
+    assert client.get("/api/public/my-shop").json()["brand"]["primary"] == "#6D3FC9"  # jacaranda palette by default
     assert client.post("/api/auth/register", json={"organization_name": "Copy Org", "full_name": "Bo Bee", "email": "b@test.example",
                                                    "password": "Coastal-Breeze-2026", "site_slug": "my-shop"}).status_code == 409
 
@@ -79,3 +79,29 @@ def test_search_respects_apps_and_organizations(client):
     other, _ = reg(client, "retail", "other@test.example")
     assert [r["title"] for r in client.get("/api/search", headers=h, params={"q": "junction"}).json()] == ["Junction Boutique"]
     assert client.get("/api/search", headers=other, params={"q": "junction"}).json() == []
+
+
+def test_public_shop_order_checks_stock(client):
+    h, _ = reg(client, "retail", "shop@test.example", slug="shop")
+    item = client.post("/api/m/items", headers=h, json={"name": "Sandal", "unit": "pairs", "reorder_level": 1, "price": 4000, "show_on_site": True}).json()
+    client.post("/api/m/stock_moves", headers=h, json={"item_id": item["id"], "direction": "in", "quantity": 3, "moved_on": "2026-10-01"})
+    prods = client.get("/api/public/shop/products").json()
+    assert prods[0]["in_stock"] == 3 and prods[0]["price"] == 4000
+    too_many = client.post("/api/public/shop/order", json={"name": "Asha", "contact": "0712345678", "items": [{"id": item["id"], "qty": 5}]})
+    assert too_many.status_code == 409
+    ok = client.post("/api/public/shop/order", json={"name": "Asha", "contact": "0712345678", "items": [{"id": item["id"], "qty": 2}]}).json()
+    assert ok["total"] == 8000
+    inq = client.get("/api/m/inquiries", headers=h).json()["items"][0]
+    assert inq["kind"] == "order" and "2 x Sandal" in inq["message"]
+
+
+def test_public_booking_request_respects_availability(client):
+    h, _ = reg(client, "hospitality", "stay@test.example", slug="stay")
+    room = client.post("/api/m/resources", headers=h, json={"name": "Cottage", "kind": "room", "rate": 5000, "show_on_site": True}).json()
+    r = client.post("/api/public/stay/booking-request", json={"resource_id": room["id"], "starts_on": "2026-11-01", "ends_on": "2026-11-04", "name": "Ben", "contact": "0712345678"})
+    assert r.status_code == 201 and r.json()["amount"] == 15000
+    assert client.get("/api/public/stay/rooms", params={"start": "2026-11-02", "end": "2026-11-03"}).json()[0]["available"] is False
+    clash = client.post("/api/public/stay/booking-request", json={"resource_id": room["id"], "starts_on": "2026-11-03", "ends_on": "2026-11-05", "name": "Cy", "contact": "0712345678"})
+    assert clash.status_code == 409
+    b = client.get("/api/m/bookings", headers=h).json()["items"][0]
+    assert b["status"] == "tentative" and b["guest"] == "Ben"

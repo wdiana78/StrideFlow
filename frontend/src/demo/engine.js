@@ -7,7 +7,7 @@ import SPEC from "../modules.json";
 import PLATFORM from "../platform.json";
 import { SEED } from "./seed";
 
-const KEY = "kept_preview_db_v7";
+const KEY = "kept_preview_db_v9";
 export const TODAY = "2026-10-13";
 const AT_RISK_GAP = 15, DUE_SOON = 3, ESCALATE = 2;
 
@@ -785,7 +785,8 @@ if (_portfolioRoute) {
     const conf = mine("donations").filter((d) => d.status === "confirmed");
     const names = Object.fromEntries(T("projects").filter((p) => p.organization_id === org).map((p) => [p.id, p.name]));
     return { ...out, mission: site.mission, vision: site.vision, founded: site.founded, address: site.address, map_query: site.map_query,
-      brand: { primary: site.brand_primary || "#6A4DF4", accent: site.brand_accent || "#FFC226", deep: site.brand_deep || "#14142B" },
+      heading_font: site.heading_font || "fraunces", industry: byId("orgs", org).industry,
+      brand: { primary: site.brand_primary || "#6D3FC9", accent: site.brand_accent || "#FFB020", deep: site.brand_deep || "#1B1530" },
       gallery: mine("site_gallery").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ id: r.id, caption: r.caption, photo: r.photo, place: r.place, taken_on: r.taken_on, programme: names[r.project_id] })),
       services: mine("site_services").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ title: r.title, description: r.description, icon: r.icon })),
       stories: mine("site_stories").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ id: r.id, title: r.title, programme: names[r.project_id], summary: r.summary, body: r.body, quote: r.quote, quote_by: r.quote_by, stat_value: r.stat_value, stat_label: r.stat_label })),
@@ -873,7 +874,7 @@ on("DELETE", "/forms/:id/submissions/:sid", (u, _, id2, sid) => { manage(u); con
   db.form_submissions = subs().filter((s2) => s2.id !== sid); log(u.organization_id, u.id, "form_response_deleted", "form", f.id, `${u.full_name} deleted a response to '${f.title}'`); return null; });
 const publicForm = (id2) => { const f = forms().find((x) => x.id === id2); if (!f || !f.is_public || f.status !== "open") E(404, "This form is not available."); return f; };
 on("GET", "/public/forms/:id", (_, __, id2) => { const f = publicForm(id2); const site = mrows("site_settings").find((s2) => s2.organization_id === f.organization_id);
-  return { id: f.id, title: f.title, description: f.description, fields: f.fields, organization: byId("orgs", f.organization_id).name, brand: { primary: site?.brand_primary || "#6A4DF4", accent: site?.brand_accent || "#FFC226" } }; });
+  return { id: f.id, title: f.title, description: f.description, fields: f.fields, organization: byId("orgs", f.organization_id).name, brand: { primary: site?.brand_primary || "#6D3FC9", accent: site?.brand_accent || "#FFB020" } }; });
 on("POST", "/public/forms/:id", (_, { body }, id2) => { const f = publicForm(id2); const b2 = { ...body }; if (b2.website) return { ok: true }; delete b2.website;
   subs().push({ id: uid(), form_id: f.id, organization_id: f.organization_id, data: validateAnswers(f.fields, b2), source: "public", submitted_by_id: null, created_at: nowIso() }); return { ok: true }; });
 on("POST", "/auth/password", (u, { body }) => {
@@ -968,4 +969,38 @@ wrap("POST", "/auth/register", (inner, u, req) => {
   if (slug) { const pal = PLATFORM.palettes[req.body.palette] || PLATFORM.palettes.royal;
     mrows("site_settings").push({ id: uid(), organization_id: org.id, created_by_id: out.user.id, created_at: nowIso(), updated_at: nowIso(), slug, tagline: `Welcome to ${org.name}`, intro: `${org.name} on Kept.`, show_impact: true, brand_primary: pal.primary, brand_accent: pal.accent }); }
   return { ...out, user: meOut(byId("users", out.user.id)) };
+});
+
+// ---------- public shop and bookings (business websites) ----------
+on("GET", "/public/:slug/products", (_, __, slug) => { const site = siteFor(slug);
+  return mrows("items").filter((r) => r.organization_id === site.organization_id && r.show_on_site).sort((a, b) => a.name.localeCompare(b.name))
+    .map((r) => { const st = computed("items", r).stock; return { id: r.id, name: r.name, description: r.description, price: Number(r.price || 0), unit: r.unit, in_stock: Math.max(0, st), low: st <= Number(r.reorder_level || 0) }; }); });
+on("POST", "/public/:slug/order", (_, { body }, slug) => {
+  const site = siteFor(slug); if (body.website) return { ok: true, message: "Thank you." };
+  if ((body.name || "").trim().length < 2) E(422, "Enter your name."); if ((body.contact || "").trim().length < 5) E(422, "Enter a phone number or email.");
+  if (!Array.isArray(body.items) || !body.items.length) E(422, "Add at least one product.");
+  const lines = []; let total = 0;
+  for (const ln of body.items) { const r = mrows("items").find((x) => x.id === ln.id && x.organization_id === site.organization_id && x.show_on_site); if (!r) E(422, "One of those products is no longer available.");
+    const st = computed("items", r).stock; if (ln.qty > st) E(409, `Only ${st} ${r.unit} of ${r.name} left.`); total += Number(r.price || 0) * ln.qty; lines.push(`${ln.qty} x ${r.name} @ KES ${Number(r.price || 0).toLocaleString()}`); }
+  const ref = `ORD-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
+  publicInsert(site, "inquiries", { name: body.name.trim(), contact: body.contact.trim(), kind: "order", message: `${ref}\n${lines.join("\n")}\nTotal KES ${total.toLocaleString()}${body.message ? `\nNote: ${body.message}` : ""}` }, `Website order ${ref}: KES ${total.toLocaleString()}`);
+  return { ok: true, reference: ref, total, message: `Order ${ref} received. We'll confirm on ${body.contact.trim()} within the hour.` };
+});
+const roomFree = (org, rid, s2, e2) => !mrows("bookings").some((b) => b.organization_id === org && b.resource_id === rid && b.status !== "cancelled" && b.starts_on <= e2 && b.ends_on >= s2);
+on("GET", "/public/:slug/rooms", (_, { params }, slug) => { const site = siteFor(slug);
+  return mrows("resources").filter((r) => r.organization_id === site.organization_id && r.show_on_site).sort((a, b) => Number(a.rate) - Number(b.rate))
+    .map((r) => ({ id: r.id, name: r.name, kind: r.kind, capacity: Number(r.capacity || 0), rate: Number(r.rate || 0), description: r.description, amenities: r.amenities,
+      available: params.start && params.end ? roomFree(site.organization_id, r.id, params.start, params.end) : null })); });
+on("POST", "/public/:slug/booking-request", (_, { body }, slug) => {
+  const site = siteFor(slug); if (body.website) return { ok: true };
+  if ((body.name || "").trim().length < 2) E(422, "Enter your name."); if ((body.contact || "").trim().length < 5) E(422, "Enter a phone number or email.");
+  if (!body.starts_on || !body.ends_on || body.ends_on <= body.starts_on) E(422, "Check-out must be after check-in.");
+  if (body.starts_on < TODAY) E(422, "Choose dates from today onwards.");
+  const nights = dnum(body.ends_on) - dnum(body.starts_on); if (nights > 30) E(422, "For stays longer than 30 nights, send us a message.");
+  const r = mrows("resources").find((x) => x.id === body.resource_id && x.organization_id === site.organization_id && x.show_on_site); if (!r) E(422, "Choose one of our rooms.");
+  if (!roomFree(site.organization_id, r.id, body.starts_on, body.ends_on)) E(409, `${r.name} is already booked for some of those dates. Try other dates or another room.`);
+  const amount = Number(r.rate || 0) * nights;
+  const b = { id: uid(), organization_id: site.organization_id, created_by_id: null, created_at: nowIso(), updated_at: nowIso(), guest: body.name.trim(), resource_id: r.id, starts_on: body.starts_on, ends_on: body.ends_on, contact: body.contact.trim(), amount, notes: body.notes || "Booked on the website", status: "tentative" };
+  mrows("bookings").push(b); log(site.organization_id, null, "bookings_created", "bookings", b.id, `Website booking request: ${r.name}, ${nights} nights`);
+  return { ok: true, nights, amount, message: `${r.name} is held for you: ${nights} nights, KES ${amount.toLocaleString()}. We'll confirm within a few hours.` };
 });

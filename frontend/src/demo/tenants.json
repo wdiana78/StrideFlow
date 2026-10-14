@@ -18,12 +18,13 @@
     "phone": "+254 700 000 111",
     "address": "Machakos town, Machakos County",
     "map_query": "Machakos, Kenya",
-    "brand_primary": "#2F7D4F",
-    "brand_accent": "#E9B949",
-    "brand_deep": "#1D4A30",
+    "brand_primary": "#2F6B3F",
+    "brand_accent": "#E3A72F",
+    "brand_deep": "#1B3D25",
     "show_impact": true,
     "mission": "Every woman farmer earns a living income.",
-    "vision": "Thriving, food-secure rural households in Machakos."
+    "vision": "Thriving, food-secure rural households in Machakos.",
+    "heading_font": "dmserif"
    },
    "site_services": [
     {
@@ -64,9 +65,11 @@
     "about": "Small senior team, fixed-price projects, weekly check-ins.",
     "location": "Westlands, Nairobi",
     "contact_email": "hello@mwangaza.example",
-    "brand_primary": "#B4532A",
-    "brand_accent": "#F7C59F",
-    "show_impact": false
+    "brand_primary": "#111111",
+    "brand_accent": "#FFE14D",
+    "show_impact": false,
+    "brand_deep": "#0A0A0A",
+    "heading_font": "space"
    },
    "site_services": [
     {
@@ -164,7 +167,42 @@
      }
     ]
    },
-   "featured": 4
+   "featured": 4,
+   "site_stories": [
+    {
+     "title": "Kilele Coffee: a launch that sold out in nine days",
+     "order": 1,
+     "published": true,
+     "stat_value": "9 days",
+     "stat_label": "to sell out the first roast",
+     "summary": "Identity, packaging and a street-poster campaign for a Nyeri coffee co-op entering Nairobi.",
+     "body": "We built the brand around the farmers' own handwriting and printed posters on recycled sacks.",
+     "quote": "They made our farmers the heroes.",
+     "quote_by": "Marketing lead, Kilele Coffee"
+    },
+    {
+     "title": "Zuri Microfinance annual report",
+     "order": 2,
+     "published": true,
+     "stat_value": "3x",
+     "stat_label": "more downloads than last year",
+     "summary": "A plain-language, mobile-first annual report for 40,000 members.",
+     "body": "Charts you can read on a feature phone, and a Swahili edition.",
+     "quote": "Members finally read it.",
+     "quote_by": "Head of communications, Zuri"
+    },
+    {
+     "title": "Nyota Schools website",
+     "order": 3,
+     "published": true,
+     "stat_value": "62%",
+     "stat_label": "more admission enquiries",
+     "summary": "A fast, accessible website parents can use on 3G.",
+     "body": "Built with the teachers so they can update it themselves.",
+     "quote": "Parents now find us first.",
+     "quote_by": "Principal, Nyota Schools"
+    }
+   ]
   },
   {
    "organization": {
@@ -191,9 +229,11 @@
     "about": "Every pair is stitched by hand and repairable for life.",
     "location": "Gikomba, Nairobi",
     "contact_email": "jambo@hatua.example",
-    "brand_primary": "#C2410C",
-    "brand_accent": "#F9A8D4",
-    "show_impact": false
+    "brand_primary": "#8A3B12",
+    "brand_accent": "#C9F25C",
+    "show_impact": false,
+    "brand_deep": "#1C1410",
+    "heading_font": "bricolage"
    },
    "site_services": [
     {
@@ -226,7 +266,10 @@
       "category": "other",
       "unit": "pairs",
       "reorder_level": 40,
-      "location": "Gikomba workshop"
+      "location": "Gikomba workshop",
+      "price": 4200,
+      "description": "Hand-stitched leather with Maasai beadwork. Resoleable for life.",
+      "show_on_site": true
      },
      {
       "_key": "sneaker",
@@ -234,7 +277,10 @@
       "category": "other",
       "unit": "pairs",
       "reorder_level": 30,
-      "location": "Gikomba workshop"
+      "location": "Gikomba workshop",
+      "price": 5600,
+      "description": "Kitenge canvas upper on a recycled-tyre sole. Light, washable, loud.",
+      "show_on_site": true
      },
      {
       "_key": "leather",
@@ -251,6 +297,28 @@
       "unit": "boxes",
       "reorder_level": 100,
       "location": "Store room"
+     },
+     {
+      "_key": "slide",
+      "name": "Kikoi slide",
+      "category": "other",
+      "unit": "pairs",
+      "reorder_level": 20,
+      "location": "Gikomba workshop",
+      "price": 2800,
+      "description": "Soft kikoi strap, cushioned footbed. Beach to boardroom (almost).",
+      "show_on_site": true
+     },
+     {
+      "_key": "boot",
+      "name": "Safari chukka boot",
+      "category": "other",
+      "unit": "pairs",
+      "reorder_level": 15,
+      "location": "Gikomba workshop",
+      "price": 8900,
+      "description": "Suede chukka on a crepe sole, made for dust and dance floors.",
+      "show_on_site": true
      }
     ],
     "stock_moves": [
@@ -309,6 +377,34 @@
       "quantity": 284,
       "moved_on": "2026-10-10",
       "note": "Packed orders"
+     },
+     {
+      "item_id": "slide",
+      "direction": "in",
+      "quantity": 90,
+      "moved_on": "2026-09-20",
+      "note": "Batch 3"
+     },
+     {
+      "item_id": "slide",
+      "direction": "out",
+      "quantity": 41,
+      "moved_on": "2026-10-11",
+      "note": "Sold"
+     },
+     {
+      "item_id": "boot",
+      "direction": "in",
+      "quantity": 24,
+      "moved_on": "2026-09-28",
+      "note": "First run"
+     },
+     {
+      "item_id": "boot",
+      "direction": "out",
+      "quantity": 21,
+      "moved_on": "2026-10-12",
+      "note": "Sold"
      }
     ],
     "vendors": [
@@ -407,9 +503,11 @@
     "about": "Family-run, solar-powered, breakfast from the garden.",
     "location": "Watamu, Kilifi County",
     "contact_email": "karibu@pwani.example",
-    "brand_primary": "#A21CAF",
-    "brand_accent": "#FDA4AF",
-    "show_impact": false
+    "brand_primary": "#0E5A6B",
+    "brand_accent": "#FF7A59",
+    "show_impact": false,
+    "brand_deep": "#083640",
+    "heading_font": "dmserif"
    },
    "site_services": [
     {
@@ -435,7 +533,10 @@
       "kind": "room",
       "capacity": 2,
       "rate": 7500,
-      "location": "Garden"
+      "location": "Garden",
+      "description": "A thatched cottage for two under a 300-year-old baobab, outdoor shower, hammock.",
+      "amenities": "Queen bed \u00b7 Outdoor shower \u00b7 Wi-Fi \u00b7 Breakfast",
+      "show_on_site": true
      },
      {
       "_key": "mnazi",
@@ -443,7 +544,10 @@
       "kind": "room",
       "capacity": 4,
       "rate": 11000,
-      "location": "Pool side"
+      "location": "Pool side",
+      "description": "Family cottage beside the pool with a kitchenette and shaded veranda.",
+      "amenities": "2 bedrooms \u00b7 Kitchenette \u00b7 Pool side \u00b7 Wi-Fi",
+      "show_on_site": true
      },
      {
       "_key": "garden",
@@ -451,7 +555,21 @@
       "kind": "venue",
       "capacity": 80,
       "rate": 35000,
-      "location": "Main lawn"
+      "location": "Main lawn",
+      "description": "A lawn under coconut palms for weddings and retreats up to 80 guests.",
+      "amenities": "Up to 80 guests \u00b7 Power \u00b7 Catering on request",
+      "show_on_site": true
+     },
+     {
+      "_key": "kipepeo",
+      "name": "Kipepeo studio",
+      "kind": "room",
+      "capacity": 2,
+      "rate": 6000,
+      "location": "Upper garden",
+      "description": "Bright studio with a sea-breeze balcony and a writing desk.",
+      "amenities": "Double bed \u00b7 Balcony \u00b7 Desk \u00b7 Wi-Fi",
+      "show_on_site": true
      }
     ],
     "customers": [

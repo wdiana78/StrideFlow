@@ -1014,6 +1014,24 @@
      "key": "location",
      "label": "Store",
      "type": "text"
+    },
+    {
+     "key": "price",
+     "label": "Selling price",
+     "type": "money",
+     "list": true
+    },
+    {
+     "key": "description",
+     "label": "Description",
+     "type": "textarea"
+    },
+    {
+     "key": "show_on_site",
+     "label": "Show in online shop",
+     "type": "bool",
+     "list": true,
+     "filter": true
     }
    ],
    "computed": [
@@ -2048,6 +2066,14 @@
        "Donation"
       ],
       [
+       "order",
+       "Order"
+      ],
+      [
+       "project",
+       "Project brief"
+      ],
+      [
        "media",
        "Media"
       ],
@@ -2445,6 +2471,29 @@
      "key": "brand_deep",
      "label": "Deep brand colour",
      "type": "color"
+    },
+    {
+     "key": "heading_font",
+     "label": "Heading font",
+     "type": "select",
+     "options": [
+      [
+       "fraunces",
+       "Fraunces (warm serif)"
+      ],
+      [
+       "bricolage",
+       "Bricolage (bold grotesque)"
+      ],
+      [
+       "dmserif",
+       "DM Serif Display (elegant)"
+      ],
+      [
+       "space",
+       "Space Grotesk (modern)"
+      ]
+     ]
     }
    ],
    "create": [
@@ -3039,6 +3088,23 @@
      "label": "Location",
      "type": "text",
      "list": true
+    },
+    {
+     "key": "description",
+     "label": "Description",
+     "type": "textarea"
+    },
+    {
+     "key": "amenities",
+     "label": "Amenities",
+     "type": "text"
+    },
+    {
+     "key": "show_on_site",
+     "label": "Bookable online",
+     "type": "bool",
+     "list": true,
+     "filter": true
     }
    ],
    "create": [

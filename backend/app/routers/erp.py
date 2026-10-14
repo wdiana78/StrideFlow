@@ -372,8 +372,8 @@ def portfolio(slug: str, db: Session = Depends(get_db)):
               db.execute(select(dn).where(dn.c.organization_id == org_id, dn.c.status == "confirmed").order_by(dn.c.updated_at.desc()).limit(5)).all()]
     return {"organization": org.name, "slug": site.slug, "tagline": site.tagline, "intro": site.intro, "about": site.about,
             "mission": site.mission, "vision": site.vision, "founded": site.founded, "address": site.address,
-            "brand": {"primary": site.brand_primary or "#6A4DF4", "accent": site.brand_accent or "#FFC226", "deep": site.brand_deep or "#14142B"},
-            "map_query": site.map_query,
+            "brand": {"primary": site.brand_primary or "#6D3FC9", "accent": site.brand_accent or "#FFB020", "deep": site.brand_deep or "#1B1530"},
+            "map_query": site.map_query, "heading_font": site.heading_font or "fraunces", "industry": org.industry,
             "gallery": [{"id": str(r.id), "caption": r.caption, "photo": r.photo, "place": r.place, "taken_on": r.taken_on.isoformat() if r.taken_on else None,
                          "programme": proj_names.get(str(r.project_id))} for r in db.execute(select(T["site_gallery"]).where(T["site_gallery"].c.organization_id == org_id,
                          T["site_gallery"].c.published.is_(True)).order_by(T["site_gallery"].c.order, T["site_gallery"].c.caption)).all()],
@@ -431,7 +431,7 @@ def inquiry(slug: str, body: InquiryIn, request: Request, db: Session = Depends(
     site = _site(db, slug)
     if body.website:
         return {"ok": True, "message": "Thank you. We have your message and will reply soon."}
-    if body.kind not in {"partner", "donate", "media", "other"}:
+    if body.kind not in {"partner", "donate", "media", "other", "order", "project"}:
         raise HTTPException(422, "Choose what your message is about.")
     _public_insert(db, site, "inquiries", body.model_dump(exclude={"website"}), f"Website: message from {body.name}")
     return {"ok": True, "message": "Thank you. We have your message and will reply soon."}
@@ -589,3 +589,107 @@ def analytics(user: User = Depends(get_current_user), db: Session = Depends(get_
             "participants": {"gender": grp("gender"), "age_band": grp("age_band"), "ward": grp("ward"),
                              "disability": [{"label": "Yes" if d["label"] == "True" else "No", "count": d["count"]} for d in disab], "by_programme": by_prog},
             "volunteer_hours": hours, "spending_by_category": spend, "events": events}
+
+
+
+# ---------- public shop and bookings (business websites) ----------
+class OrderLine(BaseModel):
+    id: uuid.UUID
+    qty: int = Field(ge=1, le=50)
+
+
+class OrderIn(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    contact: str = Field(min_length=5, max_length=120)
+    items: list[OrderLine] = Field(min_length=1, max_length=20)
+    message: str = Field(default="", max_length=500)
+    website: str = ""
+
+
+@public.get("/{slug}/products")
+def products(slug: str, db: Session = Depends(get_db)):
+    site = _site(db, slug)
+    it = erp.TABLES["items"]
+    rows = db.execute(select(it).where(it.c.organization_id == site.organization_id, it.c.show_on_site.is_(True)).order_by(it.c.name)).all()
+    stock = erp._computed(db, "items", [r.id for r in rows])
+    return [{"id": str(r.id), "name": r.name, "description": r.description, "price": float(r.price or 0), "unit": r.unit,
+             "in_stock": max(0, int(stock[str(r.id)]["stock"])), "low": stock[str(r.id)]["stock"] <= float(r.reorder_level or 0)} for r in rows]
+
+
+@public.post("/{slug}/order", status_code=201)
+def order(slug: str, body: OrderIn, request: Request, db: Session = Depends(get_db)):
+    rate_limit(f"public-order:{client_ip(request)}", 10, 600)
+    site = _site(db, slug)
+    if body.website:
+        return {"ok": True, "message": "Thank you."}
+    it = erp.TABLES["items"]
+    rows = {r.id: r for r in db.execute(select(it).where(it.c.organization_id == site.organization_id, it.c.show_on_site.is_(True))).all()}
+    stock = erp._computed(db, "items", list(rows))
+    lines, total = [], 0.0
+    for ln in body.items:
+        r = rows.get(ln.id)
+        if not r:
+            raise HTTPException(422, "One of those products is no longer available.")
+        if ln.qty > stock[str(r.id)]["stock"]:
+            raise HTTPException(409, f"Only {int(stock[str(r.id)]['stock'])} {r.unit} of {r.name} left.")
+        total += float(r.price or 0) * ln.qty
+        lines.append(f"{ln.qty} x {r.name} @ KES {float(r.price or 0):,.0f}")
+    ref = f"ORD-{uuid.uuid4().hex[:6].upper()}"
+    msg = f"{ref}\n" + "\n".join(lines) + f"\nTotal KES {total:,.0f}" + (f"\nNote: {body.message.strip()}" if body.message.strip() else "")
+    _public_insert(db, site, "inquiries", {"name": body.name.strip(), "contact": body.contact.strip(), "kind": "order", "message": msg}, f"Website order {ref}: KES {total:,.0f}")
+    return {"ok": True, "reference": ref, "total": total, "message": f"Order {ref} received. We'll confirm on {body.contact.strip()} within the hour."}
+
+
+class BookingIn(BaseModel):
+    resource_id: uuid.UUID
+    starts_on: date
+    ends_on: date
+    name: str = Field(min_length=2, max_length=120)
+    contact: str = Field(min_length=5, max_length=120)
+    notes: str = Field(default="", max_length=500)
+    website: str = ""
+
+
+def _free(db: Session, org_id, rid, start: date, end: date) -> bool:
+    bk = erp.TABLES["bookings"]
+    return not db.execute(select(bk.c.id).where(bk.c.organization_id == org_id, bk.c.resource_id == rid, bk.c.status != "cancelled",
+                                                bk.c.starts_on <= end, bk.c.ends_on >= start)).first()
+
+
+@public.get("/{slug}/rooms")
+def rooms(slug: str, start: date | None = None, end: date | None = None, db: Session = Depends(get_db)):
+    site = _site(db, slug)
+    rs = erp.TABLES["resources"]
+    rows = db.execute(select(rs).where(rs.c.organization_id == site.organization_id, rs.c.show_on_site.is_(True)).order_by(rs.c.rate)).all()
+    return [{"id": str(r.id), "name": r.name, "kind": r.kind, "capacity": float(r.capacity or 0), "rate": float(r.rate or 0), "description": r.description,
+             "amenities": r.amenities, "available": (_free(db, site.organization_id, r.id, start, end) if start and end else None)} for r in rows]
+
+
+@public.post("/{slug}/booking-request", status_code=201)
+def booking_request(slug: str, body: BookingIn, request: Request, db: Session = Depends(get_db)):
+    rate_limit(f"public-booking:{client_ip(request)}", 10, 600)
+    site = _site(db, slug)
+    if body.website:
+        return {"ok": True}
+    if body.ends_on <= body.starts_on:
+        raise HTTPException(422, "Check-out must be after check-in.")
+    if body.starts_on < today():
+        raise HTTPException(422, "Choose dates from today onwards.")
+    if (body.ends_on - body.starts_on).days > 30:
+        raise HTTPException(422, "For stays longer than 30 nights, send us a message.")
+    rs = erp.TABLES["resources"]
+    r = db.execute(select(rs).where(rs.c.id == body.resource_id, rs.c.organization_id == site.organization_id, rs.c.show_on_site.is_(True))).first()
+    if not r:
+        raise HTTPException(422, "Choose one of our rooms.")
+    if not _free(db, site.organization_id, r.id, body.starts_on, body.ends_on):
+        raise HTTPException(409, f"{r.name} is already booked for some of those dates. Try other dates or another room.")
+    nights = (body.ends_on - body.starts_on).days
+    amount = float(r.rate or 0) * nights
+    bk = erp.TABLES["bookings"]
+    bid = uuid.uuid4()
+    db.execute(bk.insert().values(id=bid, organization_id=site.organization_id, created_by_id=None, created_at=erp.now(), updated_at=erp.now(),
+                                  guest=body.name.strip(), resource_id=r.id, starts_on=body.starts_on, ends_on=body.ends_on, contact=body.contact.strip(),
+                                  amount=amount, notes=body.notes.strip() or "Booked on the website", status="tentative"))
+    log(db, site.organization_id, None, "bookings_created", "bookings", bid, f"Website booking request: {r.name}, {nights} nights")
+    db.commit()
+    return {"ok": True, "nights": nights, "amount": amount, "message": f"{r.name} is held for you: {nights} nights, KES {amount:,.0f}. We'll confirm within a few hours."}

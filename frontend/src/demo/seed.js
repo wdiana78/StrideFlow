@@ -275,8 +275,8 @@ function seedTenants(db, id, makeOrg, makeUser, mwangazaAdmin) {
     let owner = t.admin ? makeUser(o, t.admin.name, t.admin.email, "admin") : (db.users.find((u) => u.organization_id === o.id && u.role === "admin") || mwangazaAdmin);
     (t.users || []).forEach((u) => makeUser(o, u.name, u.email, u.role));
     const keys = {};
-    const records = { site_settings: [t.site_settings], site_services: t.site_services || [], ...(t.modules || {}) };
-    for (const key of ["site_settings", "site_services", "vendors", "customers", "items", "stock_moves", "resources", "invoices", "bookings", "events"].filter((k) => records[k])) {
+    const records = { site_settings: [t.site_settings], site_services: t.site_services || [], site_stories: t.site_stories || [], ...(t.modules || {}) };
+    for (const key of ["site_settings", "site_services", "site_stories", "vendors", "customers", "items", "stock_moves", "resources", "invoices", "bookings", "events"].filter((k) => records[k])) {
       const m = mods[key]; const fields = Object.fromEntries(m.fields.map((f) => [f.key, f])); db.m[key] = db.m[key] || [];
       for (const rec of records[key]) {
         const row = {}; for (const [k, v] of Object.entries(rec)) { if (k.startsWith("_") || !fields[k]) continue; row[k] = fields[k].type === "ref" ? keys[v] : v; }
