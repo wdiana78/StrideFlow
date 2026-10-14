@@ -7,7 +7,7 @@ import SPEC from "../modules.json";
 import PLATFORM from "../platform.json";
 import { SEED } from "./seed";
 
-const KEY = "kept_preview_db_v5";
+const KEY = "kept_preview_db_v6";
 export const TODAY = "2026-10-13";
 const AT_RISK_GAP = 15, DUE_SOON = 3, ESCALATE = 2;
 
@@ -776,8 +776,9 @@ if (_portfolioRoute) {
     const out = inner(u, req, slug); const site = siteFor(slug); const org = site.organization_id; const mine = (k) => mrows(k).filter((r) => r.organization_id === org);
     const conf = mine("donations").filter((d) => d.status === "confirmed");
     const names = Object.fromEntries(T("projects").filter((p) => p.organization_id === org).map((p) => [p.id, p.name]));
-    return { ...out, mission: site.mission, vision: site.vision, founded: site.founded, address: site.address,
-      brand: { primary: site.brand_primary || "#0E5E6F", accent: site.brand_accent || "#F2B33D" },
+    return { ...out, mission: site.mission, vision: site.vision, founded: site.founded, address: site.address, map_query: site.map_query,
+      brand: { primary: site.brand_primary || "#2F5BE8", accent: site.brand_accent || "#FFC53D", deep: site.brand_deep || "#0F1E46" },
+      gallery: mine("site_gallery").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ id: r.id, caption: r.caption, photo: r.photo, place: r.place, taken_on: r.taken_on, programme: names[r.project_id] })),
       services: mine("site_services").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ title: r.title, description: r.description, icon: r.icon })),
       stories: mine("site_stories").filter((r) => r.published).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((r) => ({ id: r.id, title: r.title, programme: names[r.project_id], summary: r.summary, body: r.body, quote: r.quote, quote_by: r.quote_by, stat_value: r.stat_value, stat_label: r.stat_label })),
       donations: { campaign: site.donation_campaign, goal: Number(site.donation_goal || 0), raised: sumOf(conf, "amount"), donors: conf.length,
@@ -884,8 +885,10 @@ function requireApp(u, key) {
   if (app && !(org.installed_apps || []).includes(app)) E(404, `Install the ${appName(app)} app to use this.`);
 }
 on("GET", "/platform", () => ({ apps: APPDEFS, palettes: PLATFORM.palettes, industries: PLATFORM.industries.map((i) => ({ ...i, app_names: i.apps.map(appName) })) }));
+const SHOW_ORDER = { timiza: 1, tumaini: 2, hatua: 3, mwangaza: 4, pwani: 5 };
 on("GET", "/platform/showcase", () => mrows("site_settings").map((s2) => { const o = byId("orgs", s2.organization_id);
-  return { slug: s2.slug, organization: o.name, industry: INDS[o.industry]?.name || o.industry, tagline: s2.tagline, primary: s2.brand_primary, accent: s2.brand_accent }; }));
+  return { slug: s2.slug, organization: o.name, industry: INDS[o.industry]?.name || o.industry, kind: ["retail", "hospitality", "agency"].includes(o.industry) ? "Business" : "Organization",
+    tagline: s2.tagline, primary: s2.brand_primary, accent: s2.brand_accent, deep: s2.brand_deep }; }).sort((a, b) => (SHOW_ORDER[a.slug] || 99) - (SHOW_ORDER[b.slug] || 99)));
 on("GET", "/apps", (u) => { const org = byId("orgs", u.organization_id); const inst = new Set(org.installed_apps || []);
   return { industry: org.industry, installed: [...inst].sort(), apps: APPDEFS.map((a) => ({ ...a, installed: inst.has(a.key), modules: SPEC.modules.filter((m) => m.app === a.key).map((m) => ({ key: m.key, label: m.label })) })) }; });
 function setApp(u, key, on2) {
@@ -954,7 +957,7 @@ wrap("POST", "/auth/register", (inner, u, req) => {
   const pw = req.body.password || ""; if (pw.length < 10 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) E(422, "Password needs at least 10 characters with letters and numbers.");
   const out = inner(u, req); const org = byId("orgs", out.user.organization.id);
   org.industry = ind.key; org.installed_apps = [...new Set(ind.apps)].sort();
-  if (slug) { const pal = PLATFORM.palettes[req.body.palette] || PLATFORM.palettes.blossom;
+  if (slug) { const pal = PLATFORM.palettes[req.body.palette] || PLATFORM.palettes.royal;
     mrows("site_settings").push({ id: uid(), organization_id: org.id, created_by_id: out.user.id, created_at: nowIso(), updated_at: nowIso(), slug, tagline: `Welcome to ${org.name}`, intro: `${org.name} on Kept.`, show_impact: true, brand_primary: pal.primary, brand_accent: pal.accent }); }
   return { ...out, user: meOut(byId("users", out.user.id)) };
 });

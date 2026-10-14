@@ -21,7 +21,7 @@ class RegisterIn(BaseModel):
     password: str = Field(min_length=8, max_length=128)
     industry: str = "community"
     site_slug: str | None = Field(default=None, max_length=40, pattern=r"^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$")
-    palette: str = "blossom"
+    palette: str = "royal"
 
     @field_validator("currency")
     @classmethod

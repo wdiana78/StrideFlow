@@ -372,7 +372,11 @@ def portfolio(slug: str, db: Session = Depends(get_db)):
               db.execute(select(dn).where(dn.c.organization_id == org_id, dn.c.status == "confirmed").order_by(dn.c.updated_at.desc()).limit(5)).all()]
     return {"organization": org.name, "slug": site.slug, "tagline": site.tagline, "intro": site.intro, "about": site.about,
             "mission": site.mission, "vision": site.vision, "founded": site.founded, "address": site.address,
-            "brand": {"primary": site.brand_primary or "#0E5E6F", "accent": site.brand_accent or "#F2B33D"},
+            "brand": {"primary": site.brand_primary or "#2F5BE8", "accent": site.brand_accent or "#FFC53D", "deep": site.brand_deep or "#0F1E46"},
+            "map_query": site.map_query,
+            "gallery": [{"id": str(r.id), "caption": r.caption, "photo": r.photo, "place": r.place, "taken_on": r.taken_on.isoformat() if r.taken_on else None,
+                         "programme": proj_names.get(str(r.project_id))} for r in db.execute(select(T["site_gallery"]).where(T["site_gallery"].c.organization_id == org_id,
+                         T["site_gallery"].c.published.is_(True)).order_by(T["site_gallery"].c.order, T["site_gallery"].c.caption)).all()],
             "services": services, "stories": stories,
             "donations": {"campaign": site.donation_campaign, "goal": float(site.donation_goal or 0), "raised": raised, "donors": donors, "recent": recent},
             "projects": [{"id": k, "name": v} for k, v in proj_names.items()],

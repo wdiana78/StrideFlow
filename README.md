@@ -34,6 +34,22 @@ Kept is the product. Its home page sells the platform: apps, industries and live
 - **Demo tenants**: Timiza Youth Initiative (community), Mwangaza Creative Studio (agency), Hatua Shoes (retail), Pwani Coast Stays (hospitality).
 - **A dedicated deployment** for one customer's own domain (for example timiza.or.ke) sets `VITE_SITE_SLUG=timiza`, which makes that organization's website the home page.
 
+## Design system
+
+**Kept (the workspace and kept.africa)** always wears Kept's brand, so no customer is confused with the product:
+
+| Role | Colour | Use |
+|---|---|---|
+| Navy | `#0F1E46` | Text, hero and footer surfaces |
+| Royal blue | `#2F5BE8` | Primary actions, links, focus |
+| Sunflower | `#FFC53D` | Accent calls to action, highlights |
+| Sky | `#5BB6F8` | Data and secondary charts |
+| Maroon | `#8E2243` | Sparing emphasis: badges, alerts, chart contrast |
+
+Light and dark themes share the same token names (`styles.css`), the choice is remembered per browser, and the first visit follows the device setting.
+
+**Tenant websites** use the organization's own colours (primary, accent and a deep anchor colour, set in Website → Site settings) and are always light. Timiza keeps its warm pink and orange, anchored with a deep maroon for headers, footers and text.
+
 ## What Timiza sees first
 
 On Timiza's own domain (`VITE_SITE_SLUG=timiza`), the home page is Timiza's public website: home, about, programmes, services, stories, impact, get involved, contact and donate. Staff sign in from the top bar to reach the ERP behind it. Website content, brand colours, programmes, services, stories and team are all edited in the ERP's Website section, and the impact numbers on the site are counted live from verified records.

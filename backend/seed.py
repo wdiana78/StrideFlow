@@ -310,13 +310,13 @@ def seed_erp(db, org, people, stakes, projects, data):
     from app import erp
 
     keys: dict[str, uuid.UUID] = {}
-    order = ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "donations", "grants", "income", "budget_lines", "expenses", "vendors", "purchase_requests",
+    order = ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "site_gallery", "donations", "grants", "income", "budget_lines", "expenses", "vendors", "purchase_requests",
              "items", "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests", "events", "documents", "inquiries",
              "meetings", "decisions"]
     records = dict(data["erp"])
     records["participants"] = participants_for(data["participants"])
     order.append("participants")
-    order.sort(key=lambda k: ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "grants", "donations", "income", "budget_lines", "vendors", "expenses",
+    order.sort(key=lambda k: ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "site_gallery", "grants", "donations", "income", "budget_lines", "vendors", "expenses",
                               "purchase_requests", "items", "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests",
                               "events", "documents", "inquiries", "meetings", "decisions", "participants"].index(k))
     stamp = datetime.now(timezone.utc)
@@ -443,7 +443,8 @@ def seed_tenants(db, pw):
             org = Organization(name=t["organization"]["name"], sector=t["organization"]["sector"], currency="KES")
             db.add(org)
             db.flush()
-        org.industry, org.installed_apps = t["industry"], sorted(INDUSTRY_BY_KEY[t["industry"]]["apps"])
+        if not (t.get("existing") and org.installed_apps):
+            org.industry, org.installed_apps = t["industry"], sorted(INDUSTRY_BY_KEY[t["industry"]]["apps"])
         people = {}
         if t.get("admin"):
             people["admin"] = User(organization_id=org.id, full_name=t["admin"]["name"], email=t["admin"]["email"], password_hash=pw, role=Role.admin)

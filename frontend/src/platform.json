@@ -4,98 +4,98 @@
    "key": "projects",
    "name": "Projects and M&E",
    "tagline": "Promises, work, proof and pace",
-   "color": "#E85D84",
+   "color": "#2F5BE8",
    "icon": "target"
   },
   {
    "key": "forms",
    "name": "Data collection",
    "tagline": "Surveys and registers with live charts",
-   "color": "#FF8A65",
+   "color": "#7C6CF2",
    "icon": "clipboard"
   },
   {
    "key": "events",
    "name": "Events",
    "tagline": "Every event gets its own attendance form",
-   "color": "#FFB570",
+   "color": "#F5A524",
    "icon": "calendar"
   },
   {
    "key": "funding",
    "name": "Funding",
    "tagline": "Grants pipeline, donations, income",
-   "color": "#F48FB1",
+   "color": "#A3284F",
    "icon": "heart"
   },
   {
    "key": "finance",
    "name": "Budgets and expenses",
    "tagline": "Approvals, receipts, budget vs actual",
-   "color": "#FF9E80",
+   "color": "#1B3487",
    "icon": "wallet"
   },
   {
    "key": "sales",
    "name": "Sales and invoicing",
    "tagline": "Customers, invoices, overdue alerts",
-   "color": "#F6A5C0",
+   "color": "#3FA7D6",
    "icon": "receipt"
   },
   {
    "key": "procurement",
    "name": "Procurement",
    "tagline": "Request, approve, order, receive",
-   "color": "#FFCC80",
+   "color": "#D97706",
    "icon": "cart"
   },
   {
    "key": "inventory",
    "name": "Inventory and assets",
    "tagline": "Stock levels and equipment",
-   "color": "#FFAB91",
+   "color": "#5B6CB8",
    "icon": "box"
   },
   {
    "key": "bookings",
    "name": "Bookings",
    "tagline": "Rooms and venues, no double-booking",
-   "color": "#F8BBD0",
+   "color": "#E07AA0",
    "icon": "key"
   },
   {
    "key": "people",
    "name": "People",
    "tagline": "Volunteers, hours and leave",
-   "color": "#FF8FA3",
+   "color": "#2563EB",
    "icon": "users"
   },
   {
    "key": "participants",
    "name": "Participant registry",
    "tagline": "Anonymised, disaggregated reach",
-   "color": "#FFB199",
+   "color": "#0EA5E9",
    "icon": "id"
   },
   {
    "key": "documents",
    "name": "Documents",
    "tagline": "Contracts and certificates with expiry",
-   "color": "#FFD3A5",
+   "color": "#64748B",
    "icon": "file"
   },
   {
    "key": "governance",
    "name": "Governance",
    "tagline": "Meetings, decisions, actions",
-   "color": "#E7A1B0",
+   "color": "#7A1C3A",
    "icon": "gavel"
   },
   {
    "key": "website",
    "name": "Website",
    "tagline": "Your public site, live numbers, inquiries",
-   "color": "#FF7E67",
+   "color": "#F2B705",
    "icon": "globe"
   }
  ],
@@ -198,6 +198,18 @@
   }
  ],
  "palettes": {
+  "royal": {
+   "name": "Royal",
+   "primary": "#2F5BE8",
+   "accent": "#FFC53D",
+   "colors": [
+    "#0F1E46",
+    "#2F5BE8",
+    "#5BB6F8",
+    "#FFC53D",
+    "#F5F7FB"
+   ]
+  },
   "blossom": {
    "name": "Blossom",
    "primary": "#C93A63",

@@ -25,7 +25,7 @@ export function FormsList() {
       {loading && !data ? <Loading /> : !data.length ? <div className="panel"><Empty title="No forms yet" action={can.manage && <Link className="btn btn-primary" to="/app/forms/new">Build your first form</Link>} /></div> : (
         <div className="tile-grid">
           {data.map((f, i) => (
-            <div key={f.id} className="tile" style={{ borderTop: `5px solid ${PALETTE[i % PALETTE.length]}` }}>
+            <div key={f.id} className="tile">
               <div className="spread" style={{ alignItems: "flex-start" }}>
                 <div className="stack-sm" style={{ gap: 2 }}><b style={{ fontSize: 17 }}>{f.title}</b><span className="small muted">{f.project_name || "No programme"} · {f.fields.length} questions</span></div>
                 <span className="chip-tone" style={{ background: f.is_public ? "#E3F3EA" : "var(--stone)", color: f.is_public ? "var(--ok)" : "var(--slate)" }}>{f.is_public ? "Public link" : "Staff only"}</span>
@@ -95,7 +95,7 @@ export function FormBuilder() {
             <label className="row" style={{ gap: 10 }}><input type="checkbox" checked={form.is_public} onChange={(e) => setForm({ ...form, is_public: e.target.checked })} style={{ width: 18, height: 18 }} /><span><b>Public link</b> <span className="muted">anyone with the link can respond, no sign-in</span></span></label>
           </section>
           {form.fields.map((q, i) => (
-            <section key={i} className="q-card" style={{ borderLeft: `5px solid ${PALETTE[i % PALETTE.length]}` }}>
+            <section key={i} className="q-card">
               <div className="spread">
                 <b>Question {i + 1}</b>
                 <div className="row">
@@ -178,9 +178,9 @@ export function FormDetail() {
         <div className="stack-sm" style={{ gap: 2 }}><span className="muted small">{f.project_name || "Data collection"}</span><h1>{f.title}</h1><span className="muted">{fmtNum(f.responses)} responses · {f.fields.length} questions · {f.is_public ? "public link on" : "staff only"}</span></div>
         <div className="row wrap">
           <button className="btn btn-accent" onClick={() => setTab("collect")}>+ Add response</button>
-          <button className="btn" style={{ background: "rgba(255,255,255,.12)", color: "#fff" }} onClick={csv}>Export CSV</button>
-          {can.manage && <Link className="btn" style={{ background: "rgba(255,255,255,.12)", color: "#fff" }} to={`/app/forms/${id}/edit`}>Edit</Link>}
-          {can.admin && <button className="btn" style={{ background: "rgba(255,255,255,.12)", color: "#fff" }} onClick={del}>Delete</button>}
+          <button className="btn" onClick={csv}>Export CSV</button>
+          {can.manage && <Link className="btn" to={`/app/forms/${id}/edit`}>Edit</Link>}
+          {can.admin && <button className="btn" onClick={del}>Delete</button>}
         </div>
       </div>
       <div className="tabs" role="tablist">
@@ -231,10 +231,10 @@ function QuestionChart({ q, rows, color }) {
   } else if (q.type === "rating") {
     const avg = vals.reduce((s, v) => s + Number(v), 0) / (n || 1);
     body = <><div className="row" style={{ gap: 10 }}><b style={{ fontSize: 30, color }}>{avg.toFixed(1)}</b><span style={{ color: "var(--accent)", fontSize: 20 }}>{"★".repeat(Math.round(avg))}<span style={{ color: "#D5DBD7" }}>{"★".repeat(5 - Math.round(avg))}</span></span><span className="muted small">average of {n}</span></div>
-      <Columns data={[1, 2, 3, 4, 5].map((k) => ({ label: `${k}★`, value: vals.filter((v) => Number(v) === k).length }))} colors={["#F6C1CE", "#F7A6B8", "#F48AA2", "#EC6C8E", "#C93A63"]} format={fmtNum} height={150} /></>;
+      <Columns data={[1, 2, 3, 4, 5].map((k) => ({ label: `${k}★`, value: vals.filter((v) => Number(v) === k).length }))} colors={["#C9D3EA", "#9DB3F6", "#6E8DF0", "#2F5BE8", "#1B3487"]} format={fmtNum} height={150} /></>;
   } else if (q.type === "yesno") {
     const yes = vals.filter((v) => v === true).length;
-    body = <Donut data={[{ label: "Yes", value: yes }, { label: "No", value: n - yes }]} colors={["#E85D84", "#F6E0DA"]} size={140} center={`${n ? Math.round((yes / n) * 100) : 0}%`} sub="said yes" />;
+    body = <Donut data={[{ label: "Yes", value: yes }, { label: "No", value: n - yes }]} colors={["#2F5BE8", "#C9D3EA"]} size={140} center={`${n ? Math.round((yes / n) * 100) : 0}%`} sub="said yes" />;
   } else if (q.type === "number") {
     const ns = vals.map(Number); const mn = Math.min(...ns), mx = Math.max(...ns), avg = ns.reduce((s, v) => s + v, 0) / (n || 1);
     const step = (mx - mn) / 5 || 1;
@@ -244,7 +244,7 @@ function QuestionChart({ q, rows, color }) {
     body = <div className="stack-sm">{vals.slice(0, 6).map((v, k) => <div key={k} style={{ background: "var(--stone)", borderRadius: 8, padding: "8px 12px", fontSize: 14 }}>“{String(v)}”</div>)}{n > 6 && <span className="small muted">+{n - 6} more in Responses</span>}</div>;
   }
   return (
-    <section className="panel panel-body stack-sm" style={{ borderTop: `4px solid ${color}` }}>
+    <section className="panel panel-body stack-sm">
       <div className="spread" style={{ alignItems: "flex-start" }}><b style={{ fontSize: 15 }}>{q.label}</b><span className="small muted">{n} answers</span></div>
       {n ? body : <span className="small muted">No answers yet.</span>}
     </section>
@@ -306,7 +306,7 @@ export function PublicForm() {
     catch (e) { setState({ busy: false, err: e, done: false }); }
   };
   return (
-    <div style={{ minHeight: "100%", background: `linear-gradient(160deg, ${f.brand.primary} 0 260px, #FFF8F4 260px)`, padding: "40px 16px" }}>
+    <div style={{ minHeight: "100%", background: `linear-gradient(160deg, ${f.brand.primary} 0 260px, var(--bg) 260px)`, padding: "40px 16px" }}>
       <div style={{ maxWidth: 640, margin: "0 auto" }} className="stack">
         <div className="stack-sm" style={{ color: "#fff" }}><span style={{ color: f.brand.accent, fontWeight: 700 }}>{f.organization}</span><h1 style={{ fontSize: 30, fontWeight: 800 }}>{f.title}</h1>{f.description && <span style={{ opacity: .85 }}>{f.description}</span>}</div>
         <section className="panel panel-body stack" style={{ boxShadow: "var(--shadow-float)" }}>

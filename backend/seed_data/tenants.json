@@ -2,6 +2,56 @@
  "tenants": [
   {
    "organization": {
+    "name": "Tumaini Community Network",
+    "sector": "Community development"
+   },
+   "industry": "community",
+   "existing": true,
+   "featured": 2,
+   "site_settings": {
+    "slug": "tumaini",
+    "tagline": "Farming futures for Machakos women",
+    "intro": "A fictional community network training women farmers, delivering seed kits and building savings groups across Machakos.",
+    "about": "Groups of 30 women meet weekly with a trained facilitator. Every input is tracked to the household.",
+    "location": "Machakos County, Kenya",
+    "contact_email": "hello@tumaini.example",
+    "phone": "+254 700 000 111",
+    "address": "Machakos town, Machakos County",
+    "map_query": "Machakos, Kenya",
+    "brand_primary": "#2F7D4F",
+    "brand_accent": "#E9B949",
+    "brand_deep": "#1D4A30",
+    "show_impact": true,
+    "mission": "Every woman farmer earns a living income.",
+    "vision": "Thriving, food-secure rural households in Machakos."
+   },
+   "site_services": [
+    {
+     "title": "Agribusiness training",
+     "icon": "training",
+     "order": 1,
+     "published": true,
+     "description": "Eight-session course on soil, storage and selling."
+    },
+    {
+     "title": "Seed kits",
+     "icon": "environment",
+     "order": 2,
+     "published": true,
+     "description": "Certified drought-tolerant seed for each household."
+    },
+    {
+     "title": "Savings groups",
+     "icon": "dialogue",
+     "order": 3,
+     "published": true,
+     "description": "Village savings and loans with simple bookkeeping."
+    }
+   ],
+   "modules": {}
+  },
+  {
+   "organization": {
     "name": "Mwangaza Creative Studio",
     "sector": "Creative agency"
    },
@@ -113,7 +163,8 @@
       "_status": "planned"
      }
     ]
-   }
+   },
+   "featured": 4
   },
   {
    "organization": {
@@ -335,7 +386,8 @@
       "_status": "planned"
      }
     ]
-   }
+   },
+   "featured": 3
   },
   {
    "organization": {
@@ -462,7 +514,8 @@
       "_status": "sent"
      }
     ]
-   }
+   },
+   "featured": 5
   }
  ]
 }

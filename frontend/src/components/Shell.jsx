@@ -4,7 +4,7 @@ import { api, PREVIEW } from "../api";
 import { useAuth } from "../auth";
 import { initials } from "../format";
 import { GROUP_COLOR, MODS, NAV } from "../modules";
-import { applyBrand } from "../theme";
+import ThemeToggle from "./ThemeToggle";
 
 const I = {
   overview: "M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z",
@@ -23,8 +23,8 @@ const I = {
 const Icon = ({ d }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
 export const Logo = ({ size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-    <defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#E85D84" /><stop offset="1" stopColor="#FFB570" /></linearGradient></defs>
-    <rect width="24" height="24" rx="7" fill="url(#kg)" /><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+    <defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#2F5BE8" /><stop offset="1" stopColor="#1B3487" /></linearGradient></defs>
+    <rect width="24" height="24" rx="7" fill="url(#kg)" /><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /><circle cx="18.5" cy="5.5" r="2.4" fill="#FFC53D" />
   </svg>
 );
 export const SITE_HOME = (slug) => `/site/${slug}`;
@@ -39,7 +39,7 @@ function Links({ openFlags, approvals, admin, onNavigate, installed, siteSlug })
   const [open, setOpen] = useState({});
   return (
     <>
-      <L to="/app" end><Icon d={I.overview} />Overview</L>
+      <L to="/app" end><Icon d={I.overview} />Home</L>
       <L to="/app/attention"><Icon d={I.attention} />Attention{openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</L>
       <L to="/app/approvals"><Icon d={I.check} />Approvals{approvals > 0 && <span className="nav-badge" style={{ background: "var(--accent)", color: "var(--accent-ink)" }}>{approvals}</span>}</L>
       <L to="/app/calendar"><Icon d={I.calendar} />Calendar</L>
@@ -79,11 +79,13 @@ export default function Shell() {
   const [menu, setMenu] = useState(false);
   const [search, setSearch] = useState(false);
   const [siteSlug, setSiteSlug] = useState(null);
+  const [orgColor, setOrgColor] = useState("#2F5BE8");
   const installed = user.organization.installed_apps || [];
   useEffect(() => {
     if (installed.includes("website")) {
-      api("/m/site_settings", { params: { page_size: 1 } }).then((d) => { const st = d.items[0]; setSiteSlug(st?.slug || null); applyBrand(st?.brand_primary, st?.brand_accent); }).catch(() => applyBrand());
-    } else applyBrand();
+      // The workspace always wears Kept's brand; the organization's own colour only marks its logo.
+      api("/m/site_settings", { params: { page_size: 1 } }).then((d) => { const st = d.items[0]; setSiteSlug(st?.slug || null); if (st?.brand_primary) setOrgColor(st.brand_primary); }).catch(() => {});
+    }
     const load = () => {
       api("/flags").then((d) => setOpenFlags(d.items.length)).catch(() => {});
       api("/approvals").then((d) => setApprovals(d.length)).catch(() => {});
@@ -99,8 +101,8 @@ export default function Shell() {
   return (
     <div className="shell">
       <aside className={"sidebar" + (menu ? " open" : "")} aria-label="Main">
-        <Link className="brand" to="/app"><Logo />Kept</Link>
-        <div className="org-chip"><span className="logo">{initials(user.organization.name)}</span><span style={{ minWidth: 0 }}><b style={{ fontSize: 14, display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.organization.name}</b><span className="small muted" style={{ textTransform: "capitalize" }}>{installed.length} apps</span></span></div>
+        <Link className="brand" to="/app"><Logo size={28} />Kept</Link>
+        <div className="org-chip"><span className="logo" style={{ background: orgColor }}>{initials(user.organization.name)}</span><span style={{ minWidth: 0 }}><b style={{ fontSize: 14, display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.organization.name}</b><span className="small muted" style={{ textTransform: "capitalize" }}>{installed.length} apps</span></span></div>
         <nav className="stack-sm side-scroll" style={{ gap: 2 }} aria-label="Sections"><Links {...linkProps} onNavigate={() => setMenu(false)} /></nav>
         <div className="user-box">
           <span className="avatar">{initials(user.full_name)}</span>
@@ -114,15 +116,19 @@ export default function Shell() {
       <nav className="topbar" aria-label="Quick links">
         <button className="btn btn-quiet" onClick={() => setMenu(true)} aria-label="Open menu"><Icon d="M4 6h16M4 12h16M4 18h16" /></button>
         <Link className="brand" to="/app" style={{ padding: "0 8px" }} aria-label="Kept home"><Logo size={22} /></Link>
-        <NavLink to="/app" end className="nav-link">Overview</NavLink>
+        <NavLink to="/app" end className="nav-link">Home</NavLink>
         <NavLink to="/app/attention" className="nav-link">Attention {openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</NavLink>
+        <span style={{ flex: 1 }} />
         <button className="btn btn-quiet" onClick={() => setSearch(true)} aria-label="Search"><Icon d={I.search} /></button>
+        <ThemeToggle />
       </nav>
       {menu && <div className="overlay" style={{ zIndex: 29, padding: 0 }} onClick={() => setMenu(false)} />}
       <main className="main" id="main">
-        <div className="row no-print" style={{ gap: 12 }}>
+        <div className="appbar no-print">
           <button className="searchbar" onClick={() => setSearch(true)}><Icon d={I.search} />Search everything<kbd>Ctrl K</kbd></button>
+          <span style={{ flex: 1 }} />
           {PREVIEW && <PreviewBar />}
+          <span className="hide-md"><ThemeToggle /></span>
         </div>
         <Outlet />
       </main>
@@ -179,7 +185,7 @@ function PreviewBar() {
   };
   return (
     <div className="row" style={{ gap: 8, marginLeft: "auto" }}>
-      <span className="chip-tone" style={{ background: "var(--accent-tint)", color: "var(--accent-ink)" }}>Live demo · 13 Oct 2026</span>
+      <span className="chip-tone hide-sm" style={{ background: "var(--accent-tint)", color: "var(--accent-ink)" }}>Live demo · 13 Oct 2026</span>
       <button className="btn" onClick={() => { signOut(); nav("/login"); }}>Switch account</button>
       <button className="btn btn-quiet" onClick={reset}>Reset</button>
     </div>

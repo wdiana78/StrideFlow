@@ -712,7 +712,7 @@
     "about": "We work through young people: peer educators, ward dialogues, school clubs and volunteers who know their communities. We champion comprehensive sexual health education, work against gender-based violence, plant and protect indigenous trees, and push for public spaces everyone can use.",
     "location": "Kilifi County, Kenya",
     "contact_email": "youthtimiza@gmail.com",
-    "phone": "",
+    "phone": "+254 727 721 896",
     "facebook": "Timiza Youth Initiative",
     "twitter": "@TimizaYouth",
     "instagram": "@timizayouth",
@@ -720,11 +720,13 @@
     "mission": "To empower young people in Kilifi to lead change in health, gender equality, peace, climate action and disability inclusion.",
     "vision": "A healthy, safe and inclusive Kilifi County where every young person thrives.",
     "founded": "Youth-led CBO, Kilifi County",
-    "address": "Kilifi town, Kilifi County, Kenya",
-    "brand_primary": "#C93A63",
-    "brand_accent": "#FF9F68",
+    "address": "Kibaoni, Kilifi estate, Kilifi County",
+    "brand_primary": "#D6336C",
+    "brand_accent": "#F28C38",
     "donation_campaign": "Fund 1,000 more young people this year",
-    "donation_goal": 500000
+    "donation_goal": 500000,
+    "brand_deep": "#7A1C3A",
+    "map_query": "Kibaoni, Kilifi, Kenya"
    }
   ],
   "site_programmes": [
@@ -2046,6 +2048,72 @@
     "project_id": "Disability Inclusion",
     "reference": "DN-44AA55BB",
     "_status": "pending"
+   }
+  ],
+  "site_gallery": [
+   {
+    "caption": "Peer educators at the Mtwapa market health desk",
+    "project_id": "Health Advocacy",
+    "taken_on": "2026-08-29",
+    "place": "Mtwapa",
+    "published": true,
+    "order": 1
+   },
+   {
+    "caption": "Ward dialogue on GBV, Watamu social hall",
+    "project_id": "Gender, Peace and Security",
+    "taken_on": "2026-10-02",
+    "place": "Watamu",
+    "published": true,
+    "order": 2
+   },
+   {
+    "caption": "Planting indigenous seedlings at Kilifi creek",
+    "project_id": "Climate Change",
+    "taken_on": "2026-07-12",
+    "place": "Kilifi creek",
+    "published": true,
+    "order": 3
+   },
+   {
+    "caption": "Accessibility audit at a Kilifi North health centre",
+    "project_id": "Disability Inclusion",
+    "taken_on": "2026-09-10",
+    "place": "Kilifi North",
+    "published": true,
+    "order": 4
+   },
+   {
+    "caption": "Youth health day crowd, Kilifi town grounds",
+    "project_id": "Health Advocacy",
+    "taken_on": "2026-07-18",
+    "place": "Kilifi town",
+    "published": true,
+    "order": 5
+   },
+   {
+    "caption": "Climate club members, Kaloleni Secondary",
+    "project_id": "Climate Change",
+    "taken_on": "2026-10-06",
+    "place": "Kaloleni",
+    "published": true,
+    "order": 6
+   },
+   {
+    "caption": "Peer educator training, cohort 2",
+    "project_id": "Health Advocacy",
+    "taken_on": "2026-09-11",
+    "place": "Timiza office",
+    "published": true,
+    "order": 7
+   },
+   {
+    "caption": "Boda riders join the referral network",
+    "project_id": "Gender, Peace and Security",
+    "taken_on": "2026-10-02",
+    "place": "Watamu",
+    "published": true,
+    "order": 8
    }
   ]
  },

@@ -17,7 +17,7 @@ export const APP_ICONS = {
 };
 export function AppIcon({ app, size = 52 }) {
   return (
-    <span style={{ width: size, height: size, borderRadius: size * 0.3, background: `linear-gradient(135deg, ${app.color}, ${app.color}AA)`, display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: `0 8px 18px ${app.color}55`, flex: `0 0 ${size}px` }}>
+    <span style={{ width: size, height: size, borderRadius: size * 0.28, background: `linear-gradient(145deg, ${app.color}, color-mix(in srgb, ${app.color} 70%, #0F1E46))`, display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: `0 6px 14px color-mix(in srgb, ${app.color} 35%, transparent)`, flex: `0 0 ${size}px` }}>
       <svg width={size * 0.5} height={size * 0.5} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={APP_ICONS[app.icon] || APP_ICONS.box} /></svg>
     </span>
   );
@@ -51,7 +51,7 @@ export default function Apps() {
       <ErrorNotice error={err} />
       <div className="tile-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))" }}>
         {apps.map((a) => (
-          <div key={a.key} className="tile" style={{ gap: 12, background: a.installed ? `linear-gradient(160deg, ${a.color}18, #fff 55%)` : "#fff" }}>
+          <div key={a.key} className="tile" style={{ gap: 12, background: "var(--surface)" }}>
             <div className="row" style={{ gap: 14, alignItems: "flex-start" }}>
               <AppIcon app={a} />
               <div className="stack-sm" style={{ gap: 2, flex: 1 }}>
@@ -61,7 +61,7 @@ export default function Apps() {
             </div>
             <div className="row wrap" style={{ gap: 6 }}>{a.modules.map((m) => <span key={m.key} className="chip-tone" style={{ background: "var(--stone)", color: "var(--ink-2)", fontWeight: 500 }}>{m.label}</span>)}</div>
             <div className="row" style={{ marginTop: "auto" }}>
-              {a.installed ? <span className="chip-tone" style={{ background: "#E2F3EC", color: "var(--ok)" }}>✓ Installed</span> : <span className="chip-tone" style={{ background: "var(--stone)", color: "var(--slate)" }}>Not installed</span>}
+              {a.installed ? <span className="chip-tone" style={{ background: "var(--ok-tint)", color: "var(--ok)" }}>✓ Installed</span> : <span className="chip-tone" style={{ background: "var(--stone)", color: "var(--slate)" }}>Not installed</span>}
               {a.installed && a.modules[0] && <Link className="btn btn-ghost" style={{ marginLeft: "auto" }} to={`/app/m/${a.modules[0].key}`}>Open</Link>}
               {can.admin && <button className={"btn " + (a.installed ? "btn-ghost-danger" : "btn-primary")} style={{ marginLeft: a.installed && a.modules[0] ? 0 : "auto" }} disabled={busy === a.key} onClick={() => toggle(a)}>{busy === a.key ? "…" : a.installed ? "Remove" : "Install"}</button>}
             </div>

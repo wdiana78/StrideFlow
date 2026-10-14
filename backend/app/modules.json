@@ -2420,6 +2420,16 @@
      "key": "donation_goal",
      "label": "Donation goal",
      "type": "money"
+    },
+    {
+     "key": "map_query",
+     "label": "Map location",
+     "type": "text"
+    },
+    {
+     "key": "brand_deep",
+     "label": "Deep brand colour",
+     "type": "color"
     }
    ],
    "create": [
@@ -3172,6 +3182,72 @@
     "admin",
     "manager",
     "member"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ]
+  },
+  {
+   "key": "site_gallery",
+   "app": "website",
+   "label": "Gallery",
+   "singular": "Photo",
+   "group": "Website",
+   "description": "Photos for the public gallery.",
+   "title_field": "caption",
+   "fields": [
+    {
+     "key": "caption",
+     "label": "Caption",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "photo",
+     "label": "Photo",
+     "type": "file"
+    },
+    {
+     "key": "project_id",
+     "label": "Programme",
+     "type": "ref",
+     "ref": "projects",
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "taken_on",
+     "label": "Date",
+     "type": "date",
+     "list": true
+    },
+    {
+     "key": "place",
+     "label": "Place",
+     "type": "text",
+     "list": true
+    },
+    {
+     "key": "published",
+     "label": "Published",
+     "type": "bool",
+     "list": true
+    },
+    {
+     "key": "order",
+     "label": "Order",
+     "type": "number"
+    }
+   ],
+   "create": [
+    "admin",
+    "manager"
    ],
    "edit": [
     "admin",

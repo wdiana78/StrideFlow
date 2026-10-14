@@ -3,133 +3,268 @@ import { Link, useNavigate } from "react-router-dom";
 import { api, PREVIEW } from "../api";
 import { useAuth } from "../auth";
 import { Logo } from "../components/Shell";
+import ThemeToggle from "../components/ThemeToggle";
 import { useApi } from "../hooks";
 import PLATFORM from "../platform.json";
 import { AppIcon } from "./Apps";
 import { INDUSTRY_EMOJI } from "./Auth";
 
-const DEMO = { timiza: "zawadi@timiza.example", mwangaza: "wairimu@mwangaza.example", hatua: "wanjiru@hatua.example", pwani: "rehema@pwani.example" };
-const go = (id) => (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
-const H = ({ eyebrow, children }) => (
-  <div className="stack-sm" style={{ gap: 6, alignItems: "center", textAlign: "center" }}>
-    <span className="chip-tone" style={{ background: "var(--cobalt-tint)", color: "var(--cobalt-dark)" }}>{eyebrow}</span>
-    <h2 style={{ fontSize: "clamp(30px, 3.6vw, 46px)", lineHeight: 1.08, fontWeight: 800, letterSpacing: "-1px", maxWidth: 760 }}>{children}</h2>
+const DEMO = { timiza: "zawadi@timiza.example", tumaini: "achieng@tumaini.example", hatua: "wanjiru@hatua.example", mwangaza: "wairimu@mwangaza.example", pwani: "rehema@pwani.example" };
+const go = (id, after) => (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); after?.(); };
+const NAVS = [["product", "Product"], ["how", "How it works"], ["industries", "Industries"], ["customers", "Customers"], ["faq", "FAQ"]];
+const Title = ({ eyebrow, children, sub, center = true }) => (
+  <div className="stack-sm" style={{ gap: 10, alignItems: center ? "center" : "flex-start", textAlign: center ? "center" : "left" }}>
+    <span className="eyebrow">{eyebrow}</span>
+    <h2 style={{ fontSize: "clamp(30px, 3.6vw, 44px)", lineHeight: 1.1, fontWeight: 800, letterSpacing: "-1.2px", maxWidth: 780 }}>{children}</h2>
+    {sub && <p className="muted" style={{ fontSize: 18, lineHeight: "28px", maxWidth: 640 }}>{sub}</p>}
   </div>
 );
+
+function ProductMock() {
+  const bars = [42, 64, 50, 78, 70, 92];
+  return (
+    <div aria-hidden="true" style={{ color: "var(--ink)", borderRadius: 18, background: "var(--surface)", border: "1px solid var(--rule)", boxShadow: "0 30px 80px rgba(15,30,70,.35)", overflow: "hidden", minWidth: 0 }}>
+      <div className="row" style={{ gap: 6, padding: "10px 14px", borderBottom: "1px solid var(--rule)", background: "var(--surface-2)" }}>
+        {["#FF5F57", "#FEBC2E", "#28C840"].map((c) => <span key={c} style={{ width: 10, height: 10, borderRadius: 5, background: c }} />)}
+        <span className="small muted" style={{ marginLeft: 10 }}>kept.africa/app</span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", minHeight: 300 }}>
+        <div className="stack-sm" style={{ padding: 12, gap: 6, borderRight: "1px solid var(--rule)" }}>
+          {["Home", "Attention", "Projects", "Finance", "Sales", "Website"].map((l, i) => <span key={l} style={{ fontSize: 11.5, fontWeight: 600, padding: "6px 8px", borderRadius: 6, background: i === 0 ? "var(--cobalt-tint)" : "transparent", color: i === 0 ? "var(--cobalt-dark)" : "var(--slate)" }}>{l}</span>)}
+        </div>
+        <div className="stack-sm" style={{ padding: 14, gap: 10 }}>
+          <div style={{ borderRadius: 10, padding: "12px 14px", color: "#fff", background: "linear-gradient(120deg,#0F1E46,#2F5BE8)" }}><b style={{ fontSize: 14 }}>Habari, Zawadi</b><div style={{ fontSize: 11, opacity: .8 }}>9 items need you today</div></div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+            {[["Budget used", "45%", "#2F5BE8"], ["Raised", "KES 4.1M", "#F5A524"], ["Reach", "1,026", "#A3284F"]].map(([l, v, c]) => (
+              <div key={l} style={{ border: "1px solid var(--rule)", borderRadius: 8, padding: 8 }}><span style={{ fontSize: 10, color: "var(--slate)" }}>{l}</span><b style={{ display: "block", fontSize: 15, color: c }}>{v}</b></div>
+            ))}
+          </div>
+          <div style={{ border: "1px solid var(--rule)", borderRadius: 8, padding: 10, display: "flex", alignItems: "flex-end", gap: 8, height: 110 }}>
+            {bars.map((h, i) => <span key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 4, background: i === bars.length - 1 ? "#FFC53D" : "#2F5BE8", opacity: i === bars.length - 1 ? 1 : .35 + i * .1 }} />)}
+          </div>
+          {["Transport budget 108% used", "GBV referral MoU expired"].map((t, i) => <div key={t} className="row" style={{ gap: 8, fontSize: 11.5, padding: "6px 8px", borderRadius: 6, background: i ? "var(--maroon-tint)" : "var(--accent-tint)" }}><span className="dot" style={{ background: i ? "#A3284F" : "#F5A524" }} />{t}</div>)}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Landing() {
   const { user, signIn } = useAuth();
   const nav = useNavigate();
   const [ind, setInd] = useState("community");
+  const [menu, setMenu] = useState(false);
+  const [faq, setFaq] = useState(0);
   const { data: showcase } = useApi("/platform/showcase");
   const apps = Object.fromEntries(PLATFORM.apps.map((a) => [a.key, a]));
   const current = PLATFORM.industries.find((i) => i.key === ind);
+  const featured = (showcase || []).filter((s) => ["timiza", "tumaini", "hatua"].includes(s.slug));
+  const more = (showcase || []).filter((s) => !["timiza", "tumaini", "hatua"].includes(s.slug));
   const explore = async (slug) => {
     if (!PREVIEW || !DEMO[slug]) { nav("/login"); return; }
     signIn(await api("/auth/login", { method: "POST", body: { email: DEMO[slug], password: "kept-demo-2026" } })); nav("/app");
   };
   return (
-    <div style={{ background: "#FFF8F4", minHeight: "100%" }}>
-      <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(255,248,244,.85)", backdropFilter: "blur(10px)", borderBottom: "1px solid var(--rule)" }}>
-        <div className="container spread" style={{ padding: "14px 32px" }}>
-          <Link to="/" className="brand" style={{ padding: 0, fontSize: 22 }}><Logo size={30} />Kept</Link>
-          <nav className="row wrap" style={{ gap: 6 }} aria-label="Site">
-            {[["apps", "Apps"], ["industries", "Industries"], ["customers", "Customers"]].map(([id, l]) => <a key={id} href={`#${id}`} onClick={go(id)} className="site-link" style={{ color: "var(--ink)" }}>{l}</a>)}
-            {user ? <Link className="btn btn-primary" to="/app">Open workspace</Link> : <><Link className="btn btn-ghost" to="/login">Sign in</Link><Link className="btn btn-primary" to="/register">Start free</Link></>}
+    <div style={{ background: "var(--bg)", minHeight: "100%" }}>
+      {/* ---------- header ---------- */}
+      <header style={{ position: "sticky", top: 0, zIndex: 30, background: "color-mix(in srgb, var(--bg) 85%, transparent)", backdropFilter: "blur(12px)", borderBottom: "1px solid var(--rule)" }}>
+        <div className="container spread" style={{ padding: "12px 32px", flexWrap: "nowrap" }}>
+          <Link to="/" className="brand" style={{ padding: 0, fontSize: 22 }}><Logo size={32} />Kept</Link>
+          <nav className="row mk-nav" style={{ gap: 2 }} aria-label="Main">
+            {NAVS.map(([id, l]) => <a key={id} href={`#${id}`} onClick={go(id)} className="mk-link">{l}</a>)}
           </nav>
+          <div className="row" style={{ gap: 8 }}>
+            <ThemeToggle />
+            {user ? <Link className="btn btn-primary" to="/app">Open workspace</Link> : <><Link className="btn btn-ghost hide-sm" to="/login">Sign in</Link><Link className="btn btn-primary hide-xs" to="/register">Start free</Link></>}
+            <button className="btn btn-icon mk-menu" aria-label="Menu" aria-expanded={menu} onClick={() => setMenu(!menu)}>☰</button>
+          </div>
         </div>
+        {menu && (
+          <nav className="container stack-sm" style={{ padding: "8px 18px 18px" }} aria-label="Mobile">
+            {NAVS.map(([id, l]) => <a key={id} href={`#${id}`} onClick={go(id, () => setMenu(false))} className="mk-link">{l}</a>)}
+            {!user && <><Link className="mk-link" to="/login">Sign in</Link><Link className="btn btn-primary" to="/register" style={{ justifyContent: "center" }}>Start free</Link></>}
+          </nav>
+        )}
       </header>
 
-      <section style={{ background: "radial-gradient(800px 420px at 85% 10%, #FFE0CC 0%, transparent 60%), radial-gradient(700px 400px at 0% 100%, #FCD5E0 0%, transparent 60%)" }}>
-        <div className="container" style={{ padding: "80px 32px 90px", display: "flex", flexWrap: "wrap", gap: 56, alignItems: "center" }}>
-          <div className="stack" style={{ flex: "1 1 480px", gap: 24 }}>
-            <span className="chip-tone" style={{ background: "#fff", color: "var(--cobalt-dark)", alignSelf: "flex-start", boxShadow: "var(--shadow-soft)" }}>✨ Made in Nairobi for African organizations</span>
-            <h1 style={{ fontSize: "clamp(44px, 5.8vw, 76px)", lineHeight: 1.0, fontWeight: 800, letterSpacing: "-2.2px" }}>
-              One workspace.<br /><span style={{ background: "linear-gradient(90deg, #E85D84, #FF8A65, #FFB570)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Every part of your organization.</span>
+      {/* ---------- hero ---------- */}
+      <section style={{ position: "relative", overflow: "hidden", color: "#fff", background: "radial-gradient(900px 500px at 85% -10%, rgba(91,182,248,.35), transparent 60%), radial-gradient(700px 400px at -10% 110%, rgba(255,197,61,.22), transparent 60%), linear-gradient(160deg, #0B1636 0%, #0F1E46 45%, #1B3487 100%)" }}>
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px)", backgroundSize: "48px 48px", maskImage: "radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%)", WebkitMaskImage: "radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%)" }} />
+        <div className="container" style={{ position: "relative", padding: "88px 32px 100px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 440px), 1fr))", gap: 56, alignItems: "center" }}>
+          <div className="stack" style={{ gap: 24 }}>
+            <span className="eyebrow" style={{ background: "rgba(255,255,255,.1)", color: "#FFD873", alignSelf: "flex-start", border: "1px solid rgba(255,255,255,.15)" }}>★ Built in Nairobi for African organizations</span>
+            <h1 style={{ fontSize: "clamp(40px, 5.6vw, 70px)", lineHeight: 1.02, fontWeight: 800, letterSpacing: "-2px" }}>
+              Run your organization <span style={{ color: "#FFC53D" }}>and</span> its website from one place.
             </h1>
-            <p style={{ fontSize: 20, lineHeight: "31px", color: "var(--ink-2)", maxWidth: 540 }}>Pick your industry, install the apps you need, and get a branded website that updates itself.</p>
-            <div className="row wrap">
-              <Link className="btn btn-primary btn-lg" to="/register">Start free</Link>
-              <a className="btn btn-lg" href="#customers" onClick={go("customers")}>See live examples</a>
+            <p style={{ fontSize: 19, lineHeight: "30px", color: "rgba(255,255,255,.8)", maxWidth: 540 }}>Pick your industry, install the apps you need, and publish a website whose numbers update themselves.</p>
+            <div className="row wrap" style={{ gap: 12 }}>
+              <Link className="btn btn-lg btn-accent" to="/register">Start free</Link>
+              <a className="btn btn-lg" href="#customers" onClick={go("customers")} style={{ background: "rgba(255,255,255,.08)", color: "#fff", borderColor: "rgba(255,255,255,.25)" }}>See live examples →</a>
+            </div>
+            <div className="row wrap" style={{ gap: 22, color: "rgba(255,255,255,.7)", fontSize: 14 }}>
+              <span>✓ M-Pesa donations</span><span>✓ Works on any phone</span><span>✓ Light and dark mode</span>
             </div>
           </div>
-          <div style={{ flex: "1 1 420px", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, padding: 24, borderRadius: 28, background: "rgba(255,255,255,.6)", border: "1px solid #fff", boxShadow: "var(--shadow-float)" }}>
-            {PLATFORM.apps.slice(0, 12).map((a) => (
-              <div key={a.key} className="stack-sm" style={{ alignItems: "center", gap: 6, textAlign: "center" }}>
-                <AppIcon app={a} size={56} /><span className="small" style={{ fontWeight: 600, lineHeight: "15px" }}>{a.name.split(" ")[0]}</span>
-              </div>
-            ))}
-          </div>
+          <ProductMock />
         </div>
       </section>
 
-      <section id="industries" className="container stack" style={{ padding: "80px 32px", gap: 28 }}>
-        <H eyebrow="Industries">Built for how you work</H>
-        <div className="row wrap" style={{ justifyContent: "center", gap: 10 }} role="tablist">
-          {PLATFORM.industries.map((i) => (
-            <button key={i.key} role="tab" aria-selected={ind === i.key} onClick={() => setInd(i.key)} className="btn"
-              style={{ height: 48, borderRadius: 999, padding: "0 18px", fontSize: 15, background: ind === i.key ? "var(--ink)" : "#fff", color: ind === i.key ? "#fff" : "var(--ink)", borderColor: ind === i.key ? "var(--ink)" : "var(--rule)" }}>
-              {INDUSTRY_EMOJI[i.key]} {i.name}
-            </button>
-          ))}
-        </div>
-        <div style={{ borderRadius: 28, padding: 28, background: "linear-gradient(135deg, #FCE4EA, #FFE6D6 60%, #FFF1E8)", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
-          {current.apps.map((k) => (
-            <div key={k} className="row" style={{ gap: 12, background: "rgba(255,255,255,.85)", borderRadius: 16, padding: 12 }}>
-              <AppIcon app={apps[k]} size={40} /><span className="stack-sm" style={{ gap: 0 }}><b style={{ fontSize: 14 }}>{apps[k].name}</b><span className="small muted">{apps[k].tagline}</span></span>
-            </div>
-          ))}
-          <Link to="/register" className="btn btn-primary btn-lg" style={{ alignSelf: "center", justifySelf: "start" }}>Start with these apps</Link>
+      {/* ---------- logos ---------- */}
+      <section style={{ borderBottom: "1px solid var(--rule)", background: "var(--surface)" }}>
+        <div className="container row wrap" style={{ padding: "22px 32px", gap: 28, justifyContent: "center" }}>
+          <span className="small muted">Running on Kept today</span>
+          {(showcase || []).map((s) => <span key={s.slug} className="row" style={{ gap: 8, fontWeight: 700, color: "var(--ink-2)" }}><span style={{ width: 22, height: 22, borderRadius: 6, background: s.primary }} />{s.organization}</span>)}
         </div>
       </section>
 
-      <section id="apps" style={{ background: "#fff" }}>
-        <div className="container stack" style={{ padding: "80px 32px", gap: 32 }}>
-          <H eyebrow={`${PLATFORM.apps.length} apps`}>Install only what you need</H>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 16 }}>
-            {PLATFORM.apps.map((a) => (
-              <div key={a.key} className="row" style={{ gap: 14, padding: 18, borderRadius: 20, border: "1px solid var(--rule)", background: `linear-gradient(150deg, ${a.color}14, #fff 60%)` }}>
-                <AppIcon app={a} /><span className="stack-sm" style={{ gap: 2 }}><b>{a.name}</b><span className="small muted">{a.tagline}</span></span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="customers" className="container stack" style={{ padding: "80px 32px", gap: 32 }}>
-        <H eyebrow="Live examples">Four organizations, one platform</H>
+      {/* ---------- how it works ---------- */}
+      <section id="how" className="container stack" style={{ padding: "96px 32px", gap: 48, scrollMarginTop: 80 }}>
+        <Title eyebrow="How it works" sub="Every organization gets two front doors on one platform.">One account. A public website and a private workspace.</Title>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
-          {(showcase || []).map((s) => (
-            <div key={s.slug} className="stack" style={{ borderRadius: 24, overflow: "hidden", background: "#fff", boxShadow: "var(--shadow-soft)", border: "1px solid var(--rule)", gap: 0 }}>
-              <div style={{ background: `linear-gradient(135deg, ${s.primary} 0%, ${s.primary} 55%, ${s.accent} 160%)`, color: "#fff", padding: "26px 22px", minHeight: 150 }} className="stack-sm">
-                <span className="chip-tone" style={{ background: "rgba(255,255,255,.25)", color: "#fff", alignSelf: "flex-start" }}>{s.industry}</span>
-                <b style={{ fontSize: 22, lineHeight: "26px" }}>{s.organization}</b>
-                <span style={{ opacity: .95, textTransform: "capitalize" }}>{s.tagline}</span>
-              </div>
-              <div className="row wrap" style={{ padding: 16 }}>
-                <Link className="btn" to={`/site/${s.slug}`}>Website</Link>
-                <button className="btn btn-primary" onClick={() => explore(s.slug)}>Open workspace</button>
-              </div>
+          {[["1", "The public types their address", "Someone searches “Timiza Youth Initiative” and lands on timiza.or.ke, their own domain, served by Kept with their own colours.", "#2F5BE8"],
+            ["2", "Staff press “Staff login”", "Every tenant website has a staff login. Managers sign in with their work email and land on their Home.", "#F5A524"],
+            ["3", "Home is the launcher", "Like Odoo: the apps their organization installed, what needs attention today, and their numbers.", "#A3284F"],
+            ["4", "The website feeds itself", "Donations, volunteer sign-ups and survey answers land in the workspace; verified results flow back to the site.", "#0EA5E9"]].map(([n, t, d, c]) => (
+            <div key={n} className="panel panel-body stack-sm" style={{ gap: 10 }}>
+              <span style={{ width: 40, height: 40, borderRadius: 12, background: c, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 18 }}>{n}</span>
+              <b style={{ fontSize: 18 }}>{t}</b><p className="muted">{d}</p>
+            </div>
+          ))}
+        </div>
+        <div className="panel" style={{ padding: 24, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, alignItems: "center" }}>
+          {[["kept.africa", "Kept's own site: product, pricing, sign-up"], ["timiza.or.ke", "Timiza's public website (their brand)"], ["timiza.or.ke → Staff login", "Timiza's private workspace (Kept brand)"]].map(([u, d], i) => (
+            <div key={u} className="row" style={{ gap: 12 }}>
+              <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 13.5, fontWeight: 700, padding: "8px 12px", borderRadius: 8, background: ["var(--cobalt-tint)", "var(--accent-tint)", "var(--maroon-tint)"][i], color: "var(--ink)" }}>{u}</span>
+              <span className="small muted">{d}</span>
             </div>
           ))}
         </div>
       </section>
 
-      <section style={{ background: "#fff" }}>
-        <div className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
-          {[["🔐", "Locked-down sign-in", "Lockouts, strong passwords, instant sign-out everywhere"], ["🏠", "Your data stays yours", "Every organization is sealed off from the rest"], ["📱", "M-Pesa ready", "Donations and payments that post themselves"], ["📊", "Live numbers", "Your website shows results counted from real records"]].map(([e, t, d]) => (
-            <div key={t} className="stack-sm" style={{ padding: 22, borderRadius: 20, background: "var(--ground)" }}><span style={{ fontSize: 28 }}>{e}</span><b style={{ fontSize: 17 }}>{t}</b><span className="muted">{d}</span></div>
-          ))}
+      {/* ---------- apps ---------- */}
+      <section id="product" style={{ background: "var(--surface)", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)", scrollMarginTop: 70 }}>
+        <div className="container stack" style={{ padding: "96px 32px", gap: 40 }}>
+          <Title eyebrow={`${PLATFORM.apps.length} apps`} sub="Install only what you need. Remove an app any time; its data is kept.">Everything an organization runs on</Title>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
+            {PLATFORM.apps.map((a) => (
+              <div key={a.key} className="tile" style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
+                <AppIcon app={a} size={46} /><span className="stack-sm" style={{ gap: 2 }}><b>{a.name}</b><span className="small muted">{a.tagline}</span></span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="container" style={{ padding: "72px 32px" }}>
-        <div className="spread" style={{ borderRadius: 32, padding: "44px 40px", background: "linear-gradient(120deg, #C93A63, #D9506F 50%, #E5734F)", color: "#fff" }}>
-          <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.8px", maxWidth: 560, color: "#fff" }}>Set up your workspace in five minutes.</h2>
-          <Link className="btn btn-lg" to="/register" style={{ background: "#fff", color: "var(--cobalt-dark)", borderColor: "#fff", fontWeight: 800 }}>Start free</Link>
+      {/* ---------- industries ---------- */}
+      <section id="industries" className="container stack" style={{ padding: "96px 32px", gap: 32, scrollMarginTop: 70 }}>
+        <Title eyebrow="Industries">Set up for how you work</Title>
+        <div className="row wrap" style={{ justifyContent: "center", gap: 8 }} role="tablist">
+          {PLATFORM.industries.map((i) => (
+            <button key={i.key} role="tab" aria-selected={ind === i.key} onClick={() => setInd(i.key)} className="chip" aria-pressed={ind === i.key} style={{ height: 44, padding: "0 16px", fontSize: 14.5 }}>{INDUSTRY_EMOJI[i.key]} {i.name}</button>
+          ))}
+        </div>
+        <div className="panel" style={{ padding: 28, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 28, alignItems: "center" }}>
+          <div className="stack">
+            <span style={{ fontSize: 44 }}>{INDUSTRY_EMOJI[current.key]}</span>
+            <h3 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-.6px" }}>{current.name}</h3>
+            <p className="muted">Kept installs {current.apps.length} apps for you on day one.</p>
+            <Link to="/register" className="btn btn-primary btn-lg" style={{ alignSelf: "flex-start" }}>Start with these apps</Link>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10 }}>
+            {current.apps.map((k) => <div key={k} className="row" style={{ gap: 10, padding: 10, borderRadius: 10, background: "var(--surface-2)" }}><AppIcon app={apps[k]} size={32} /><span style={{ fontSize: 13, fontWeight: 600 }}>{apps[k].name}</span></div>)}
+          </div>
         </div>
       </section>
-      <footer className="container spread small muted" style={{ padding: "24px 32px 40px" }}><span className="row" style={{ gap: 8 }}><Logo size={18} /> Kept · Nairobi 2026</span><span>Demo organizations use illustrative data</span></footer>
+
+      {/* ---------- customers ---------- */}
+      <section id="customers" style={{ background: "var(--surface)", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)", scrollMarginTop: 70 }}>
+        <div className="container stack" style={{ padding: "96px 32px", gap: 36 }}>
+          <Title eyebrow="Case studies" sub="Two community organizations and one business, each with its own website and workspace.">Same platform, three very different organizations</Title>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 20 }}>
+            {featured.map((s) => (
+              <article key={s.slug} className="panel" style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                <div style={{ padding: "28px 24px", color: "#fff", minHeight: 190, background: `radial-gradient(300px 160px at 100% 0%, ${s.accent}66, transparent 70%), linear-gradient(140deg, ${s.deep || s.primary}, ${s.primary})` }} className="stack-sm">
+                  <span className="chip-tone" style={{ background: "rgba(255,255,255,.2)", color: "#fff", alignSelf: "flex-start" }}>{s.kind} · {s.industry}</span>
+                  <b style={{ fontSize: 24, lineHeight: "28px", letterSpacing: "-.4px" }}>{s.organization}</b>
+                  <span style={{ opacity: .92, textTransform: "capitalize" }}>{s.tagline}</span>
+                </div>
+                <div className="row wrap" style={{ padding: 16, marginTop: "auto" }}>
+                  <Link className="btn" to={`/site/${s.slug}`}>Visit website</Link>
+                  <button className="btn btn-primary" onClick={() => explore(s.slug)}>Open their workspace</button>
+                </div>
+              </article>
+            ))}
+          </div>
+          {more.length > 0 && (
+            <div className="row wrap" style={{ gap: 10, justifyContent: "center" }}>
+              <span className="small muted">More examples:</span>
+              {more.map((s) => <Link key={s.slug} to={`/site/${s.slug}`} className="chip"><span className="dot" style={{ background: s.primary }} />{s.organization} · {s.industry}</Link>)}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ---------- trust ---------- */}
+      <section className="container" style={{ padding: "80px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 16 }}>
+        {[["Locked-down sign-in", "Lockouts, strong passwords, instant sign-out everywhere.", "#2F5BE8"], ["Your data stays yours", "Every organization is sealed off from the rest.", "#A3284F"], ["Payments that post themselves", "M-Pesa and card donations land in your books.", "#F5A524"], ["Numbers you can check", "Websites show results counted from real records.", "#0EA5E9"]].map(([t, d, c]) => (
+          <div key={t} className="stack-sm" style={{ padding: 22, gap: 10 }}>
+            <span style={{ width: 36, height: 4, borderRadius: 2, background: c }} /><b style={{ fontSize: 17 }}>{t}</b><span className="muted">{d}</span>
+          </div>
+        ))}
+      </section>
+
+      {/* ---------- FAQ ---------- */}
+      <section id="faq" className="container stack" style={{ padding: "40px 32px 96px", gap: 28, maxWidth: 860, scrollMarginTop: 70 }}>
+        <Title eyebrow="FAQ">Questions people ask</Title>
+        {[["If someone searches for Timiza, what do they see?", "Timiza's own website on its own domain, in Timiza's colours. Kept stays in the background; the public never sees the word Kept except a small credit in the footer."],
+          ["How does a manager get to the workspace?", "From the Staff login link on their organization's website, or at kept.africa/login. After signing in they land on Home: their installed apps, what needs attention today and their key numbers."],
+          ["Do all organizations share one system?", "They share the platform, never the data. Every record belongs to one organization, every request is checked against it, and other organizations' records simply do not exist for you."],
+          ["Can a business use it, not just NGOs?", "Yes. A shoe brand installs Sales, Inventory and Procurement; a guesthouse installs Bookings and Sales. The NGO apps never appear for them."],
+          ["What happens if we remove an app?", "It disappears from the menu and the API, but the data is kept. Reinstall it and everything comes back."]].map(([q, a], i) => (
+          <div key={q} className="panel">
+            <button onClick={() => setFaq(faq === i ? -1 : i)} aria-expanded={faq === i} className="spread" style={{ width: "100%", padding: "18px 20px", border: 0, background: "none", cursor: "pointer", textAlign: "left", flexWrap: "nowrap" }}>
+              <b style={{ fontSize: 16.5 }}>{q}</b><span style={{ fontSize: 22, color: "var(--cobalt)", transform: faq === i ? "rotate(45deg)" : "none", transition: "transform .15s" }}>+</span>
+            </button>
+            {faq === i && <p className="muted" style={{ padding: "0 20px 18px", fontSize: 15.5, lineHeight: "25px" }}>{a}</p>}
+          </div>
+        ))}
+      </section>
+
+      {/* ---------- CTA ---------- */}
+      <section className="container" style={{ paddingBottom: 96 }}>
+        <div style={{ borderRadius: 24, padding: "48px 40px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 24, flexWrap: "wrap",
+          background: "radial-gradient(500px 240px at 100% 0%, rgba(255,197,61,.35), transparent 65%), linear-gradient(120deg, #0F1E46, #2F5BE8)" }}>
+          <div className="stack-sm"><h2 style={{ fontSize: "clamp(26px, 3vw, 38px)", fontWeight: 800, letterSpacing: "-.8px", color: "#fff" }}>Set up your workspace in five minutes.</h2><span style={{ opacity: .8 }}>Free while you set up. No card needed.</span></div>
+          <Link className="btn btn-lg btn-accent" to="/register">Start free</Link>
+        </div>
+      </section>
+
+      {/* ---------- footer ---------- */}
+      <footer style={{ background: "#0B1636", color: "rgba(255,255,255,.72)" }}>
+        <div className="container" style={{ padding: "64px 32px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 32 }}>
+          <div className="stack-sm foot-brand" style={{ minWidth: 0, gap: 14 }}>
+            <span className="row" style={{ gap: 10, color: "#fff", fontWeight: 800, fontSize: 20 }}><Logo size={30} />Kept</span>
+            <span style={{ maxWidth: 340 }}>One workspace and one website for community organizations and growing businesses across Africa.</span>
+            <form className="row" style={{ gap: 8, maxWidth: 380 }} onSubmit={(e) => { e.preventDefault(); e.currentTarget.reset(); alert("Thanks, you're on the list."); }}>
+              <label className="sr-only" htmlFor="nl">Email</label>
+              <input id="nl" className="input" type="email" required placeholder="Email for product news" style={{ background: "rgba(255,255,255,.06)", borderColor: "rgba(255,255,255,.18)", color: "#fff" }} />
+              <button className="btn btn-accent">Join</button>
+            </form>
+          </div>
+          {[["Product", [["Apps", "#product"], ["How it works", "#how"], ["Industries", "#industries"], ["FAQ", "#faq"]]],
+            ["Customers", (showcase || []).map((s) => [s.organization, `/site/${s.slug}`])],
+            ["Company", [["Sign in", "/login"], ["Start free", "/register"], ["Security", "#faq"], ["Contact", "mailto:hello@kept.africa"]]]].map(([h, ls]) => (
+            <div key={h} className="stack-sm" style={{ gap: 10 }}>
+              <b style={{ color: "#fff", fontSize: 14, letterSpacing: ".04em", textTransform: "uppercase" }}>{h}</b>
+              {ls.map(([l, to]) => to.startsWith("/") ? <Link key={l} to={to} style={{ color: "rgba(255,255,255,.72)", textDecoration: "none" }}>{l}</Link>
+                : <a key={l} href={to} onClick={to.startsWith("#") ? go(to.slice(1)) : undefined} style={{ color: "rgba(255,255,255,.72)", textDecoration: "none" }}>{l}</a>)}
+            </div>
+          ))}
+        </div>
+        <div className="container spread small" style={{ padding: "20px 32px 32px", borderTop: "1px solid rgba(255,255,255,.1)" }}>
+          <span>© 2026 Kept · Nairobi, Kenya</span><span>Demo organizations use illustrative data · Privacy · Terms</span>
+        </div>
+      </footer>
     </div>
   );
 }

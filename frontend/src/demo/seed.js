@@ -202,7 +202,7 @@ function participantsFor(spec) {
 function seedErp(db, id, org, ppl, sk, projects) {
   const mods = Object.fromEntries(SPEC.modules.map((m) => [m.key, m]));
   const keys = {};
-  const order = ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "grants", "donations", "income", "budget_lines", "vendors", "expenses", "purchase_requests", "items",
+  const order = ["site_settings", "site_programmes", "site_team", "site_services", "site_stories", "site_gallery", "grants", "donations", "income", "budget_lines", "vendors", "expenses", "purchase_requests", "items",
     "stock_moves", "assets", "volunteers", "volunteer_hours", "leave_requests", "events", "documents", "inquiries", "meetings", "decisions", "participants"];
   const records = { ...TIMIZA.erp, participants: participantsFor(TIMIZA.participants) };
   const stampDays = (n2) => new Date(Date.UTC(2026, 9, 13, 9) - n2 * 86400000).toISOString();
@@ -271,8 +271,8 @@ function seedTenants(db, id, makeOrg, makeUser, mwangazaAdmin) {
   for (const t of TENANTS.tenants) {
     let o = db.orgs.find((x) => x.name === t.organization.name);
     if (!o) o = makeOrg(t.organization.name, t.organization.sector, t.industry);
-    o.industry = t.industry; o.installed_apps = [...PLATFORM.industries.find((i) => i.key === t.industry).apps].sort();
-    let owner = t.admin ? makeUser(o, t.admin.name, t.admin.email, "admin") : (t.existing ? mwangazaAdmin : db.users.find((u) => u.organization_id === o.id && u.role === "admin"));
+    if (!(t.existing && o.installed_apps?.length)) { o.industry = t.industry; o.installed_apps = [...PLATFORM.industries.find((i) => i.key === t.industry).apps].sort(); }
+    let owner = t.admin ? makeUser(o, t.admin.name, t.admin.email, "admin") : (db.users.find((u) => u.organization_id === o.id && u.role === "admin") || mwangazaAdmin);
     (t.users || []).forEach((u) => makeUser(o, u.name, u.email, u.role));
     const keys = {};
     const records = { site_settings: [t.site_settings], site_services: t.site_services || [], ...(t.modules || {}) };

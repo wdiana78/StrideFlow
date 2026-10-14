@@ -4,7 +4,7 @@ import { ErrorNotice, Loading } from "../components/ui";
 import { isoToday } from "../format";
 import { useApi } from "../hooks";
 
-const KIND = { event: ["Event", "#2C3D9B"], activity: ["Activity due", "#1D7348"], report: ["Funder deadline", "#B3261E"], leave: ["Leave", "#A85A06"] };
+const KIND = { event: ["Event", "#2F5BE8"], activity: ["Activity due", "#13865B"], report: ["Deadline", "#A3284F"], leave: ["Leave", "#D99A0B"] };
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
@@ -44,8 +44,8 @@ export default function Calendar() {
             {days.map((d) => {
               const k = iso(d), items = byDay[k] || [], other = d.getMonth() !== cursor.getMonth(), isToday = k === t;
               return (
-                <div key={k} style={{ minHeight: 112, borderTop: "1px solid var(--rule-soft)", borderLeft: "1px solid var(--rule-soft)", padding: 6, background: other ? "#fafbf9" : "#fff" }}>
-                  <div className="small" style={{ fontWeight: isToday ? 700 : 500, color: other ? "#9aa39f" : isToday ? "#fff" : "var(--ink-2)", background: isToday ? "var(--cobalt)" : "none", borderRadius: 4, display: "inline-block", padding: "0 6px", marginBottom: 4 }}>{d.getDate()}</div>
+                <div key={k} style={{ minHeight: 112, borderTop: "1px solid var(--rule-soft)", borderLeft: "1px solid var(--rule-soft)", padding: 6, background: other ? "var(--surface-2)" : "var(--surface)" }}>
+                  <div className="small" style={{ fontWeight: isToday ? 700 : 500, color: other ? "var(--slate)" : isToday ? "#fff" : "var(--ink-2)", background: isToday ? "var(--cobalt)" : "none", borderRadius: 4, display: "inline-block", padding: "0 6px", marginBottom: 4 }}>{d.getDate()}</div>
                   <div className="stack-sm" style={{ gap: 3 }}>
                     {items.slice(0, 4).map((i, n) => (
                       <Link key={n} to={i.link} title={`${KIND[i.kind][0]}: ${i.title} ${i.detail ? `(${i.detail})` : ""}`} style={{ display: "block", fontSize: 12, lineHeight: "16px", padding: "2px 6px", borderRadius: 4, background: `${KIND[i.kind][1]}14`, borderLeft: `3px solid ${KIND[i.kind][1]}`, color: "var(--ink)", textDecoration: i.status === "done" || i.status === "held" ? "line-through" : "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{i.title}</Link>

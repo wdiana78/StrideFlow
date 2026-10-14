@@ -18,12 +18,12 @@ function Chart({ s, asOf }) {
   return (
     <svg viewBox="0 0 760 240" style={{ width: "100%", height: "auto" }} role="img"
       aria-label={`${s.title}: ${fmtNum(last.value)} by ${fmtDate(asOf)} against ${fmtNum(Math.round(expectedEnd * 10) / 10)} expected.`}>
-      {ticks.map((t) => <g key={t}><line x1="48" x2="740" y1={Y(t)} y2={Y(t)} stroke={t ? "#EEF0EC" : "#D9DED9"} /><text x="40" y={Y(t) + 4} textAnchor="end" fontSize="12" fill="#56625E">{t}</text></g>)}
-      <text x="48" y="226" fontSize="12" fill="#56625E">{fmtDate(s.start)}</text>
-      <text x="728" y="226" fontSize="12" fill="#56625E" textAnchor="end">{fmtDate(asOf)}</text>
-      <path d={`M48 200 L728 ${Y(expectedEnd).toFixed(1)}`} fill="none" stroke="#8A948F" strokeWidth="2" strokeDasharray="6 5" />
-      <path d={actual} fill="none" stroke="#2C3D9B" strokeWidth="3" strokeLinejoin="round" />
-      <circle cx={X(last.date)} cy={Y(Math.min(last.value, s.target))} r="4.5" fill="#2C3D9B" />
+      {ticks.map((t) => <g key={t}><line x1="48" x2="740" y1={Y(t)} y2={Y(t)} style={{ stroke: t ? "var(--rule-soft)" : "var(--rule)" }} /><text x="40" y={Y(t) + 4} textAnchor="end" fontSize="12" style={{ fill: "var(--slate)" }}>{t}</text></g>)}
+      <text x="48" y="226" fontSize="12" style={{ fill: "var(--slate)" }}>{fmtDate(s.start)}</text>
+      <text x="728" y="226" fontSize="12" style={{ fill: "var(--slate)" }} textAnchor="end">{fmtDate(asOf)}</text>
+      <path d={`M48 200 L728 ${Y(expectedEnd).toFixed(1)}`} fill="none" stroke="#8FA3C8" strokeWidth="2" strokeDasharray="6 5" />
+      <path d={actual} fill="none" stroke="#2F5BE8" strokeWidth="3" strokeLinejoin="round" />
+      <circle cx={X(last.date)} cy={Y(Math.min(last.value, s.target))} r="4.5" fill="#2F5BE8" />
     </svg>
   );
 }
@@ -90,7 +90,7 @@ export default function ReportView() {
         {s.series.map((ser) => (
           <section key={ser.commitment_id} className="stack-sm">
             <div className="spread"><h2>{ser.title}, over time</h2>
-              <div className="row small" style={{ gap: 16 }}><span className="row"><span style={{ width: 18, height: 3, background: "var(--cobalt)" }} />Actual</span><span className="row"><span style={{ width: 18, borderTop: "2px dashed #8A948F" }} />Expected pace to {fmtNum(ser.target)} by {fmtDate(ser.due_on)}</span></div>
+              <div className="row small" style={{ gap: 16 }}><span className="row"><span style={{ width: 18, height: 3, background: "var(--cobalt)" }} />Actual</span><span className="row"><span style={{ width: 18, borderTop: "2px dashed #8FA3C8" }} />Expected pace to {fmtNum(ser.target)} by {fmtDate(ser.due_on)}</span></div>
             </div>
             <Chart s={ser} asOf={s.period.as_of} />
           </section>

@@ -4,6 +4,9 @@ import { BrowserRouter, HashRouter } from "react-router-dom";
 import App from "./App";
 import { AuthProvider } from "./auth";
 import "./styles.css";
+import { initTheme } from "./theme";
+
+initTheme();
 
 // The hosted preview lives at a single URL, so it uses hash routing; the real app uses clean paths.
 const Router = import.meta.env.VITE_DEMO === "1" ? HashRouter : BrowserRouter;

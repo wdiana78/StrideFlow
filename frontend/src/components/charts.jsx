@@ -1,7 +1,7 @@
 // Small, dependency-free SVG charts. Every chart has a text alternative for screen readers.
 import { fmtNum } from "../format";
 
-export const PALETTE = ["#E85D84", "#FF8A65", "#FFB570", "#C93A63", "#F6A5C0", "#E5734F", "#B5838D", "#FFC09F", "#9C4F6E", "#F28F79"];
+export const PALETTE = ["#2F5BE8", "#F5B520", "#A3284F", "#5BB6F8", "#7C6CF2", "#F07B5A", "#1B3487", "#8FA3C8", "#E07AA0", "#3FA7D6"];
 const short = (n) => (Math.abs(n) >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : Math.abs(n) >= 1e3 ? `${Math.round(n / 1e3)}k` : fmtNum(Math.round(n * 10) / 10));
 
 export function Bars({ data, format = fmtNum, color, colors, max }) {
@@ -31,9 +31,9 @@ export function Columns({ data, format = short, colors = PALETTE, height = 170, 
         const x = (i * w * 400) / 100 + 8, bw = (w * 400) / 100 - 16;
         return (
           <g key={d.label + i}>
-            <rect x={x} y={height - 26 - h} width={Math.max(bw, 4)} height={Math.max(h, d.value ? 2 : 0)} rx="5" fill={highlightLast ? (i === data.length - 1 ? colors[0] : "#F8C7D4") : colors[i % colors.length]} />
-            {d.value > 0 && <text x={x + bw / 2} y={height - 32 - h} textAnchor="middle" fontSize="12" fontWeight="600" fill="#1E2826">{format(d.value)}</text>}
-            <text x={x + bw / 2} y={height - 8} textAnchor="middle" fontSize="11.5" fill="#56625E">{d.label.length > 14 ? d.label.slice(0, 13) + "…" : d.label}</text>
+            <rect x={x} y={height - 26 - h} width={Math.max(bw, 4)} height={Math.max(h, d.value ? 2 : 0)} rx="5" fill={highlightLast ? (i === data.length - 1 ? colors[0] : "#B9C9F7") : colors[i % colors.length]} />
+            {d.value > 0 && <text x={x + bw / 2} y={height - 32 - h} textAnchor="middle" fontSize="12" fontWeight="600" style={{ fill: "var(--ink)" }}>{format(d.value)}</text>}
+            <text x={x + bw / 2} y={height - 8} textAnchor="middle" fontSize="11.5" style={{ fill: "var(--slate)" }}>{d.label.length > 14 ? d.label.slice(0, 13) + "…" : d.label}</text>
           </g>
         );
       })}
@@ -55,8 +55,8 @@ export function Donut({ data, size = 170, format = fmtNum, center, sub, colors =
           acc += len;
           return el;
         })}
-        <text x="85" y="82" textAnchor="middle" fontSize="24" fontWeight="700" fill="#1E2826">{center ?? format(total)}</text>
-        <text x="85" y="102" textAnchor="middle" fontSize="11" fill="#56625E">{sub ?? (center ? "" : "total")}</text>
+        <text x="85" y="82" textAnchor="middle" fontSize="24" fontWeight="700" style={{ fill: "var(--ink)" }}>{center ?? format(total)}</text>
+        <text x="85" y="102" textAnchor="middle" fontSize="11" style={{ fill: "var(--slate)" }}>{sub ?? (center ? "" : "total")}</text>
       </svg>
       <div className="stack-sm" style={{ gap: 6 }}>
         {data.map((d, i) => (
@@ -81,8 +81,8 @@ export function Lines({ series, height = 220, target, format = short }) {
   return (
     <svg viewBox={`0 0 400 ${height}`} style={{ width: "100%", height: "auto" }} role="img"
       aria-label={series.map((s) => `${s.name}: ${format(s.points[s.points.length - 1]?.value || 0)}`).join(", ")}>
-      {ticks.map((t) => <g key={t}><line x1="44" x2="388" y1={Y(t)} y2={Y(t)} stroke="#EBEEEA" /><text x="38" y={Y(t) + 4} textAnchor="end" fontSize="11" fill="#56625E">{format(t)}</text></g>)}
-      {target != null && <><line x1="44" x2="388" y1={Y(target)} y2={Y(target)} stroke="#E4572E" strokeDasharray="5 4" /><text x="386" y={Y(target) - 5} textAnchor="end" fontSize="11" fill="#E4572E">target {format(target)}</text></>}
+      {ticks.map((t) => <g key={t}><line x1="44" x2="388" y1={Y(t)} y2={Y(t)} style={{ stroke: "var(--rule)" }} /><text x="38" y={Y(t) + 4} textAnchor="end" fontSize="11" style={{ fill: "var(--slate)" }}>{format(t)}</text></g>)}
+      {target != null && <><line x1="44" x2="388" y1={Y(target)} y2={Y(target)} stroke="#A3284F" strokeDasharray="5 4" /><text x="386" y={Y(target) - 5} textAnchor="end" fontSize="11" fill="#A3284F">target {format(target)}</text></>}
       {series.map((s, i) => {
         const col = s.color || PALETTE[i % PALETTE.length];
         const d = s.points.map((p, k) => `${k ? "L" : "M"}${X(p.date).toFixed(1)} ${Y(p.value).toFixed(1)}`).join(" ");
@@ -95,7 +95,7 @@ export function Lines({ series, height = 220, target, format = short }) {
           </g>
         );
       })}
-      {[x0, (x0 + x1) / 2, x1].map((t, k) => { const dt = new Date(t); return <text key={k} x={44 + k * 170} y={height - 8} textAnchor={k === 0 ? "start" : k === 2 ? "end" : "middle"} fontSize="11" fill="#56625E">{dt.getDate()} {M[dt.getMonth()]}</text>; })}
+      {[x0, (x0 + x1) / 2, x1].map((t, k) => { const dt = new Date(t); return <text key={k} x={44 + k * 170} y={height - 8} textAnchor={k === 0 ? "start" : k === 2 ? "end" : "middle"} fontSize="11" style={{ fill: "var(--slate)" }}>{dt.getDate()} {M[dt.getMonth()]}</text>; })}
     </svg>
   );
 }
@@ -111,7 +111,7 @@ export function Grouped({ data, keys, height = 190, format = short }) {
           const bw = (gw - 14) / keys.length, h = ((d[k.key] || 0) / top) * (height - 44);
           return <rect key={k.key + i} x={14 + i * gw + j * bw} y={height - 24 - h} width={Math.max(bw - 3, 3)} height={h} rx="3" fill={k.color} />;
         }))}
-        {data.map((d, i) => <text key={d.label} x={14 + i * gw + (gw - 14) / 2} y={height - 6} textAnchor="middle" fontSize="10.5" fill="#56625E">{d.label.length > 12 ? d.label.slice(0, 11) + "…" : d.label}</text>)}
+        {data.map((d, i) => <text key={d.label} x={14 + i * gw + (gw - 14) / 2} y={height - 6} textAnchor="middle" fontSize="10.5" style={{ fill: "var(--slate)" }}>{d.label.length > 12 ? d.label.slice(0, 11) + "…" : d.label}</text>)}
       </svg>
       <div className="row wrap" style={{ gap: 14 }}>{keys.map((k) => <span key={k.key} className="row small" style={{ gap: 6 }}><span style={{ width: 11, height: 11, borderRadius: 3, background: k.color }} />{k.label}</span>)}</div>
     </div>

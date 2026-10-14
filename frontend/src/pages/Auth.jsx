@@ -71,7 +71,7 @@ export function Register() {
   const { user, signIn } = useAuth();
   const nav = useNavigate();
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ industry: "community", organization_name: "", site_slug: "", palette: "blossom", currency: "KES", full_name: "", email: "", password: "" });
+  const [form, setForm] = useState({ industry: "community", organization_name: "", site_slug: "", palette: "royal", currency: "KES", full_name: "", email: "", password: "" });
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   if (user) return <Navigate to="/app" replace />;

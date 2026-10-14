@@ -119,11 +119,11 @@ export default function ModulePage() {
               };
               return (
                 <div key={v} className="stack-sm" onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.outline = "2px dashed var(--cobalt-soft)"; }} onDragLeave={(e) => { e.currentTarget.style.outline = "none"; }} onDrop={drop}
-                  style={{ background: "linear-gradient(180deg, var(--stone), #fff)", borderRadius: 16, padding: 10, minHeight: 160, gap: 8, border: "1px solid var(--rule-soft)" }}>
+                  style={{ background: "var(--surface-2)", borderRadius: 16, padding: 10, minHeight: 160, gap: 8, border: "1px solid var(--rule-soft)" }}>
                   <div className="spread small" style={{ fontWeight: 600, padding: "2px 4px" }}><StatusPill m={m} value={v} /><span className="muted">{items.length}</span></div>
                   {items.map((r) => (
                     <button key={r.id} draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", r.id)} onClick={() => nav(`/app/m/${key}/${r.id}`)} className="stack-sm" title="Drag to change status"
-                      style={{ textAlign: "left", background: "#fff", border: "1px solid var(--rule)", borderRadius: 12, padding: 12, gap: 4, cursor: "grab", boxShadow: "var(--shadow-soft)" }}>
+                      style={{ textAlign: "left", background: "var(--surface)", color: "var(--ink)", border: "1px solid var(--rule)", borderRadius: 12, padding: 12, gap: 4, cursor: "grab", boxShadow: "var(--shadow-soft)" }}>
                       <b style={{ fontSize: 14 }}>{r._title}</b>
                       {cols.filter((f) => f.key !== m.title_field).slice(0, 3).map((f) => display(f, r) && <span key={f.key} className="small muted">{f.label}: {display(f, r)}</span>)}
                     </button>
@@ -356,8 +356,8 @@ function Insight({ m, version }) {
   return (
     <div className="panel" style={{ padding: "14px 18px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
       {data.slice(0, 6).map((d, i) => (
-        <div key={String(d.key)} className="stack-sm" style={{ gap: 2, borderLeft: `4px solid ${m.status ? tones[i] : PALETTE[i % PALETTE.length]}`, paddingLeft: 12 }}>
-          <span className="small muted">{d.label}</span>
+        <div key={String(d.key)} className="stack-sm" style={{ gap: 2 }}>
+          <span className="small muted row" style={{ gap: 6 }}><span className="dot" style={{ background: m.status ? tones[i] : PALETTE[i % PALETTE.length] }} />{d.label}</span>
           <b style={{ fontSize: 22 }}>{d.count}</b>
           {sumField && <span className="small" style={{ color: "var(--ink-2)" }}>KES {Math.round(d.sum).toLocaleString()}</span>}
         </div>
@@ -378,7 +378,7 @@ function EventFormBox({ ev, onChanged }) {
   const link = `${window.location.origin}${window.location.pathname}${window.location.hash ? "#" : ""}/f/${f.id}`.replace(/([^:])\/\//g, "$1/");
   return (
     <div style={{ borderRadius: 16, padding: 16, background: "linear-gradient(135deg, var(--cobalt-tint), var(--accent-tint))" }} className="stack-sm">
-      <div className="spread"><b>Attendance and feedback form</b><span className="chip-tone" style={{ background: "#fff", color: "var(--cobalt-dark)" }}>{f.responses} responses</span></div>
+      <div className="spread"><b>Attendance and feedback form</b><span className="chip-tone" style={{ background: "var(--surface)", color: "var(--cobalt-dark)" }}>{f.responses} responses</span></div>
       <span className="small" style={{ color: "var(--ink-2)" }}>Share the link or QR at the door. Marking the event as held fills attendance from these responses.</span>
       <div className="row wrap">
         <Link className="btn btn-primary" to={`/app/forms/${f.id}`}>See results</Link>

@@ -33,8 +33,10 @@ def platform():
 def showcase(db: Session = Depends(get_db)):
     st = erp.TABLES["site_settings"]
     rows = db.execute(select(st, Organization.name, Organization.industry).join(Organization, Organization.id == st.c.organization_id)).all()
-    return [{"slug": r.slug, "organization": r.name, "industry": INDUSTRY_BY_KEY.get(r.industry, {}).get("name", r.industry),
-             "tagline": r.tagline, "primary": r.brand_primary, "accent": r.brand_accent} for r in rows]
+    order = {"timiza": 1, "tumaini": 2, "hatua": 3, "mwangaza": 4, "pwani": 5}
+    out = [{"slug": r.slug, "organization": r.name, "industry": INDUSTRY_BY_KEY.get(r.industry, {}).get("name", r.industry), "kind": "Business" if r.industry in ("retail", "hospitality", "agency") else "Organization",
+            "tagline": r.tagline, "primary": r.brand_primary, "accent": r.brand_accent, "deep": r.brand_deep} for r in rows]
+    return sorted(out, key=lambda x: order.get(x["slug"], 99))
 
 
 @router.get("/apps")
@@ -79,7 +81,7 @@ def setup_new_org(db: Session, org: Organization, user: User, industry: str, slu
         st = erp.TABLES["site_settings"]
         if db.execute(select(st.c.id).where(st.c.slug == slug)).first():
             raise HTTPException(409, {"message": "That web address is taken. Try another.", "field": "site_slug"})
-        pal = PALETTES.get(palette, PALETTES["blossom"])
+        pal = PALETTES.get(palette, PALETTES["royal"])
         db.execute(st.insert().values(id=uuid.uuid4(), organization_id=org.id, created_by_id=user.id, created_at=erp.now(), updated_at=erp.now(),
                                       slug=slug, tagline=f"Welcome to {org.name}", intro=f"{org.name} on Kept.", show_impact=True,
                                       brand_primary=pal["primary"], brand_accent=pal["accent"]))

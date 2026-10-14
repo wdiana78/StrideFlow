@@ -5,19 +5,25 @@ import { ErrorNotice, Loading, PaceLine, Shape, Status } from "../components/ui"
 import { fmtDate, fmtNum, RULE_LABEL } from "../format";
 import { useApi } from "../hooks";
 import { moneyShort } from "../modules";
+import PLATFORM from "../platform.json";
+import { AppIcon } from "./Apps";
+
+export const APP_HOME = { projects: "/app/projects", forms: "/app/forms", events: "/app/m/events", funding: "/app/m/grants", finance: "/app/finance", sales: "/app/m/invoices",
+  procurement: "/app/m/purchase_requests", inventory: "/app/m/items", bookings: "/app/m/bookings", people: "/app/m/volunteers", participants: "/app/m/participants",
+  documents: "/app/m/documents", governance: "/app/m/meetings", website: "/app/m/site_settings" };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const TONES = [["#FCE4EA", "#E85D84"], ["#FFE6D6", "#FF8A65"], ["#FFF0DB", "#F59E3B"], ["#FDE2EC", "#C93A63"], ["#FFE9E2", "#E5734F"], ["#F7E4F0", "#B5838D"]];
+const TONES = ["#2F5BE8", "#F5A524", "#A3284F", "#0EA5E9", "#7C6CF2", "#1B3487"];
 const Ico = ({ d }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
 
 function Kpi({ label, value, sub, to, i, icon }) {
-  const [bg, fg] = TONES[i % TONES.length];
+  const fg = TONES[i % TONES.length];
   return (
-    <Link to={to} className="kpi" style={{ background: `linear-gradient(150deg, ${bg} 0%, #fff 85%)` }}>
+    <Link to={to} className="kpi">
       <span className="kpi-icon" style={{ background: fg }}><Ico d={icon} /></span>
-      <span className="kpi-label" style={{ color: "var(--ink-2)" }}>{label}</span>
+      <span className="kpi-label">{label}</span>
       <span className="kpi-value">{value}</span>
-      <span className="kpi-sub" style={{ color: "var(--slate)" }}>{sub}</span>
+      <span className="kpi-sub">{sub}</span>
     </Link>
   );
 }
@@ -48,17 +54,29 @@ export default function Overview() {
   ].filter(Boolean);
   return (
     <>
-      <div className="page-hero">
-        <div className="stack-sm" style={{ gap: 2 }}>
-          <span className="muted small">{fmtDate(d.today, true)}</span>
-          <h1>Habari, {user.full_name.split(" ")[0]} 👋</h1>
-          <span className="muted">{user.organization.name}</span>
+      <div className="hero-navy">
+        <div className="stack-sm" style={{ gap: 4 }}>
+          <span className="muted small">{fmtDate(d.today, true)} · {user.organization.name}</span>
+          <h1>Habari, {user.full_name.split(" ")[0]}</h1>
+          <span className="muted">Here is what needs you today.</span>
         </div>
         <div className="row wrap">
-          <Link className="btn btn-primary" to="/app/attention">{d.open_flags} need attention</Link>
+          <Link className="btn btn-accent" to="/app/attention">{d.open_flags} need attention</Link>
           <Link className="btn" to="/app/approvals">{d.approvals_waiting} to approve</Link>
         </div>
       </div>
+
+      <section className="stack-sm" aria-labelledby="apps-h">
+        <div className="spread"><h2 id="apps-h" className="card-title">Your apps</h2><Link to="/app/apps" className="small">Manage apps</Link></div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(104px, 1fr))", gap: 10 }}>
+          {PLATFORM.apps.filter((a) => d.installed.includes(a.key)).map((a) => (
+            <Link key={a.key} to={a.key === "people" && d.industry !== "community" ? "/app/m/leave_requests" : APP_HOME[a.key]} className="tile" style={{ alignItems: "center", textAlign: "center", padding: "14px 8px", gap: 8 }}>
+              <AppIcon app={a} size={44} /><span style={{ fontSize: 12.5, fontWeight: 600, lineHeight: "16px" }}>{a.name}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <div className="quick" aria-label="Quick actions">
         {quick.map(([l, to], i) => <Link key={l} className={"btn" + (i === 0 ? " btn-primary" : "")} to={to}>{l}</Link>)}
       </div>
@@ -72,9 +90,9 @@ export default function Overview() {
               <div className="panel-head"><h2 id="prog-h">Projects</h2><Link to="/app/analytics" className="btn btn-ghost">Analytics</Link></div>
               {d.programmes.map((pr, i) => (
                 <div key={pr.id} style={{ padding: "14px 22px", borderTop: "1px solid var(--rule-soft)" }} className="stack-sm">
-                  <Link to={`/app/projects/${pr.id}`} className="row strong" style={{ color: "var(--ink)", textDecoration: "none", fontSize: 16, gap: 8 }}><span className="dot" style={{ background: PALETTE[i % PALETTE.length], width: 12, height: 12 }} />{pr.name}</Link>
+                  <Link to={`/app/projects/${pr.id}`} className="row strong" style={{ color: "var(--ink)", textDecoration: "none", fontSize: 16, gap: 8 }}><span className="dot" style={{ background: PALETTE[i % PALETTE.length], width: 10, height: 10, borderRadius: 3 }} />{pr.name}</Link>
                   {pr.commitments.map((c) => (
-                    <div key={c.id} style={{ display: "grid", gridTemplateColumns: "minmax(150px, 1.2fr) minmax(120px, 1fr) 100px", gap: 14, alignItems: "center" }}>
+                    <div key={c.id} className="prog-row">
                       <span style={{ fontSize: 14 }}>{c.title}<span className="small muted"> · {fmtNum(c.pace.actual)}/{fmtNum(c.pace.target)}</span></span>
                       <PaceLine pace={c.pace} /><Status kind={c.pace.status} />
                     </div>
@@ -103,7 +121,7 @@ export default function Overview() {
           {has("participants") && p.participants > 0 && (
             <section className="panel panel-body stack-sm">
               <h2 className="card-title">Participants by gender</h2>
-              <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: g[k] || 0 }))} size={140} colors={["#E85D84", "#FF8A65", "#FFB570"]} />
+              <Donut data={["female", "male", "other"].map((k) => ({ label: k, value: g[k] || 0 }))} size={140} colors={["#A3284F", "#2F5BE8", "#F5B520"]} />
             </section>
           )}
           {has("events") && (
@@ -111,7 +129,7 @@ export default function Overview() {
               <div className="spread"><h2 className="card-title">Coming up</h2><Link to="/app/calendar" className="small">Calendar</Link></div>
               {d.upcoming_events.length === 0 ? <span className="small muted">Nothing planned.</span> : d.upcoming_events.map((e) => (
                 <Link key={e.id} to={`/app/m/events/${e.id}`} className="row" style={{ textDecoration: "none", color: "inherit", gap: 12, fontSize: 14 }}>
-                  <span style={{ background: "var(--accent-tint)", color: "var(--accent-ink)", borderRadius: 10, padding: "4px 8px", fontWeight: 700, fontSize: 12, minWidth: 56, textAlign: "center" }}>{fmtDate(e.date)}</span>{e.title}
+                  <span style={{ background: "var(--cobalt-tint)", color: "var(--cobalt-dark)", borderRadius: 8, padding: "4px 8px", fontWeight: 700, fontSize: 12, minWidth: 56, textAlign: "center" }}>{fmtDate(e.date)}</span>{e.title}
                 </Link>
               ))}
             </section>
