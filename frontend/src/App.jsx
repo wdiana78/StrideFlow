@@ -4,7 +4,7 @@ import Shell from "./components/Shell";
 import { Loading } from "./components/ui";
 import Activity from "./pages/Activity";
 import Attention from "./pages/Attention";
-import Landing from "./pages/Landing";
+import Landing, { ContactPage, CustomersPage, PricingPage, ProductPage, SolutionsPage } from "./pages/Landing";
 import { Login, Register } from "./pages/Auth";
 import Project from "./pages/Project";
 import Projects from "./pages/Projects";
@@ -20,6 +20,7 @@ import ModulePage from "./pages/Module";
 import PublicSite from "./pages/PublicSite";
 import Analytics from "./pages/Analytics";
 import Apps from "./pages/Apps";
+import Account from "./pages/Account";
 import { FormBuilder, FormDetail, FormsList, PublicForm } from "./pages/Forms";
 
 // When VITE_SITE_SLUG is set, the organization's public website is the home page and the ERP sits behind Staff login.
@@ -38,6 +39,11 @@ export default function App() {
     <Routes>
       <Route path="/" element={SITE ? <PublicSite slugOverride={SITE} /> : <Landing />} />
       <Route path="/kept" element={<Landing />} />
+      <Route path="/product" element={<ProductPage />} />
+      <Route path="/solutions" element={<SolutionsPage />} />
+      <Route path="/customers" element={<CustomersPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/f/:id" element={<PublicForm />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -50,6 +56,7 @@ export default function App() {
         <Route path="finance" element={<Finance />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="apps" element={<Apps />} />
+        <Route path="account" element={<Account />} />
         <Route path="forms" element={<FormsList />} />
         <Route path="forms/new" element={<FormBuilder />} />
         <Route path="forms/:id" element={<FormDetail />} />

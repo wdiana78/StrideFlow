@@ -246,6 +246,7 @@ def dashboard(user: User = Depends(get_current_user), db: Session = Depends(get_
         select(Flag).where(Flag.organization_id == org, Flag.status == FlagStatus.open).order_by(Flag.severity.desc(), Flag.opened_at).limit(6)).all()]
     return {
         "installed": user.organization.installed_apps or [], "industry": user.organization.industry, "top_flags": top_flags,
+        "ops": ops_summary(db, org, t0, set(user.organization.installed_apps or [])),
         "sales": {"outstanding": _sum(db, iv, "amount", iv.c.organization_id == org, iv.c.status == "sent"),
                   "paid": _sum(db, iv, "amount", iv.c.organization_id == org, iv.c.status == "paid"),
                   "overdue": db.scalar(select(func.count()).where(iv.c.organization_id == org, iv.c.status == "sent", iv.c.due_on < t0)),
@@ -604,6 +605,7 @@ class OrderLine(BaseModel):
 
 
 class OrderIn(BaseModel):
+    address: str = Field(default="", max_length=200)
     name: str = Field(min_length=2, max_length=120)
     contact: str = Field(min_length=5, max_length=120)
     items: list[OrderLine] = Field(min_length=1, max_length=20)
@@ -642,6 +644,11 @@ def order(slug: str, body: OrderIn, request: Request, db: Session = Depends(get_
     ref = f"ORD-{uuid.uuid4().hex[:6].upper()}"
     msg = f"{ref}\n" + "\n".join(lines) + f"\nTotal KES {total:,.0f}" + (f"\nNote: {body.message.strip()}" if body.message.strip() else "")
     _public_insert(db, site, "inquiries", {"name": body.name.strip(), "contact": body.contact.strip(), "kind": "order", "message": msg}, f"Website order {ref}: KES {total:,.0f}")
+    if "deliveries" in (db.get(Organization, site.organization_id).installed_apps or []):
+        d = erp.TABLES["deliveries"]
+        db.execute(d.insert().values(id=uuid.uuid4(), organization_id=site.organization_id, created_by_id=None, created_at=erp.now(), updated_at=erp.now(), reference=ref,
+                                     customer=body.name.strip(), phone=body.contact.strip(), address=(body.address or "To be confirmed").strip(), amount=total, items="\n".join(lines), status="new"))
+        db.commit()
     return {"ok": True, "reference": ref, "total": total, "message": f"Order {ref} received. We'll confirm on {body.contact.strip()} within the hour."}
 
 
@@ -698,3 +705,151 @@ def booking_request(slug: str, body: BookingIn, request: Request, db: Session = 
     log(db, site.organization_id, None, "bookings_created", "bookings", bid, f"Website booking request: {r.name}, {nights} nights")
     db.commit()
     return {"ok": True, "nights": nights, "amount": amount, "message": f"{r.name} is held for you: {nights} nights, KES {amount:,.0f}. We'll confirm within a few hours."}
+
+
+
+# ---------- industry figures for the home dashboard ----------
+def ops_summary(db: Session, org, t0: date, apps: set) -> dict:
+    T = erp.TABLES
+    out = {}
+    if "branches" in apps:
+        b, bs = T["branches"], T["branch_sales"]
+        month = t0.replace(day=1)
+        rows = db.execute(select(b.c.id, b.c.name, b.c.monthly_target).where(b.c.organization_id == org).order_by(b.c.name)).all()
+        sums = dict(db.execute(select(bs.c.branch_id, func.sum(bs.c.gross)).where(bs.c.organization_id == org, bs.c.date >= month).group_by(bs.c.branch_id)).all())
+        today_total = float(db.scalar(select(func.coalesce(func.sum(bs.c.gross), 0)).where(bs.c.organization_id == org, bs.c.date == t0)) or 0)
+        days = (t0 - month).days + 1
+        out["branches"] = {"today": today_total, "month": float(sum(sums.values() or [0])), "days_elapsed": days,
+                           "rows": [{"name": r.name, "target": float(r.monthly_target or 0), "month": float(sums.get(r.id, 0) or 0)} for r in rows]}
+        tr = T["transfers"]
+        out["transfers_open"] = db.scalar(select(func.count()).where(tr.c.organization_id == org, tr.c.status.in_(["requested", "dispatched"])))
+    if "deliveries" in apps:
+        d = T["deliveries"]
+        out["deliveries"] = dict(db.execute(select(d.c.status, func.count()).where(d.c.organization_id == org).group_by(d.c.status)).all())
+    if "studio" in apps:
+        pr = T["productions"]
+        out["productions"] = dict(db.execute(select(pr.c.status, func.count()).where(pr.c.organization_id == org).group_by(pr.c.status)).all())
+        out["shoots"] = [{"title": r.title, "date": r.shoot_date.isoformat(), "kind": r.kind} for r in db.execute(select(pr).where(
+            pr.c.organization_id == org, pr.c.shoot_date >= t0, pr.c.status.in_(["brief", "booked", "shooting"])).order_by(pr.c.shoot_date).limit(5)).all()]
+    if "social" in apps:
+        po = T["posts"]
+        week = t0 + timedelta(days=7)
+        out["posts_week"] = db.scalar(select(func.count()).where(po.c.organization_id == org, po.c.publish_on >= t0, po.c.publish_on < week))
+        out["posts_review"] = db.scalar(select(func.count()).where(po.c.organization_id == org, po.c.status == "review"))
+    if "bookings" in apps:
+        bk, rs = T["bookings"], T["resources"]
+        rooms = db.scalar(select(func.count()).where(rs.c.organization_id == org, rs.c.kind == "room")) or 0
+        occupied = db.scalar(select(func.count()).select_from(bk).join(rs, rs.c.id == bk.c.resource_id).where(
+            bk.c.organization_id == org, rs.c.kind == "room", bk.c.status.in_(["confirmed", "checked_in"]), bk.c.starts_on <= t0, bk.c.ends_on > t0)) or 0
+        out["rooms"] = {"total": rooms, "occupied": occupied,
+                        "arrivals": db.scalar(select(func.count()).where(bk.c.organization_id == org, bk.c.starts_on == t0, bk.c.status != "cancelled")),
+                        "departures": db.scalar(select(func.count()).where(bk.c.organization_id == org, bk.c.ends_on == t0, bk.c.status != "cancelled"))}
+    if "dining" in apps:
+        rv = T["reservations"]
+        rows = db.execute(select(rv.c.restaurant, func.count(), func.sum(rv.c.covers)).where(rv.c.organization_id == org, rv.c.date == t0, rv.c.status.in_(["booked", "seated", "completed"])).group_by(rv.c.restaurant)).all()
+        names = {"grill": "Ocean Grill", "terrace": "Spice Terrace", "beach": "Beach Bar"}
+        out["dining"] = [{"label": names.get(r[0], r[0]), "tables": r[1], "covers": int(r[2] or 0)} for r in rows]
+    if "tours" in apps:
+        tb = T["tour_bookings"]
+        out["tours"] = {"week": db.scalar(select(func.count()).where(tb.c.organization_id == org, tb.c.date >= t0, tb.c.date < t0 + timedelta(days=7), tb.c.status.in_(["enquiry", "confirmed"]))),
+                        "unassigned": db.scalar(select(func.count()).where(tb.c.organization_id == org, tb.c.status == "confirmed", tb.c.guide_id.is_(None))),
+                        "enquiries": db.scalar(select(func.count()).where(tb.c.organization_id == org, tb.c.status == "enquiry"))}
+    return out
+
+
+# ---------- retail website: stores and order tracking ----------
+@public.get("/{slug}/stores")
+def stores(slug: str, db: Session = Depends(get_db)):
+    site = _site(db, slug)
+    b = erp.TABLES["branches"]
+    return [{"name": r.name, "city": r.city, "address": r.address, "phone": r.phone, "hours": r.hours} for r in
+            db.execute(select(b).where(b.c.organization_id == site.organization_id, b.c.show_on_site.is_(True)).order_by(b.c.city, b.c.name)).all()]
+
+
+@public.get("/{slug}/track")
+def track(slug: str, ref: str, phone: str, request: Request, db: Session = Depends(get_db)):
+    rate_limit(f"public-track:{client_ip(request)}", 30, 600)
+    site = _site(db, slug)
+    d = erp.TABLES["deliveries"]
+    r = db.execute(select(d).where(d.c.organization_id == site.organization_id, func.upper(d.c.reference) == ref.strip().upper())).first()
+    digits = lambda x: "".join(ch for ch in (x or "") if ch.isdigit())[-9:]  # noqa: E731
+    # The phone on the order must match, so references alone cannot be used to look up other people's orders.
+    if not r or not digits(phone) or digits(phone) != digits(r.phone):
+        raise HTTPException(404, "We could not find an order with that reference and phone number.")
+    steps = ["new", "assigned", "out", "delivered"]
+    return {"reference": r.reference, "status": r.status, "step": steps.index(r.status) if r.status in steps else -1, "rider": (r.rider or "").split(" ")[0] or None,
+            "area": r.address.split(",")[0], "updated_at": r.updated_at.isoformat()}
+
+
+# ---------- hotel website: tours and table reservations ----------
+@public.get("/{slug}/tours")
+def tours(slug: str, db: Session = Depends(get_db)):
+    site = _site(db, slug)
+    t = erp.TABLES["tours"]
+    return [{"id": str(r.id), "name": r.name, "duration": r.duration, "price": float(r.price or 0), "capacity": int(r.capacity or 0), "description": r.description}
+            for r in db.execute(select(t).where(t.c.organization_id == site.organization_id, t.c.show_on_site.is_(True)).order_by(t.c.price.desc())).all()]
+
+
+class TourIn(BaseModel):
+    tour_id: uuid.UUID
+    date: date
+    pax: int = Field(ge=1, le=40)
+    name: str = Field(min_length=2, max_length=120)
+    contact: str = Field(min_length=5, max_length=120)
+    website: str = ""
+
+
+@public.post("/{slug}/tour-booking", status_code=201)
+def tour_booking(slug: str, body: TourIn, request: Request, db: Session = Depends(get_db)):
+    rate_limit(f"public-tour:{client_ip(request)}", 10, 600)
+    site = _site(db, slug)
+    if body.website:
+        return {"ok": True}
+    if body.date < today():
+        raise HTTPException(422, "Choose a date from today onwards.")
+    t, tb = erp.TABLES["tours"], erp.TABLES["tour_bookings"]
+    tour = db.execute(select(t).where(t.c.id == body.tour_id, t.c.organization_id == site.organization_id, t.c.show_on_site.is_(True))).first()
+    if not tour:
+        raise HTTPException(422, "Choose one of our tours.")
+    booked = db.scalar(select(func.coalesce(func.sum(tb.c.pax), 0)).where(tb.c.tour_id == tour.id, tb.c.date == body.date, tb.c.status.in_(["enquiry", "confirmed"]))) or 0
+    if tour.capacity and booked + body.pax > tour.capacity:
+        raise HTTPException(409, f"Only {max(0, int(tour.capacity) - int(booked))} seats left on {tour.name} that day. Try another date.")
+    amount = float(tour.price or 0) * body.pax
+    rid = uuid.uuid4()
+    db.execute(tb.insert().values(id=rid, organization_id=site.organization_id, created_by_id=None, created_at=erp.now(), updated_at=erp.now(), guest=body.name.strip(),
+                                  tour_id=tour.id, date=body.date, pax=body.pax, phone=body.contact.strip(), amount=amount, status="enquiry"))
+    log(db, site.organization_id, None, "tour_bookings_created", "tour_bookings", rid, f"Website tour request: {tour.name}, {body.pax} people")
+    db.commit()
+    return {"ok": True, "amount": amount, "message": f"{tour.name} on {body.date.strftime('%d %b')} for {body.pax}: KES {amount:,.0f}. A guide will confirm shortly."}
+
+
+class TableIn(BaseModel):
+    restaurant: str = Field(pattern="^(grill|terrace|beach)$")
+    date: date
+    time: str = Field(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+    covers: int = Field(ge=1, le=20)
+    name: str = Field(min_length=2, max_length=120)
+    phone: str = Field(min_length=5, max_length=40)
+    notes: str = Field(default="", max_length=300)
+    website: str = ""
+
+
+@public.post("/{slug}/table", status_code=201)
+def table(slug: str, body: TableIn, request: Request, db: Session = Depends(get_db)):
+    rate_limit(f"public-table:{client_ip(request)}", 10, 600)
+    site = _site(db, slug)
+    if body.website:
+        return {"ok": True}
+    if body.date < today():
+        raise HTTPException(422, "Choose a date from today onwards.")
+    rv = erp.TABLES["reservations"]
+    covers = db.scalar(select(func.coalesce(func.sum(rv.c.covers), 0)).where(rv.c.organization_id == site.organization_id, rv.c.restaurant == body.restaurant,
+                                                                               rv.c.date == body.date, rv.c.time == body.time, rv.c.status.in_(["booked", "seated"]))) or 0
+    if covers + body.covers > 40:
+        raise HTTPException(409, "That sitting is full. Try thirty minutes earlier or later.")
+    rid = uuid.uuid4()
+    db.execute(rv.insert().values(id=rid, organization_id=site.organization_id, created_by_id=None, created_at=erp.now(), updated_at=erp.now(), guest=body.name.strip(), phone=body.phone.strip(),
+                                  restaurant=body.restaurant, date=body.date, time=body.time, covers=body.covers, notes=body.notes.strip() or None, status="booked"))
+    log(db, site.organization_id, None, "reservations_created", "reservations", rid, f"Website table for {body.covers} at {body.time}")
+    db.commit()
+    return {"ok": True, "message": f"Table for {body.covers} on {body.date.strftime('%d %b')} at {body.time} is booked."}

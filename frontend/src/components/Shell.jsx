@@ -65,6 +65,7 @@ function Links({ openFlags, approvals, admin, onNavigate, installed, siteSlug })
       })}
       <div className="nav-section">Workspace</div>
       <L to="/app/apps"><Icon d={I.apps} />Apps</L>
+      <L to="/app/account"><Icon d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0" />My account</L>
       {admin && <L to="/app/settings"><Icon d={I.settings} />Settings</L>}
     </>
   );
@@ -98,7 +99,7 @@ export default function Shell() {
       }).catch(() => {});
     }
     const load = () => {
-      api("/flags").then((d) => setOpenFlags(d.items.length)).catch(() => {});
+      api("/flags", { params: user.role === "member" ? { mine: true } : {} }).then((d) => setOpenFlags(d.items.length)).catch(() => {});
       api("/approvals").then((d) => setApprovals(d.length)).catch(() => {});
     };
     load();
@@ -144,10 +145,69 @@ export default function Shell() {
           <span style={{ flex: 1 }} />
           {PREVIEW && <PreviewBar />}
           <span className="hide-md"><ThemeToggle /></span>
+          <Notifications count={openFlags} />
+          <AccountMenu siteSlug={siteSlug} onSignOut={out} />
         </div>
         <Outlet />
       </main>
       {search && <SearchDialog onClose={() => setSearch(false)} />}
+    </div>
+  );
+}
+
+function useOutside(open, setOpen) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const k = (e) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", h); document.addEventListener("keydown", k);
+    return () => { document.removeEventListener("mousedown", h); document.removeEventListener("keydown", k); };
+  }, [open, setOpen]);
+  return ref;
+}
+
+function Notifications({ count }) {
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState(null);
+  const ref = useOutside(open, setOpen);
+  const toggle = async () => { const o = !open; setOpen(o); if (o) api("/flags", { params: { mine: true } }).then((d) => setItems(d.items)).catch(() => setItems([])); };
+  return (
+    <div className="menu-wrap" ref={ref}>
+      <button className="btn btn-icon icon-badge" aria-label={`Notifications, ${count} open alerts`} aria-expanded={open} onClick={toggle}>
+        <Icon d="M6 8a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8M10 21h4" />{count > 0 && <span>{count > 99 ? "99+" : count}</span>}
+      </button>
+      {open && (
+        <div className="menu" role="dialog" aria-label="Notifications" style={{ width: 360 }}>
+          <div className="menu-head"><b>Assigned to you</b><Link to="/app/attention" onClick={() => setOpen(false)}>All alerts</Link></div>
+          {items === null ? <div className="menu-empty">Loading...</div> : items.length === 0 ? <div className="menu-empty">Nothing needs you right now.</div> : items.slice(0, 6).map((f) => (
+            <Link key={f.id} to="/app/attention" className="menu-item" onClick={() => setOpen(false)}><b>{f.title}</b><span>{f.detail}</span></Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AccountMenu({ siteSlug, onSignOut }) {
+  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const ref = useOutside(open, setOpen);
+  const role = { admin: "Administrator", manager: "Manager", member: "Field team", viewer: "Read only" }[user.role] || user.role;
+  return (
+    <div className="menu-wrap" ref={ref}>
+      <button className="account-btn" aria-expanded={open} aria-label="Account" onClick={() => setOpen(!open)}>
+        <span className="avatar">{initials(user.full_name)}</span><span className="hide-sm account-name"><b>{user.full_name.split(" ")[0]}</b><span>{role}</span></span>
+      </button>
+      {open && (
+        <div className="menu" role="menu" style={{ width: 260 }}>
+          <div className="menu-head" style={{ flexDirection: "column", alignItems: "flex-start", gap: 2 }}><b>{user.full_name}</b><span className="small muted">{user.email}</span></div>
+          <Link role="menuitem" to="/app/account" className="menu-item" onClick={() => setOpen(false)}>My account</Link>
+          {siteSlug && <Link role="menuitem" to={`/site/${siteSlug}`} className="menu-item" onClick={() => setOpen(false)}>View public website</Link>}
+          {user.role === "admin" && <Link role="menuitem" to="/app/settings" className="menu-item" onClick={() => setOpen(false)}>Team and settings</Link>}
+          <button role="menuitem" className="menu-item" onClick={onSignOut}>Sign out</button>
+        </div>
+      )}
     </div>
   );
 }

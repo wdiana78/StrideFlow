@@ -3,9 +3,15 @@
   "Funding",
   "Finance",
   "Sales",
+  "Branches",
+  "Deliveries",
+  "Studio",
+  "Social media",
   "Procurement",
   "Inventory",
   "Bookings",
+  "Dining",
+  "Tours",
   "People",
   "Participants",
   "Operations",
@@ -973,6 +979,34 @@
      "label": "Category",
      "type": "select",
      "options": [
+      [
+       "apparel",
+       "Apparel"
+      ],
+      [
+       "footwear",
+       "Footwear"
+      ],
+      [
+       "accessories",
+       "Accessories"
+      ],
+      [
+       "food",
+       "Food and beverage"
+      ],
+      [
+       "linen",
+       "Linen and amenities"
+      ],
+      [
+       "equipment",
+       "Equipment"
+      ],
+      [
+       "packaging",
+       "Packaging"
+      ],
       [
        "health",
        "Health supplies"
@@ -2080,6 +2114,18 @@
       [
        "other",
        "Other"
+      ],
+      [
+       "booking",
+       "Booking"
+      ],
+      [
+       "tour",
+       "Tour"
+      ],
+      [
+       "table",
+       "Table"
       ]
      ],
      "list": true,
@@ -3497,6 +3543,1309 @@
    "edit": [
     "admin",
     "manager"
+   ],
+   "delete": [
+    "admin",
+    "manager"
+   ]
+  },
+  {
+   "key": "branches",
+   "app": "branches",
+   "label": "Branches",
+   "singular": "Branch",
+   "group": "Branches",
+   "description": "Stores and their monthly targets.",
+   "title_field": "name",
+   "fields": [
+    {
+     "key": "name",
+     "label": "Branch",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "city",
+     "label": "City",
+     "type": "text",
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "manager",
+     "label": "Branch manager",
+     "type": "text",
+     "list": true
+    },
+    {
+     "key": "phone",
+     "label": "Phone",
+     "type": "text"
+    },
+    {
+     "key": "address",
+     "label": "Address",
+     "type": "text"
+    },
+    {
+     "key": "hours",
+     "label": "Opening hours",
+     "type": "text"
+    },
+    {
+     "key": "monthly_target",
+     "label": "Monthly sales target",
+     "type": "money",
+     "list": true
+    },
+    {
+     "key": "opened_on",
+     "label": "Opened",
+     "type": "date"
+    },
+    {
+     "key": "show_on_site",
+     "label": "Show on website",
+     "type": "bool",
+     "list": true
+    }
+   ],
+   "create": [
+    "admin",
+    "manager"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ]
+  },
+  {
+   "key": "branch_sales",
+   "app": "branches",
+   "label": "Daily sales",
+   "singular": "Sales entry",
+   "group": "Branches",
+   "description": "End-of-day takings for each branch.",
+   "title_field": "date",
+   "fields": [
+    {
+     "key": "branch_id",
+     "label": "Branch",
+     "type": "ref",
+     "ref": "branches",
+     "required": true,
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "date",
+     "label": "Date",
+     "type": "date",
+     "required": true,
+     "list": true
+    },
+    {
+     "key": "gross",
+     "label": "Gross sales",
+     "type": "money",
+     "required": true,
+     "list": true,
+     "min": 0
+    },
+    {
+     "key": "transactions",
+     "label": "Transactions",
+     "type": "number",
+     "list": true,
+     "min": 0
+    },
+    {
+     "key": "top_category",
+     "label": "Best-selling category",
+     "type": "select",
+     "options": [
+      [
+       "denim",
+       "Denim"
+      ],
+      [
+       "shirts",
+       "Shirts"
+      ],
+      [
+       "dresses",
+       "Dresses"
+      ],
+      [
+       "footwear",
+       "Footwear"
+      ],
+      [
+       "accessories",
+       "Accessories"
+      ],
+      [
+       "kids",
+       "Kids"
+      ]
+     ],
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "notes",
+     "label": "Notes",
+     "type": "textarea"
+    }
+   ],
+   "create": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ]
+  },
+  {
+   "key": "transfers",
+   "app": "branches",
+   "label": "Stock transfers",
+   "singular": "Transfer",
+   "group": "Branches",
+   "description": "Move stock between branches with a clear hand-over.",
+   "title_field": "reference",
+   "fields": [
+    {
+     "key": "reference",
+     "label": "Reference",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "item_id",
+     "label": "Item",
+     "type": "ref",
+     "ref": "items",
+     "required": true,
+     "list": true
+    },
+    {
+     "key": "quantity",
+     "label": "Quantity",
+     "type": "number",
+     "required": true,
+     "list": true,
+     "min": 1
+    },
+    {
+     "key": "from_branch",
+     "label": "From",
+     "type": "ref",
+     "ref": "branches",
+     "required": true,
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "to_branch",
+     "label": "To",
+     "type": "ref",
+     "ref": "branches",
+     "required": true,
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "requested_on",
+     "label": "Requested",
+     "type": "date",
+     "required": true,
+     "list": true
+    }
+   ],
+   "status": {
+    "field": "status",
+    "default": "requested",
+    "board": true,
+    "options": [
+     [
+      "requested",
+      "Requested"
+     ],
+     [
+      "dispatched",
+      "Dispatched"
+     ],
+     [
+      "received",
+      "Received"
+     ],
+     [
+      "cancelled",
+      "Cancelled"
+     ]
+    ],
+    "transitions": [
+     {
+      "from": [
+       "requested"
+      ],
+      "to": "dispatched",
+      "label": "Dispatch",
+      "roles": [
+       "admin",
+       "manager"
+      ]
+     },
+     {
+      "from": [
+       "dispatched"
+      ],
+      "to": "received",
+      "label": "Confirm received",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "requested"
+      ],
+      "to": "cancelled",
+      "label": "Cancel",
+      "roles": [
+       "admin",
+       "manager"
+      ],
+      "note": true
+     }
+    ]
+   },
+   "create": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ]
+  },
+  {
+   "key": "deliveries",
+   "app": "deliveries",
+   "label": "Deliveries",
+   "singular": "Delivery",
+   "group": "Deliveries",
+   "description": "Every order from dispatch to doorstep.",
+   "title_field": "reference",
+   "fields": [
+    {
+     "key": "reference",
+     "label": "Order reference",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true,
+     "unique": true
+    },
+    {
+     "key": "customer",
+     "label": "Customer",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "phone",
+     "label": "Phone",
+     "type": "text",
+     "list": true
+    },
+    {
+     "key": "address",
+     "label": "Delivery address",
+     "type": "text",
+     "required": true,
+     "list": true
+    },
+    {
+     "key": "branch_id",
+     "label": "Dispatch branch",
+     "type": "ref",
+     "ref": "branches",
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "rider",
+     "label": "Rider",
+     "type": "text",
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "amount",
+     "label": "Order value",
+     "type": "money",
+     "list": true
+    },
+    {
+     "key": "items",
+     "label": "Items",
+     "type": "textarea"
+    }
+   ],
+   "status": {
+    "field": "status",
+    "default": "new",
+    "board": true,
+    "options": [
+     [
+      "new",
+      "New"
+     ],
+     [
+      "assigned",
+      "Rider assigned"
+     ],
+     [
+      "out",
+      "Out for delivery"
+     ],
+     [
+      "delivered",
+      "Delivered"
+     ],
+     [
+      "failed",
+      "Failed"
+     ]
+    ],
+    "transitions": [
+     {
+      "from": [
+       "new"
+      ],
+      "to": "assigned",
+      "label": "Assign rider",
+      "roles": [
+       "admin",
+       "manager"
+      ]
+     },
+     {
+      "from": [
+       "assigned"
+      ],
+      "to": "out",
+      "label": "Picked up",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "out"
+      ],
+      "to": "delivered",
+      "label": "Delivered",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "assigned",
+       "out"
+      ],
+      "to": "failed",
+      "label": "Failed",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ],
+      "note": true
+     },
+     {
+      "from": [
+       "failed"
+      ],
+      "to": "assigned",
+      "label": "Retry",
+      "roles": [
+       "admin",
+       "manager"
+      ]
+     }
+    ]
+   },
+   "create": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ]
+  },
+  {
+   "key": "productions",
+   "app": "studio",
+   "label": "Productions",
+   "singular": "Production",
+   "group": "Studio",
+   "description": "Shoots and films from brief to delivery.",
+   "title_field": "title",
+   "fields": [
+    {
+     "key": "title",
+     "label": "Production",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "client_id",
+     "label": "Client",
+     "type": "ref",
+     "ref": "customers",
+     "required": true,
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "kind",
+     "label": "Type",
+     "type": "select",
+     "required": true,
+     "options": [
+      [
+       "photography",
+       "Photography"
+      ],
+      [
+       "videography",
+       "Videography"
+      ],
+      [
+       "film",
+       "Film production"
+      ],
+      [
+       "social",
+       "Social content"
+      ],
+      [
+       "event",
+       "Event coverage"
+      ]
+     ],
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "shoot_date",
+     "label": "Shoot date",
+     "type": "date",
+     "list": true
+    },
+    {
+     "key": "location",
+     "label": "Location",
+     "type": "text",
+     "list": true
+    },
+    {
+     "key": "crew",
+     "label": "Crew",
+     "type": "text"
+    },
+    {
+     "key": "budget",
+     "label": "Budget",
+     "type": "money",
+     "list": true
+    },
+    {
+     "key": "deliverables",
+     "label": "Deliverables",
+     "type": "textarea"
+    },
+    {
+     "key": "due_on",
+     "label": "Delivery due",
+     "type": "date",
+     "list": true
+    }
+   ],
+   "status": {
+    "field": "status",
+    "default": "brief",
+    "board": true,
+    "options": [
+     [
+      "brief",
+      "Brief"
+     ],
+     [
+      "booked",
+      "Booked"
+     ],
+     [
+      "shooting",
+      "Shooting"
+     ],
+     [
+      "editing",
+      "In edit"
+     ],
+     [
+      "review",
+      "Client review"
+     ],
+     [
+      "delivered",
+      "Delivered"
+     ]
+    ],
+    "transitions": [
+     {
+      "from": [
+       "brief"
+      ],
+      "to": "booked",
+      "label": "Book",
+      "roles": [
+       "admin",
+       "manager"
+      ]
+     },
+     {
+      "from": [
+       "booked"
+      ],
+      "to": "shooting",
+      "label": "Start shoot",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "shooting"
+      ],
+      "to": "editing",
+      "label": "Send to edit",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "editing"
+      ],
+      "to": "review",
+      "label": "Send for review",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "review"
+      ],
+      "to": "editing",
+      "label": "Revisions",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ],
+      "note": true
+     },
+     {
+      "from": [
+       "review"
+      ],
+      "to": "delivered",
+      "label": "Delivered",
+      "roles": [
+       "admin",
+       "manager"
+      ]
+     }
+    ]
+   },
+   "create": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "edit": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "delete": [
+    "admin",
+    "manager"
+   ]
+  },
+  {
+   "key": "posts",
+   "app": "social",
+   "label": "Content calendar",
+   "singular": "Post",
+   "group": "Social media",
+   "description": "Client posts from draft to published.",
+   "title_field": "title",
+   "fields": [
+    {
+     "key": "title",
+     "label": "Post",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "client_id",
+     "label": "Client",
+     "type": "ref",
+     "ref": "customers",
+     "required": true,
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "platform",
+     "label": "Platform",
+     "type": "select",
+     "required": true,
+     "options": [
+      [
+       "instagram",
+       "Instagram"
+      ],
+      [
+       "tiktok",
+       "TikTok"
+      ],
+      [
+       "facebook",
+       "Facebook"
+      ],
+      [
+       "linkedin",
+       "LinkedIn"
+      ],
+      [
+       "x",
+       "X"
+      ],
+      [
+       "youtube",
+       "YouTube"
+      ]
+     ],
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "format",
+     "label": "Format",
+     "type": "select",
+     "options": [
+      [
+       "reel",
+       "Reel"
+      ],
+      [
+       "carousel",
+       "Carousel"
+      ],
+      [
+       "story",
+       "Story"
+      ],
+      [
+       "video",
+       "Video"
+      ],
+      [
+       "post",
+       "Single image"
+      ]
+     ],
+     "list": true
+    },
+    {
+     "key": "publish_on",
+     "label": "Publish on",
+     "type": "date",
+     "required": true,
+     "list": true
+    },
+    {
+     "key": "caption",
+     "label": "Caption",
+     "type": "textarea"
+    }
+   ],
+   "status": {
+    "field": "status",
+    "default": "draft",
+    "board": true,
+    "options": [
+     [
+      "draft",
+      "Draft"
+     ],
+     [
+      "review",
+      "Client review"
+     ],
+     [
+      "approved",
+      "Approved"
+     ],
+     [
+      "scheduled",
+      "Scheduled"
+     ],
+     [
+      "published",
+      "Published"
+     ]
+    ],
+    "transitions": [
+     {
+      "from": [
+       "draft"
+      ],
+      "to": "review",
+      "label": "Send to client",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "review"
+      ],
+      "to": "draft",
+      "label": "Changes requested",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ],
+      "note": true
+     },
+     {
+      "from": [
+       "review"
+      ],
+      "to": "approved",
+      "label": "Approved",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "approved"
+      ],
+      "to": "scheduled",
+      "label": "Schedule",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "scheduled"
+      ],
+      "to": "published",
+      "label": "Published",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     }
+    ]
+   },
+   "create": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "edit": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "delete": [
+    "admin",
+    "manager"
+   ]
+  },
+  {
+   "key": "reservations",
+   "app": "dining",
+   "label": "Table reservations",
+   "singular": "Reservation",
+   "group": "Dining",
+   "description": "Restaurant bookings by sitting and covers.",
+   "title_field": "guest",
+   "fields": [
+    {
+     "key": "guest",
+     "label": "Guest",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "phone",
+     "label": "Phone",
+     "type": "text",
+     "list": true
+    },
+    {
+     "key": "restaurant",
+     "label": "Restaurant",
+     "type": "select",
+     "required": true,
+     "options": [
+      [
+       "grill",
+       "Ocean Grill"
+      ],
+      [
+       "terrace",
+       "Spice Terrace"
+      ],
+      [
+       "beach",
+       "Beach Bar"
+      ]
+     ],
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "date",
+     "label": "Date",
+     "type": "date",
+     "required": true,
+     "list": true
+    },
+    {
+     "key": "time",
+     "label": "Time",
+     "type": "text",
+     "required": true,
+     "list": true
+    },
+    {
+     "key": "covers",
+     "label": "Guests",
+     "type": "number",
+     "required": true,
+     "list": true,
+     "min": 1,
+     "max": 60
+    },
+    {
+     "key": "notes",
+     "label": "Requests",
+     "type": "textarea"
+    }
+   ],
+   "status": {
+    "field": "status",
+    "default": "booked",
+    "board": true,
+    "options": [
+     [
+      "booked",
+      "Booked"
+     ],
+     [
+      "seated",
+      "Seated"
+     ],
+     [
+      "completed",
+      "Completed"
+     ],
+     [
+      "no_show",
+      "No-show"
+     ],
+     [
+      "cancelled",
+      "Cancelled"
+     ]
+    ],
+    "transitions": [
+     {
+      "from": [
+       "booked"
+      ],
+      "to": "seated",
+      "label": "Seat",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "seated"
+      ],
+      "to": "completed",
+      "label": "Complete",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "booked"
+      ],
+      "to": "no_show",
+      "label": "No-show",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "booked"
+      ],
+      "to": "cancelled",
+      "label": "Cancel",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ],
+      "note": true
+     }
+    ]
+   },
+   "create": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "edit": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "delete": [
+    "admin",
+    "manager"
+   ]
+  },
+  {
+   "key": "guides",
+   "app": "tours",
+   "label": "Guides",
+   "singular": "Guide",
+   "group": "Tours",
+   "description": "Licensed guides and their languages.",
+   "title_field": "name",
+   "fields": [
+    {
+     "key": "name",
+     "label": "Guide",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "languages",
+     "label": "Languages",
+     "type": "text",
+     "list": true
+    },
+    {
+     "key": "licence",
+     "label": "KWS / KPSGA licence",
+     "type": "text",
+     "list": true
+    },
+    {
+     "key": "phone",
+     "label": "Phone",
+     "type": "text"
+    },
+    {
+     "key": "available",
+     "label": "Available",
+     "type": "bool",
+     "list": true,
+     "filter": true
+    }
+   ],
+   "create": [
+    "admin",
+    "manager"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ]
+  },
+  {
+   "key": "tours",
+   "app": "tours",
+   "label": "Tours and excursions",
+   "singular": "Tour",
+   "group": "Tours",
+   "description": "Experiences guests can book.",
+   "title_field": "name",
+   "fields": [
+    {
+     "key": "name",
+     "label": "Tour",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "duration",
+     "label": "Duration",
+     "type": "text",
+     "list": true
+    },
+    {
+     "key": "price",
+     "label": "Price per person",
+     "type": "money",
+     "required": true,
+     "list": true
+    },
+    {
+     "key": "capacity",
+     "label": "Seats",
+     "type": "number",
+     "list": true
+    },
+    {
+     "key": "description",
+     "label": "Description",
+     "type": "textarea"
+    },
+    {
+     "key": "show_on_site",
+     "label": "Show on website",
+     "type": "bool",
+     "list": true
+    }
+   ],
+   "create": [
+    "admin",
+    "manager"
+   ],
+   "edit": [
+    "admin",
+    "manager"
+   ],
+   "delete": [
+    "admin"
+   ]
+  },
+  {
+   "key": "tour_bookings",
+   "app": "tours",
+   "label": "Tour bookings",
+   "singular": "Tour booking",
+   "group": "Tours",
+   "description": "Who is going where, with which guide.",
+   "title_field": "guest",
+   "fields": [
+    {
+     "key": "guest",
+     "label": "Lead guest",
+     "type": "text",
+     "required": true,
+     "list": true,
+     "search": true
+    },
+    {
+     "key": "tour_id",
+     "label": "Tour",
+     "type": "ref",
+     "ref": "tours",
+     "required": true,
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "date",
+     "label": "Date",
+     "type": "date",
+     "required": true,
+     "list": true
+    },
+    {
+     "key": "pax",
+     "label": "People",
+     "type": "number",
+     "required": true,
+     "list": true,
+     "min": 1,
+     "max": 60
+    },
+    {
+     "key": "guide_id",
+     "label": "Guide",
+     "type": "ref",
+     "ref": "guides",
+     "list": true,
+     "filter": true
+    },
+    {
+     "key": "phone",
+     "label": "Phone or email",
+     "type": "text"
+    },
+    {
+     "key": "amount",
+     "label": "Amount",
+     "type": "money",
+     "list": true
+    }
+   ],
+   "status": {
+    "field": "status",
+    "default": "enquiry",
+    "board": true,
+    "options": [
+     [
+      "enquiry",
+      "Enquiry"
+     ],
+     [
+      "confirmed",
+      "Confirmed"
+     ],
+     [
+      "completed",
+      "Completed"
+     ],
+     [
+      "cancelled",
+      "Cancelled"
+     ]
+    ],
+    "transitions": [
+     {
+      "from": [
+       "enquiry"
+      ],
+      "to": "confirmed",
+      "label": "Confirm",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "confirmed"
+      ],
+      "to": "completed",
+      "label": "Complete",
+      "roles": [
+       "admin",
+       "manager",
+       "member"
+      ]
+     },
+     {
+      "from": [
+       "enquiry",
+       "confirmed"
+      ],
+      "to": "cancelled",
+      "label": "Cancel",
+      "roles": [
+       "admin",
+       "manager"
+      ],
+      "note": true
+     }
+    ]
+   },
+   "create": [
+    "admin",
+    "manager",
+    "member"
+   ],
+   "edit": [
+    "admin",
+    "manager",
+    "member"
    ],
    "delete": [
     "admin",

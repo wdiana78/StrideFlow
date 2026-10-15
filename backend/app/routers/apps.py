@@ -1,6 +1,8 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel, Field
+import logging
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -85,3 +87,24 @@ def setup_new_org(db: Session, org: Organization, user: User, industry: str, slu
         db.execute(st.insert().values(id=uuid.uuid4(), organization_id=org.id, created_by_id=user.id, created_at=erp.now(), updated_at=erp.now(),
                                       slug=slug, tagline=f"Welcome to {org.name}", intro=f"{org.name} on Kept.", show_impact=True,
                                       brand_primary=pal["primary"], brand_accent=pal["accent"]))
+
+
+
+class DemoIn(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    organization: str = Field(min_length=2, max_length=160)
+    industry: str = Field(max_length=40)
+    size: str = Field(max_length=20)
+    contact: str = Field(min_length=5, max_length=160)
+    message: str = Field(default="", max_length=2000)
+    website: str = ""
+
+
+@router.post("/platform/demo-request", status_code=201)
+def demo_request(body: DemoIn, request: Request):
+    """Sales enquiries from kept.africa. In production these go to the sales inbox (SMTP or CRM webhook)."""
+    from ..hardening import client_ip, rate_limit
+    rate_limit(f"demo:{client_ip(request)}", 5, 3600)
+    if not body.website:
+        logging.getLogger("kept.sales").info("Demo request from %s (%s, %s, %s)", body.organization, body.industry, body.size, body.contact)
+    return {"ok": True}

@@ -105,3 +105,30 @@ def test_public_booking_request_respects_availability(client):
     assert clash.status_code == 409
     b = client.get("/api/m/bookings", headers=h).json()["items"][0]
     assert b["status"] == "tentative" and b["guest"] == "Ben"
+
+
+def test_retail_order_can_be_tracked_only_with_the_matching_phone(client):
+    h, org = reg(client, "retail", "chain@test.example", slug="chain")
+    assert "deliveries" in org["installed_apps"] and "funding" not in org["installed_apps"]
+    item = client.post("/api/m/items", headers=h, json={"name": "Denim jacket", "unit": "pieces", "reorder_level": 1, "price": 4800, "show_on_site": True}).json()
+    client.post("/api/m/stock_moves", headers=h, json={"item_id": item["id"], "direction": "in", "quantity": 5, "moved_on": "2026-10-01"})
+    ref = client.post("/api/public/chain/order", json={"name": "Asha", "contact": "0712 345 678", "address": "Kilimani", "items": [{"id": item["id"], "qty": 1}]}).json()["reference"]
+    assert client.get("/api/public/chain/track", params={"ref": ref, "phone": "0799 000 000"}).status_code == 404
+    t = client.get("/api/public/chain/track", params={"ref": ref, "phone": "+254712345678"}).json()
+    assert t["status"] == "new" and t["step"] == 0
+    d = client.get("/api/m/deliveries", headers=h).json()["items"][0]
+    assert d["reference"] == ref and d["address"] == "Kilimani"
+
+
+def test_hotel_tours_and_tables_respect_capacity(client):
+    h, _ = reg(client, "hospitality", "hotel@test.example", slug="hotel")
+    tour = client.post("/api/m/tours", headers=h, json={"name": "Dhow cruise", "price": 7500, "capacity": 4, "show_on_site": True}).json()
+    ok = client.post("/api/public/hotel/tour-booking", json={"tour_id": tour["id"], "date": "2026-11-02", "pax": 3, "name": "Ben", "contact": "0712345678"})
+    assert ok.status_code == 201 and ok.json()["amount"] == 22500
+    full = client.post("/api/public/hotel/tour-booking", json={"tour_id": tour["id"], "date": "2026-11-02", "pax": 2, "name": "Cy", "contact": "0712345678"})
+    assert full.status_code == 409 and "Only 1 seats" in full.json()["detail"]
+    t = client.post("/api/public/hotel/table", json={"restaurant": "grill", "date": "2026-11-02", "time": "19:30", "covers": 4, "name": "Dee", "phone": "0712345678"})
+    assert t.status_code == 201
+    assert client.post("/api/public/hotel/table", json={"restaurant": "grill", "date": "2026-11-02", "time": "7pm", "covers": 4, "name": "Dee", "phone": "0712345678"}).status_code == 422
+    ops = client.get("/api/dashboard", headers=h).json()["ops"]
+    assert ops["tours"]["enquiries"] == 1 and "rooms" in ops and "branches" not in ops

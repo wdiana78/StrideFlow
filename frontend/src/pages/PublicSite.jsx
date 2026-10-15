@@ -8,7 +8,7 @@ import { fmtDate, fmtNum, initials } from "../format";
 import { useApi } from "../hooks";
 import { isoToday } from "../format";
 import { TzAbout, TzContact, TzDonate, TzGallery, TzHome, TzLayout, TzLogin, TzProgramme, TzVolunteer, TzWork } from "./CommunitySite";
-import { BriefForm, CommunityArt, CottageArt, Count, Rooms, Shop, ShoeArt, StaySearch, useReveal, Work } from "./SiteKits";
+import { BriefForm, CommunityArt, CottageArt, Count, Dining, Experiences, GarmentArt, Rooms, Shop, ShoeArt, StaySearch, Stores, TrackOrder, useReveal, Work } from "./SiteKits";
 
 // The organization's public website. Content is edited in Website; numbers come live from verified records.
 const Site = createContext(null);
@@ -44,11 +44,11 @@ export default function PublicSite({ slugOverride }) {
   if (error) return <div style={{ padding: 40 }}><ErrorNotice error={error} onRetry={reload} /></div>;
   const vars = { "--s-display": FONTS[data.heading_font] || FONTS.fraunces, "--s-primary": data.brand.primary, "--s-accent": data.brand.accent, "--s-deep": data.brand.deep || data.brand.primary, "--s-ink": "#24161C", "--s-sand": `color-mix(in srgb, ${data.brand.accent} 9%, #FFFBF8)` };
   const ind = data.industry;
-  const links = ind === "retail" ? [["", "Home"], ["/shop", "Shop"], ["/about", "Our story"], ["/services", "Repairs and care"], ["/contact", "Contact"]]
-    : ind === "hospitality" ? [["", "Home"], ["/rooms", "Rooms"], ["/about", "About"], ["/services", "Experiences"], ["/contact", "Find us"]]
-      : ind === "agency" ? [["", "Studio"], ["/work", "Work"], ["/services", "Services"], ["/about", "About"], ["/contact", "Contact"]]
+  const links = ind === "retail" ? [["", "Home"], ["/shop", "Shop"], ["/stores", "Stores"], ["/track", "Track order"], ["/about", "Our story"], ["/contact", "Contact"]]
+    : ind === "hospitality" ? [["", "Home"], ["/rooms", "Rooms"], ["/dining", "Dining"], ["/experiences", "Safaris and tours"], ["/about", "About"], ["/contact", "Contact"]]
+      : ind === "agency" ? [["", "Studio"], ["/work", "Work"], ["/services", "Services"], ["/about", "About"], ["/contact", "Book a shoot"]]
         : [["", "Home"], ["/about", "About"], ["/programmes", "Programmes"], ["/services", "Services"], ["/stories", "Stories"], ["/gallery", "Gallery"], ["/impact", "Impact"], ["/contact", "Contact"]];
-  const cta = ind === "retail" ? ["/shop", "Shop now"] : ind === "hospitality" ? ["/rooms", "Book a stay"] : ind === "agency" ? ["/contact", "Start a project"] : ["/donate", "♥ Donate"];
+  const cta = ind === "retail" ? ["/shop", "Shop now"] : ind === "hospitality" ? ["/rooms", "Book a stay"] : ind === "agency" ? ["/contact", "Book a shoot"] : ["/donate", "Donate"];
   if (["community", "education", "health"].includes(data.industry)) {
     const ctx = { ...data, base, reload, palette: brandPalette(data.brand), today: isoToday() };
     const R = (to) => <Navigate to={`${base}${to}`} replace />;
@@ -84,6 +84,10 @@ export default function PublicSite({ slugOverride }) {
             <Route index element={ind === "retail" ? <ShopHome /> : ind === "hospitality" ? <StayHome /> : ind === "agency" ? <StudioHome /> : <Home />} />
             <Route path="shop" element={<><PageHead eyebrow="Shop" title="The collection" sub="Handmade in Nairobi. Stock updates live from the workshop." /><section className="container" style={{ padding: "48px 32px 80px" }}><ShopPage /></section></>} />
             <Route path="rooms" element={<><PageHead eyebrow="Stay" title="Rooms and venue" sub="Live availability. Hold your dates in a minute." /><RoomsPage /></>} />
+            <Route path="stores" element={<><PageHead eyebrow="Stores" title="Find a Hatua store" sub="Five stores, open seven days. Free alterations at every branch." /><section className="container" style={{ padding: "48px 32px 80px" }}><StoresPage /></section></>} />
+            <Route path="track" element={<><PageHead eyebrow="Delivery" title="Track your order" sub="Enter the reference from your confirmation message." /><section className="container" style={{ padding: "48px 32px 80px" }}><TrackPage /></section></>} />
+            <Route path="dining" element={<><PageHead eyebrow="Dining" title="Three restaurants on the beach" sub="Reserve a table. Hotel guests and visitors welcome." /><section className="container" style={{ padding: "48px 32px 80px" }}><DiningPage /></section></>} />
+            <Route path="experiences" element={<><PageHead eyebrow="Safaris and tours" title="From the reef to Tsavo" sub="Small groups, licensed guides, pick-up from the hotel." /><section className="container" style={{ padding: "48px 32px 80px" }}><ExperiencesPage /></section></>} />
             <Route path="work" element={<><PageHead eyebrow="Work" title="Selected work" /><section className="container" style={{ padding: "48px 32px 80px" }}><WorkPage /></section></>} />
             <Route path="about" element={<About />} />
             <Route path="programmes" element={<Programmes />} />
@@ -206,24 +210,28 @@ function ShopHome() {
       <section style={{ background: "var(--s-deep)", color: "#fff", overflow: "hidden" }}>
         <div className="container" style={{ padding: "72px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 380px), 1fr))", gap: 40, alignItems: "center" }}>
           <div className="stack reveal" style={{ gap: 22 }}>
-            <span style={{ color: "var(--s-accent)", fontWeight: 600 }}>New: the Safari chukka boot</span>
+            <span style={{ color: "var(--s-accent)", fontWeight: 600 }}>New season: the coast linen edit</span>
             <h1 style={{ fontSize: "clamp(48px, 7vw, 92px)", lineHeight: .95, fontWeight: 800, letterSpacing: "-2.5px" }}>{s.tagline}</h1>
             <p style={{ fontSize: 19, lineHeight: "30px", opacity: .85, maxWidth: 520 }}>{s.intro}</p>
-            <div className="row wrap"><Link to={`${s.base}/shop`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "#111", fontWeight: 800 }}>Shop the collection</Link><Link to={`${s.base}/about`} className="btn btn-lg" style={{ background: "transparent", color: "#fff", borderColor: "rgba(255,255,255,.35)" }}>Meet the makers</Link></div>
+            <div className="row wrap"><Link to={`${s.base}/shop`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "#111", fontWeight: 800 }}>Shop the collection</Link><Link to={`${s.base}/stores`} className="btn btn-lg" style={{ background: "transparent", color: "#fff", borderColor: "rgba(255,255,255,.35)" }}>Find a store</Link></div>
           </div>
           <div className="reveal" style={{ position: "relative" }}>
-            <div style={{ position: "relative", transform: "rotate(-8deg)" }}><ShoeArt color={s.brand.accent} accent={s.brand.primary} kind={0} /></div>
-            <div style={{ position: "relative", width: "62%", marginLeft: "auto", marginTop: -40, transform: "rotate(6deg)" }}><ShoeArt color="#F2E9DC" accent={s.brand.accent} kind={1} /></div>
+            <div style={{ position: "relative", width: "78%", transform: "rotate(-6deg)" }}><GarmentArt name="denim jacket" color={s.brand.accent} accent={s.brand.primary} /></div>
+            <div style={{ position: "relative", width: "58%", marginLeft: "auto", marginTop: -70, transform: "rotate(5deg)" }}><GarmentArt name="wrap dress" color="#F2E9DC" accent={s.brand.accent} /></div>
           </div>
         </div>
       </section>
       <section className="container stack" style={{ padding: "80px 32px", gap: 28 }}>
-        <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="Bestsellers" title="Walk in something made by hand" /><Link to={`${s.base}/shop`} className="btn">All products →</Link></div>
+        <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="Bestsellers" title="Made in our Nairobi workshop" /><Link to={`${s.base}/shop`} className="btn">All products</Link></div>
         <Shop s={s} compact />
+      </section>
+      <section className="container stack" style={{ padding: "0 32px 80px", gap: 28 }}>
+        <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="Stores" title="Try it on in person" /><Link to={`${s.base}/stores`} className="btn">All stores</Link></div>
+        <Stores s={s} />
       </section>
       <section style={{ background: "var(--s-sand)" }}>
         <div className="container" style={{ padding: "72px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
-          {[["Cut and stitched in Gikomba", "Every pair passes through three artisans' hands."], ["Recycled tyre soles", "Each sole keeps a tyre out of the dump."], ["Repairs for life", "Bring any pair back for free stitching."], ["M-Pesa, delivered", "Order online, pay on confirmation, delivery in 48 hours."]].map(([t, d]) => (
+          {[["Made in Nairobi", "Cut and sewn in our own workshop by 60 tailors."], ["Five stores", "Nairobi, Mombasa, Kisumu and Eldoret, open seven days."], ["Free alterations", "Hems, sleeves and waists adjusted free within 30 days."], ["Delivered and tracked", "Same day in Nairobi, two days countrywide, with live tracking."]].map(([t, d]) => (
             <div key={t} className="stack-sm reveal" style={{ gap: 8, paddingTop: 18, borderTop: "1px solid #24161C" }}><b style={{ fontSize: 18 }}>{t}</b><span style={{ color: "#57434D" }}>{d}</span></div>
           ))}
         </div>
@@ -234,6 +242,10 @@ function ShopHome() {
 }
 
 function RoomsPage() { const s = useSite(); return <Rooms s={s} today={s.today} />; }
+function StoresPage() { const s = useSite(); return <Stores s={s} />; }
+function TrackPage() { const s = useSite(); return <TrackOrder s={s} />; }
+function DiningPage() { const s = useSite(); return <Dining s={s} today={s.today} />; }
+function ExperiencesPage() { const s = useSite(); return <Experiences s={s} today={s.today} />; }
 function WorkPage() { const s = useSite(); return <Work s={s} />; }
 
 function StayHome() {
@@ -254,6 +266,16 @@ function StayHome() {
       <section className="container stack" style={{ padding: "64px 32px", gap: 26 }}>
         <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="Stay with us" title="Rooms and venue" /><Link to={`${s.base}/rooms`} className="btn">See availability →</Link></div>
         <Rooms s={s} today={s.today} bare />
+      </section>
+      <section style={{ background: "var(--s-sand)" }}>
+        <div className="container stack" style={{ padding: "72px 32px", gap: 26 }}>
+          <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="Safaris and tours" title="From the reef to Tsavo" /><Link to={`${s.base}/experiences`} className="btn">All experiences</Link></div>
+          <Experiences s={s} today={s.today} />
+        </div>
+      </section>
+      <section className="container stack" style={{ padding: "72px 32px", gap: 26 }}>
+        <div className="spread" style={{ alignItems: "flex-end" }}><H2 eyebrow="Dining" title="Three restaurants on the beach" /><Link to={`${s.base}/dining`} className="btn">Reserve a table</Link></div>
+        <Dining s={s} today={s.today} />
       </section>
       <section style={{ background: "var(--s-sand)" }}>
         <div className="container" style={{ padding: "64px 32px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))", gap: 24, alignItems: "center" }}>
@@ -277,7 +299,7 @@ function StudioHome() {
           </h1>
           <div className="spread" style={{ alignItems: "flex-end" }}>
             <p style={{ fontSize: 20, lineHeight: "31px", opacity: .8, maxWidth: 560 }}>{s.intro}</p>
-            <Link to={`${s.base}/contact`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "#111", fontWeight: 800 }}>Start a project →</Link>
+            <Link to={`${s.base}/contact`} className="btn btn-lg" style={{ background: "var(--s-accent)", borderColor: "var(--s-accent)", color: "#111", fontWeight: 800 }}>Book a shoot</Link>
           </div>
         </div>
       </section>
@@ -619,9 +641,11 @@ const GALLERY_ICONS = { "Health Advocacy": "M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4
   "Disability Inclusion": "M12 4a2 2 0 100 4 2 2 0 000-4zM9 10h6l-1 5h3l2 5M11 15a4 4 0 104 4", "Climate Change": "M12 22V12M12 12C12 6 7 3 3 3c0 5 3 9 9 9zM12 14c0-5 4-8 9-8 0 5-4 8-9 8z" };
 
 const STAFF_DEMO = {
-  timiza: [["zawadi@timiza.example", "Zawadi Kahindi", "Programme manager"], ["admin@timiza.example", "Amani Charo", "Administrator"], ["baraka@timiza.example", "Baraka Katana", "Field officer"]],
+  timiza: [["admin@timiza.example", "Amani Charo", "Administrator"], ["zawadi@timiza.example", "Zawadi Kahindi", "Programme manager"], ["baraka@timiza.example", "Baraka Katana", "Field officer"], ["viewer@timiza.example", "Partner Observer", "Board and partners, read only"]],
   tumaini: [["achieng@tumaini.example", "Achieng Otieno", "Manager"], ["admin@tumaini.example", "Grace Nduta", "Administrator"]],
-  hatua: [["wanjiru@hatua.example", "Wanjiru Mbugua", "Owner"]], mwangaza: [["wairimu@mwangaza.example", "Wairimu Kamau", "Studio lead"]], pwani: [["rehema@pwani.example", "Rehema Salim", "Owner"]],
+  hatua: [["wanjiru@hatua.example", "Wanjiru Mbugua", "Owner and administrator"], ["otis@hatua.example", "Otis Kamau", "Operations manager"], ["achola@hatua.example", "Achola Were", "Store and dispatch staff"]],
+  mwangaza: [["wairimu@mwangaza.example", "Wairimu Kamau", "Studio lead"]],
+  pwani: [["rehema@pwani.example", "Rehema Salim", "General manager"], ["omar@pwani.example", "Omar Abdalla", "Front office manager"], ["neema@pwani.example", "Neema Charo", "Reservations"]],
 };
 
 function StaffLogin() {

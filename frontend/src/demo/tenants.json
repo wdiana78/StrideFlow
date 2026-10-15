@@ -53,6 +53,2379 @@
   },
   {
    "organization": {
+    "name": "Hatua Apparel",
+    "sector": "Fashion and apparel retail"
+   },
+   "industry": "retail",
+   "admin": {
+    "name": "Wanjiru Mbugua",
+    "email": "wanjiru@hatua.example"
+   },
+   "users": [
+    {
+     "key": "otis",
+     "name": "Otis Kamau",
+     "email": "otis@hatua.example",
+     "role": "manager"
+    },
+    {
+     "key": "achola",
+     "name": "Achola Were",
+     "email": "achola@hatua.example",
+     "role": "member"
+    }
+   ],
+   "site_settings": {
+    "slug": "hatua",
+    "tagline": "Made in Kenya. Worn everywhere.",
+    "intro": "Everyday clothing cut and sewn in Nairobi, sold in five stores and delivered countrywide.",
+    "about": "Hatua designs and makes clothing in its own Nairobi workshop: denim, kitenge shirts, linen and kids' wear. Every piece carries the name of the tailor who finished it.",
+    "location": "Nairobi, Kenya",
+    "contact_email": "care@hatua.example",
+    "phone": "0700 428 820",
+    "address": "Hatua House, Industrial Area, Nairobi",
+    "map_query": "Industrial Area, Nairobi",
+    "brand_primary": "#8A3B12",
+    "brand_accent": "#C9F25C",
+    "brand_deep": "#1C1410",
+    "heading_font": "bricolage",
+    "show_impact": false
+   },
+   "site_services": [
+    {
+     "title": "Free delivery over KES 5,000",
+     "icon": "outreach",
+     "order": 1,
+     "published": true,
+     "description": "Same day in Nairobi, two days countrywide. Track every order to your door."
+    },
+    {
+     "title": "Corporate and school uniforms",
+     "icon": "training",
+     "order": 2,
+     "published": true,
+     "description": "Made-to-measure uniforms for teams of 20 to 2,000, delivered by branch."
+    },
+    {
+     "title": "Free alterations",
+     "icon": "research",
+     "order": 3,
+     "published": true,
+     "description": "Hems, sleeves and waists adjusted free at any Hatua store within 30 days."
+    }
+   ],
+   "modules": {
+    "branches": [
+     {
+      "_key": "cbd",
+      "name": "Hatua Moi Avenue",
+      "city": "Nairobi",
+      "manager": "Grace Njeri",
+      "address": "Moi Avenue, Nairobi CBD",
+      "phone": "0725 427 614",
+      "hours": "Mon to Sat 9:00 to 20:00, Sun 10:00 to 18:00",
+      "monthly_target": 2400000,
+      "opened_on": "2023-02-13",
+      "show_on_site": true
+     },
+     {
+      "_key": "wl",
+      "name": "Hatua Sarit",
+      "city": "Nairobi",
+      "manager": "Daniel Kiprop",
+      "address": "Sarit Centre, Westlands",
+      "phone": "0786 736 669",
+      "hours": "Mon to Sat 9:00 to 20:00, Sun 10:00 to 18:00",
+      "monthly_target": 2800000,
+      "opened_on": "2022-09-17",
+      "show_on_site": true
+     },
+     {
+      "_key": "msa",
+      "name": "Hatua Nyali",
+      "city": "Mombasa",
+      "manager": "Fatma Said",
+      "address": "City Mall, Nyali",
+      "phone": "0785 551 345",
+      "hours": "Mon to Sat 9:00 to 20:00, Sun 10:00 to 18:00",
+      "monthly_target": 1900000,
+      "opened_on": "2019-02-11",
+      "show_on_site": true
+     },
+     {
+      "_key": "ksm",
+      "name": "Hatua Mega Plaza",
+      "city": "Kisumu",
+      "manager": "Otieno Ouma",
+      "address": "Mega Plaza, Oginga Odinga St",
+      "phone": "0746 936 200",
+      "hours": "Mon to Sat 9:00 to 20:00, Sun 10:00 to 18:00",
+      "monthly_target": 1300000,
+      "opened_on": "2022-01-17",
+      "show_on_site": true
+     },
+     {
+      "_key": "eld",
+      "name": "Hatua Rupa",
+      "city": "Eldoret",
+      "manager": "Chebet Rotich",
+      "address": "Rupa Mall, Eldoret",
+      "phone": "0796 421 315",
+      "hours": "Mon to Sat 9:00 to 20:00, Sun 10:00 to 18:00",
+      "monthly_target": 1100000,
+      "opened_on": "2022-05-15",
+      "show_on_site": true
+     }
+    ],
+    "items": [
+     {
+      "_key": "denim",
+      "name": "Classic denim jacket",
+      "category": "apparel",
+      "unit": "pieces",
+      "reorder_level": 40,
+      "location": "Central warehouse",
+      "price": 4800,
+      "description": "Heavyweight Kenyan-cut denim with copper rivets.",
+      "show_on_site": true
+     },
+     {
+      "_key": "kitenge",
+      "name": "Kitenge shirt",
+      "category": "apparel",
+      "unit": "pieces",
+      "reorder_level": 40,
+      "location": "Central warehouse",
+      "price": 2900,
+      "description": "Breathable cotton kitenge, cut slim or relaxed.",
+      "show_on_site": true
+     },
+     {
+      "_key": "linen",
+      "name": "Linen trousers",
+      "category": "apparel",
+      "unit": "pieces",
+      "reorder_level": 40,
+      "location": "Central warehouse",
+      "price": 3600,
+      "description": "Washed linen with a drawstring waist, made for coast heat.",
+      "show_on_site": true
+     },
+     {
+      "_key": "maxi",
+      "name": "Maxi wrap dress",
+      "category": "apparel",
+      "unit": "pieces",
+      "reorder_level": 40,
+      "location": "Central warehouse",
+      "price": 4200,
+      "description": "A wrap dress in soft viscose, three prints.",
+      "show_on_site": true
+     },
+     {
+      "_key": "kids",
+      "name": "Kids' play set",
+      "category": "apparel",
+      "unit": "pieces",
+      "reorder_level": 40,
+      "location": "Central warehouse",
+      "price": 1900,
+      "description": "T-shirt and shorts in organic cotton, ages 2 to 10.",
+      "show_on_site": true
+     },
+     {
+      "_key": "sneaker",
+      "name": "Canvas sneakers",
+      "category": "footwear",
+      "unit": "pieces",
+      "reorder_level": 40,
+      "location": "Central warehouse",
+      "price": 3800,
+      "description": "Canvas uppers on a recycled rubber sole.",
+      "show_on_site": true
+     },
+     {
+      "_key": "belt",
+      "name": "Leather belt",
+      "category": "accessories",
+      "unit": "pieces",
+      "reorder_level": 40,
+      "location": "Central warehouse",
+      "price": 1500,
+      "description": "Full-grain leather from Kariokor, solid brass buckle.",
+      "show_on_site": true
+     },
+     {
+      "_key": "tote",
+      "name": "Kikoi tote bag",
+      "category": "accessories",
+      "unit": "pieces",
+      "reorder_level": 40,
+      "location": "Central warehouse",
+      "price": 1700,
+      "description": "Hand-loomed kikoi with a leather strap.",
+      "show_on_site": true
+     }
+    ],
+    "stock_moves": [
+     {
+      "item_id": "denim",
+      "direction": "in",
+      "quantity": 442,
+      "moved_on": "2026-09-01",
+      "note": "September production run"
+     },
+     {
+      "item_id": "denim",
+      "direction": "out",
+      "quantity": 321,
+      "moved_on": "2026-10-12",
+      "note": "Sold across branches"
+     },
+     {
+      "item_id": "kitenge",
+      "direction": "in",
+      "quantity": 452,
+      "moved_on": "2026-09-01",
+      "note": "September production run"
+     },
+     {
+      "item_id": "kitenge",
+      "direction": "out",
+      "quantity": 339,
+      "moved_on": "2026-10-12",
+      "note": "Sold across branches"
+     },
+     {
+      "item_id": "linen",
+      "direction": "in",
+      "quantity": 299,
+      "moved_on": "2026-09-01",
+      "note": "September production run"
+     },
+     {
+      "item_id": "linen",
+      "direction": "out",
+      "quantity": 189,
+      "moved_on": "2026-10-12",
+      "note": "Sold across branches"
+     },
+     {
+      "item_id": "maxi",
+      "direction": "in",
+      "quantity": 434,
+      "moved_on": "2026-09-01",
+      "note": "September production run"
+     },
+     {
+      "item_id": "maxi",
+      "direction": "out",
+      "quantity": 424,
+      "moved_on": "2026-10-12",
+      "note": "Sold across branches"
+     },
+     {
+      "item_id": "kids",
+      "direction": "in",
+      "quantity": 409,
+      "moved_on": "2026-09-01",
+      "note": "September production run"
+     },
+     {
+      "item_id": "kids",
+      "direction": "out",
+      "quantity": 355,
+      "moved_on": "2026-10-12",
+      "note": "Sold across branches"
+     },
+     {
+      "item_id": "sneaker",
+      "direction": "in",
+      "quantity": 494,
+      "moved_on": "2026-09-01",
+      "note": "September production run"
+     },
+     {
+      "item_id": "sneaker",
+      "direction": "out",
+      "quantity": 458,
+      "moved_on": "2026-10-12",
+      "note": "Sold across branches"
+     },
+     {
+      "item_id": "belt",
+      "direction": "in",
+      "quantity": 418,
+      "moved_on": "2026-09-01",
+      "note": "September production run"
+     },
+     {
+      "item_id": "belt",
+      "direction": "out",
+      "quantity": 410,
+      "moved_on": "2026-10-12",
+      "note": "Sold across branches"
+     },
+     {
+      "item_id": "tote",
+      "direction": "in",
+      "quantity": 448,
+      "moved_on": "2026-09-01",
+      "note": "September production run"
+     },
+     {
+      "item_id": "tote",
+      "direction": "out",
+      "quantity": 384,
+      "moved_on": "2026-10-12",
+      "note": "Sold across branches"
+     }
+    ],
+    "branch_sales": [
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-01",
+      "gross": 68900.0,
+      "transactions": 22,
+      "top_category": "denim"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-01",
+      "gross": 78100.0,
+      "transactions": 25,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-01",
+      "gross": 57000.0,
+      "transactions": 18,
+      "top_category": "denim"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-01",
+      "gross": 36700.0,
+      "transactions": 11,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-01",
+      "gross": 37800.0,
+      "transactions": 12,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-02",
+      "gross": 83700.0,
+      "transactions": 27,
+      "top_category": "dresses"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-02",
+      "gross": 94900.0,
+      "transactions": 30,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-02",
+      "gross": 66500.0,
+      "transactions": 21,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-02",
+      "gross": 38300.0,
+      "transactions": 12,
+      "top_category": "denim"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-02",
+      "gross": 33300.0,
+      "transactions": 10,
+      "top_category": "shirts"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-03",
+      "gross": 111800.0,
+      "transactions": 36,
+      "top_category": "kids"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-03",
+      "gross": 115000.0,
+      "transactions": 37,
+      "top_category": "kids"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-03",
+      "gross": 63000.0,
+      "transactions": 20,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-03",
+      "gross": 51100.0,
+      "transactions": 16,
+      "top_category": "shirts"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-03",
+      "gross": 44300.0,
+      "transactions": 14,
+      "top_category": "shirts"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-04",
+      "gross": 113200.0,
+      "transactions": 36,
+      "top_category": "denim"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-04",
+      "gross": 120400.0,
+      "transactions": 38,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-04",
+      "gross": 83400.0,
+      "transactions": 26,
+      "top_category": "kids"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-04",
+      "gross": 63300.0,
+      "transactions": 20,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-04",
+      "gross": 39600.0,
+      "transactions": 12,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-05",
+      "gross": 75700.0,
+      "transactions": 24,
+      "top_category": "dresses"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-05",
+      "gross": 83700.0,
+      "transactions": 27,
+      "top_category": "kids"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-05",
+      "gross": 55600.0,
+      "transactions": 17,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-05",
+      "gross": 43400.0,
+      "transactions": 13,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-05",
+      "gross": 31200.0,
+      "transactions": 10,
+      "top_category": "dresses"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-06",
+      "gross": 81000.0,
+      "transactions": 26,
+      "top_category": "denim"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-06",
+      "gross": 64300.0,
+      "transactions": 20,
+      "top_category": "kids"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-06",
+      "gross": 65400.0,
+      "transactions": 21,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-06",
+      "gross": 43400.0,
+      "transactions": 13,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-06",
+      "gross": 30100.0,
+      "transactions": 9,
+      "top_category": "shirts"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-07",
+      "gross": 62400.0,
+      "transactions": 20,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-07",
+      "gross": 80600.0,
+      "transactions": 26,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-07",
+      "gross": 63500.0,
+      "transactions": 20,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-07",
+      "gross": 40900.0,
+      "transactions": 13,
+      "top_category": "denim"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-07",
+      "gross": 37100.0,
+      "transactions": 11,
+      "top_category": "dresses"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-08",
+      "gross": 68800.0,
+      "transactions": 22,
+      "top_category": "denim"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-08",
+      "gross": 79600.0,
+      "transactions": 25,
+      "top_category": "kids"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-08",
+      "gross": 62900.0,
+      "transactions": 20,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-08",
+      "gross": 33800.0,
+      "transactions": 10,
+      "top_category": "shirts"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-08",
+      "gross": 39100.0,
+      "transactions": 12,
+      "top_category": "kids"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-09",
+      "gross": 69500.0,
+      "transactions": 22,
+      "top_category": "denim"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-09",
+      "gross": 87500.0,
+      "transactions": 28,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-09",
+      "gross": 52200.0,
+      "transactions": 16,
+      "top_category": "shirts"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-09",
+      "gross": 42400.0,
+      "transactions": 13,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-09",
+      "gross": 26900.0,
+      "transactions": 8,
+      "top_category": "denim"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-10",
+      "gross": 79100.0,
+      "transactions": 25,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-10",
+      "gross": 118000.0,
+      "transactions": 38,
+      "top_category": "denim"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-10",
+      "gross": 81100.0,
+      "transactions": 26,
+      "top_category": "shirts"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-10",
+      "gross": 46700.0,
+      "transactions": 15,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-10",
+      "gross": 35300.0,
+      "transactions": 11,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-11",
+      "gross": 118000.0,
+      "transactions": 38,
+      "top_category": "kids"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-11",
+      "gross": 127300.0,
+      "transactions": 41,
+      "top_category": "dresses"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-11",
+      "gross": 64900.0,
+      "transactions": 20,
+      "top_category": "dresses"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-11",
+      "gross": 56800.0,
+      "transactions": 18,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-11",
+      "gross": 50200.0,
+      "transactions": 16,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-12",
+      "gross": 76300.0,
+      "transactions": 24,
+      "top_category": "shirts"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-12",
+      "gross": 83600.0,
+      "transactions": 26,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-12",
+      "gross": 57800.0,
+      "transactions": 18,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-12",
+      "gross": 44600.0,
+      "transactions": 14,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-12",
+      "gross": 29100.0,
+      "transactions": 9,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "cbd",
+      "date": "2026-10-13",
+      "gross": 75700.0,
+      "transactions": 24,
+      "top_category": "shirts"
+     },
+     {
+      "branch_id": "wl",
+      "date": "2026-10-13",
+      "gross": 92600.0,
+      "transactions": 29,
+      "top_category": "accessories"
+     },
+     {
+      "branch_id": "msa",
+      "date": "2026-10-13",
+      "gross": 50600.0,
+      "transactions": 16,
+      "top_category": "footwear"
+     },
+     {
+      "branch_id": "ksm",
+      "date": "2026-10-13",
+      "gross": 36100.0,
+      "transactions": 11,
+      "top_category": "shirts"
+     },
+     {
+      "branch_id": "eld",
+      "date": "2026-10-13",
+      "gross": 32500.0,
+      "transactions": 10,
+      "top_category": "shirts"
+     }
+    ],
+    "transfers": [
+     {
+      "reference": "TR-1040",
+      "item_id": "denim",
+      "quantity": 40,
+      "from_branch": "wl",
+      "to_branch": "ksm",
+      "requested_on": "2026-10-07",
+      "_status": "received"
+     },
+     {
+      "reference": "TR-1041",
+      "item_id": "kitenge",
+      "quantity": 60,
+      "from_branch": "cbd",
+      "to_branch": "msa",
+      "requested_on": "2026-10-09",
+      "_status": "received"
+     },
+     {
+      "reference": "TR-1042",
+      "item_id": "maxi",
+      "quantity": 25,
+      "from_branch": "wl",
+      "to_branch": "eld",
+      "requested_on": "2026-10-11",
+      "_status": "dispatched"
+     },
+     {
+      "reference": "TR-1043",
+      "item_id": "sneaker",
+      "quantity": 30,
+      "from_branch": "cbd",
+      "to_branch": "ksm",
+      "requested_on": "2026-10-12",
+      "_status": "dispatched"
+     },
+     {
+      "reference": "TR-1044",
+      "item_id": "kids",
+      "quantity": 50,
+      "from_branch": "msa",
+      "to_branch": "eld",
+      "requested_on": "2026-10-13",
+      "_status": "requested"
+     },
+     {
+      "reference": "TR-1045",
+      "item_id": "linen",
+      "quantity": 35,
+      "from_branch": "wl",
+      "to_branch": "msa",
+      "requested_on": "2026-10-13",
+      "_status": "requested"
+     }
+    ],
+    "deliveries": [
+     {
+      "reference": "HA-20410",
+      "customer": "Amina Yusuf",
+      "phone": "0758 114 208",
+      "address": "Kilimani, Nairobi",
+      "branch_id": "wl",
+      "rider": "Kevin Otieno",
+      "amount": 3800,
+      "items": "Denim jacket (M)",
+      "_status": "delivered"
+     },
+     {
+      "reference": "HA-20411",
+      "customer": "Brian Mutua",
+      "phone": "0754 761 461",
+      "address": "Lavington, Nairobi",
+      "branch_id": "cbd",
+      "rider": "Musa Hassan",
+      "amount": 3800,
+      "items": "Canvas sneakers 42, kikoi tote",
+      "_status": "delivered"
+     },
+     {
+      "reference": "HA-20412",
+      "customer": "Carol Akinyi",
+      "phone": "0751 799 410",
+      "address": "South B, Nairobi",
+      "branch_id": "wl",
+      "rider": "Faith Wambui",
+      "amount": 6500,
+      "items": "Denim jacket (M)",
+      "_status": "delivered"
+     },
+     {
+      "reference": "HA-20413",
+      "customer": "David Kiptoo",
+      "phone": "0773 577 685",
+      "address": "Kileleshwa, Nairobi",
+      "branch_id": "cbd",
+      "rider": "Peter Kamau",
+      "amount": 4200,
+      "items": "Kitenge shirt x2",
+      "_status": "delivered"
+     },
+     {
+      "reference": "HA-20414",
+      "customer": "Esther Wangari",
+      "phone": "0765 738 444",
+      "address": "Ruaka, Nairobi",
+      "branch_id": "wl",
+      "rider": "Kevin Otieno",
+      "amount": 9600,
+      "items": "Kitenge shirt x2",
+      "_status": "delivered"
+     },
+     {
+      "reference": "HA-20415",
+      "customer": "Felix Omondi",
+      "phone": "0796 827 171",
+      "address": "Syokimau, Nairobi",
+      "branch_id": "wl",
+      "rider": "Musa Hassan",
+      "amount": 3800,
+      "items": "Kitenge shirt x2",
+      "_status": "out"
+     },
+     {
+      "reference": "HA-20416",
+      "customer": "Gladys Chebet",
+      "phone": "0792 277 146",
+      "address": "Karen, Nairobi",
+      "branch_id": "cbd",
+      "rider": "Faith Wambui",
+      "amount": 7300,
+      "items": "Kitenge shirt x2",
+      "_status": "out"
+     },
+     {
+      "reference": "HA-20417",
+      "customer": "Hassan Ali",
+      "phone": "0771 828 794",
+      "address": "Kasarani, Nairobi",
+      "branch_id": "cbd",
+      "rider": "Peter Kamau",
+      "amount": 4200,
+      "items": "Kitenge shirt x2",
+      "_status": "out"
+     },
+     {
+      "reference": "HA-20418",
+      "customer": "Irene Nduta",
+      "phone": "0776 241 264",
+      "address": "Ngong Road, Nairobi",
+      "branch_id": "cbd",
+      "rider": "Kevin Otieno",
+      "amount": 7300,
+      "items": "Maxi wrap dress (S), leather belt",
+      "_status": "assigned"
+     },
+     {
+      "reference": "HA-20419",
+      "customer": "James Mwangi",
+      "phone": "0764 645 524",
+      "address": "Parklands, Nairobi",
+      "branch_id": "cbd",
+      "rider": "Musa Hassan",
+      "amount": 7300,
+      "items": "Maxi wrap dress (S), leather belt",
+      "_status": "assigned"
+     },
+     {
+      "reference": "HA-20420",
+      "customer": "Kendi Murithi",
+      "phone": "0733 452 278",
+      "address": "Rongai, Nairobi",
+      "branch_id": "wl",
+      "rider": null,
+      "amount": 7300,
+      "items": "Canvas sneakers 42, kikoi tote",
+      "_status": "new"
+     },
+     {
+      "reference": "HA-20421",
+      "customer": "Lucy Atieno",
+      "phone": "0763 394 578",
+      "address": "Thika Road, Nairobi",
+      "branch_id": "cbd",
+      "rider": "Peter Kamau",
+      "amount": 6500,
+      "items": "Canvas sneakers 42, kikoi tote",
+      "_status": "failed"
+     }
+    ],
+    "vendors": [
+     {
+      "_key": "rivatex",
+      "name": "Rivatex East Africa",
+      "category": "Fabric",
+      "phone": "0722 300 400",
+      "rating": "5"
+     },
+     {
+      "_key": "kariokor",
+      "name": "Kariokor Leather Works",
+      "category": "Leather",
+      "phone": "0733 555 101",
+      "rating": "4"
+     },
+     {
+      "_key": "pack",
+      "name": "Packaging Industries Ltd",
+      "category": "Packaging",
+      "phone": "0711 222 900",
+      "rating": "4"
+     }
+    ],
+    "customers": [
+     {
+      "_key": "kcb",
+      "name": "Mavuno Bank (staff uniforms)",
+      "kind": "business",
+      "location": "Nairobi"
+     },
+     {
+      "_key": "school",
+      "name": "Brookhill Academy",
+      "kind": "institution",
+      "location": "Nakuru"
+     },
+     {
+      "_key": "hotel",
+      "name": "Sarova-style coast hotel group",
+      "kind": "business",
+      "location": "Mombasa"
+     }
+    ],
+    "invoices": [
+     {
+      "number": "HA-INV-311",
+      "customer_id": "kcb",
+      "description": "420 staff shirts, first batch",
+      "amount": 1218000,
+      "issued_on": "2026-09-15",
+      "due_on": "2026-09-29",
+      "_status": "sent"
+     },
+     {
+      "number": "HA-INV-318",
+      "customer_id": "school",
+      "description": "Term 3 uniforms",
+      "amount": 684000,
+      "issued_on": "2026-10-01",
+      "due_on": "2026-10-31",
+      "_status": "sent"
+     },
+     {
+      "number": "HA-INV-305",
+      "customer_id": "hotel",
+      "description": "Front-office uniforms",
+      "amount": 356000,
+      "issued_on": "2026-08-28",
+      "due_on": "2026-09-27",
+      "_status": "paid"
+     }
+    ],
+    "events": [
+     {
+      "title": "Festive collection launch, Sarit",
+      "kind": "campaign",
+      "date": "2026-11-20",
+      "venue": "Hatua Sarit",
+      "expected": 400,
+      "_status": "planned"
+     }
+    ]
+   },
+   "featured": 3,
+   "tazama": {
+    "title": "Rider check-ins",
+    "description": "Riders log each stop. Location is captured automatically.",
+    "target": null,
+    "collect_gps": true,
+    "is_public": true,
+    "fields": [
+     {
+      "id": "order",
+      "label": "Order reference",
+      "type": "text",
+      "required": true
+     },
+     {
+      "id": "status",
+      "label": "Status",
+      "type": "select",
+      "required": true,
+      "options": [
+       "Picked up",
+       "On the way",
+       "Delivered",
+       "Failed"
+      ]
+     },
+     {
+      "id": "area",
+      "label": "Area",
+      "type": "select",
+      "required": true,
+      "options": [
+       "Kilimani",
+       "Lavington",
+       "South B",
+       "Kileleshwa",
+       "Ruaka",
+       "Syokimau",
+       "Karen",
+       "Kasarani",
+       "Ngong Road",
+       "Parklands",
+       "Rongai",
+       "Thika Road"
+      ]
+     },
+     {
+      "id": "where",
+      "label": "Location",
+      "type": "gps"
+     },
+     {
+      "id": "proof",
+      "label": "Proof of delivery photo",
+      "type": "photo",
+      "show_if": {
+       "field": "status",
+       "equals": "Delivered"
+      }
+     },
+     {
+      "id": "reason",
+      "label": "Why did it fail?",
+      "type": "select",
+      "required": true,
+      "options": [
+       "Customer not reachable",
+       "Wrong address",
+       "Refused",
+       "Payment issue"
+      ],
+      "show_if": {
+       "field": "status",
+       "equals": "Failed"
+      }
+     }
+    ],
+    "submissions": [
+     {
+      "data": {
+       "order": "HA-20200",
+       "status": "Delivered",
+       "area": "Lavington",
+       "where": {
+        "lat": -1.276704,
+        "lng": 36.767286,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-07T12:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20201",
+       "status": "Failed",
+       "area": "Kilimani",
+       "where": {
+        "lat": -1.285457,
+        "lng": 36.786748,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-07T17:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20202",
+       "status": "On the way",
+       "area": "Kilimani",
+       "where": {
+        "lat": -1.294119,
+        "lng": 36.785744,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-07T10:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20203",
+       "status": "Delivered",
+       "area": "Ngong Road",
+       "where": {
+        "lat": -1.297228,
+        "lng": 36.770838,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-07T19:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20204",
+       "status": "Delivered",
+       "area": "Lavington",
+       "where": {
+        "lat": -1.281843,
+        "lng": 36.769233,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-07T19:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20205",
+       "status": "Delivered",
+       "area": "Syokimau",
+       "where": {
+        "lat": -1.368774,
+        "lng": 36.929561,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-07T13:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20206",
+       "status": "Failed",
+       "area": "Ruaka",
+       "where": {
+        "lat": -1.209063,
+        "lng": 36.780073,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-07T15:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20207",
+       "status": "Failed",
+       "area": "Karen",
+       "where": {
+        "lat": -1.325312,
+        "lng": 36.707823,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-07T10:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20208",
+       "status": "Delivered",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.390143,
+        "lng": 36.747289,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-07T16:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20209",
+       "status": "On the way",
+       "area": "Karen",
+       "where": {
+        "lat": -1.323412,
+        "lng": 36.710552,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-07T19:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20210",
+       "status": "Delivered",
+       "area": "Ngong Road",
+       "where": {
+        "lat": -1.294915,
+        "lng": 36.768669,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-07T09:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20211",
+       "status": "On the way",
+       "area": "Kilimani",
+       "where": {
+        "lat": -1.292033,
+        "lng": 36.787726,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-07T13:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20212",
+       "status": "Delivered",
+       "area": "Parklands",
+       "where": {
+        "lat": -1.261494,
+        "lng": 36.81611,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-08T10:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20213",
+       "status": "Picked up",
+       "area": "Parklands",
+       "where": {
+        "lat": -1.267552,
+        "lng": 36.818271,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-08T09:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20214",
+       "status": "Picked up",
+       "area": "Parklands",
+       "where": {
+        "lat": -1.263016,
+        "lng": 36.816526,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-08T19:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20215",
+       "status": "On the way",
+       "area": "South B",
+       "where": {
+        "lat": -1.315659,
+        "lng": 36.842607,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-08T13:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20216",
+       "status": "Picked up",
+       "area": "Kileleshwa",
+       "where": {
+        "lat": -1.284678,
+        "lng": 36.782746,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-08T14:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20217",
+       "status": "Delivered",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.391925,
+        "lng": 36.743636,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-08T14:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20218",
+       "status": "Delivered",
+       "area": "Kilimani",
+       "where": {
+        "lat": -1.295863,
+        "lng": 36.790738,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-08T09:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20219",
+       "status": "Delivered",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.40019,
+        "lng": 36.745942,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-08T14:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20220",
+       "status": "Delivered",
+       "area": "Ngong Road",
+       "where": {
+        "lat": -1.301876,
+        "lng": 36.766412,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-08T16:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20221",
+       "status": "Delivered",
+       "area": "Ngong Road",
+       "where": {
+        "lat": -1.295236,
+        "lng": 36.772081,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-08T12:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20222",
+       "status": "On the way",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.396182,
+        "lng": 36.737064,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-08T17:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20223",
+       "status": "Delivered",
+       "area": "Kilimani",
+       "where": {
+        "lat": -1.29499,
+        "lng": 36.783474,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-09T11:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20224",
+       "status": "Delivered",
+       "area": "Kilimani",
+       "where": {
+        "lat": -1.285802,
+        "lng": 36.787347,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-09T18:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20225",
+       "status": "On the way",
+       "area": "Karen",
+       "where": {
+        "lat": -1.314442,
+        "lng": 36.711199,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-09T17:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20226",
+       "status": "Picked up",
+       "area": "Lavington",
+       "where": {
+        "lat": -1.278329,
+        "lng": 36.77057,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-09T09:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20227",
+       "status": "Delivered",
+       "area": "South B",
+       "where": {
+        "lat": -1.312456,
+        "lng": 36.837427,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-09T15:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20228",
+       "status": "Delivered",
+       "area": "Thika Road",
+       "where": {
+        "lat": -1.215832,
+        "lng": 36.881773,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-09T14:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20229",
+       "status": "Delivered",
+       "area": "Thika Road",
+       "where": {
+        "lat": -1.223845,
+        "lng": 36.880469,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-09T09:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20230",
+       "status": "Delivered",
+       "area": "Ngong Road",
+       "where": {
+        "lat": -1.297547,
+        "lng": 36.773202,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-09T10:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20231",
+       "status": "On the way",
+       "area": "Ruaka",
+       "where": {
+        "lat": -1.209149,
+        "lng": 36.78432,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-09T10:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20232",
+       "status": "Picked up",
+       "area": "Kasarani",
+       "where": {
+        "lat": -1.217954,
+        "lng": 36.891878,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-09T18:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20233",
+       "status": "Picked up",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.396307,
+        "lng": 36.742985,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-09T14:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20234",
+       "status": "On the way",
+       "area": "Parklands",
+       "where": {
+        "lat": -1.267172,
+        "lng": 36.823705,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-09T13:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20235",
+       "status": "On the way",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.3981,
+        "lng": 36.743075,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-09T14:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20236",
+       "status": "On the way",
+       "area": "Karen",
+       "where": {
+        "lat": -1.323642,
+        "lng": 36.710556,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-09T14:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20237",
+       "status": "On the way",
+       "area": "Parklands",
+       "where": {
+        "lat": -1.266147,
+        "lng": 36.820916,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-09T15:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20238",
+       "status": "On the way",
+       "area": "Lavington",
+       "where": {
+        "lat": -1.272906,
+        "lng": 36.769333,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-10T17:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20239",
+       "status": "On the way",
+       "area": "Kileleshwa",
+       "where": {
+        "lat": -1.286278,
+        "lng": 36.786269,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-10T13:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20240",
+       "status": "On the way",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.401739,
+        "lng": 36.745598,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-10T14:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20241",
+       "status": "Delivered",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.396064,
+        "lng": 36.745138,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-10T15:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20242",
+       "status": "On the way",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.390925,
+        "lng": 36.745693,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-10T13:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20243",
+       "status": "On the way",
+       "area": "South B",
+       "where": {
+        "lat": -1.308268,
+        "lng": 36.838975,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-10T16:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20244",
+       "status": "Picked up",
+       "area": "Kilimani",
+       "where": {
+        "lat": -1.293362,
+        "lng": 36.78045,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-10T14:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20245",
+       "status": "Delivered",
+       "area": "Kileleshwa",
+       "where": {
+        "lat": -1.281821,
+        "lng": 36.784474,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-10T10:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20246",
+       "status": "Delivered",
+       "area": "Ngong Road",
+       "where": {
+        "lat": -1.294209,
+        "lng": 36.76587,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-10T16:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20247",
+       "status": "Delivered",
+       "area": "Parklands",
+       "where": {
+        "lat": -1.259534,
+        "lng": 36.813011,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-10T17:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20248",
+       "status": "Picked up",
+       "area": "Lavington",
+       "where": {
+        "lat": -1.271732,
+        "lng": 36.764534,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-10T16:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20249",
+       "status": "On the way",
+       "area": "Syokimau",
+       "where": {
+        "lat": -1.365244,
+        "lng": 36.92786,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-11T13:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20250",
+       "status": "Delivered",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.401739,
+        "lng": 36.746707,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-11T16:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20251",
+       "status": "On the way",
+       "area": "Syokimau",
+       "where": {
+        "lat": -1.360893,
+        "lng": 36.926799,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-11T18:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20252",
+       "status": "Delivered",
+       "area": "Karen",
+       "where": {
+        "lat": -1.317289,
+        "lng": 36.712745,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-11T16:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20253",
+       "status": "Failed",
+       "area": "Ngong Road",
+       "where": {
+        "lat": -1.29885,
+        "lng": 36.769871,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-11T14:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20254",
+       "status": "Failed",
+       "area": "Lavington",
+       "where": {
+        "lat": -1.272638,
+        "lng": 36.766092,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-11T17:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20255",
+       "status": "Picked up",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.394688,
+        "lng": 36.739578,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-11T12:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20256",
+       "status": "Delivered",
+       "area": "Karen",
+       "where": {
+        "lat": -1.319681,
+        "lng": 36.711164,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-11T16:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20257",
+       "status": "Delivered",
+       "area": "Ngong Road",
+       "where": {
+        "lat": -1.295718,
+        "lng": 36.768365,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-11T17:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20258",
+       "status": "Delivered",
+       "area": "South B",
+       "where": {
+        "lat": -1.307542,
+        "lng": 36.835837,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-11T11:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20259",
+       "status": "Delivered",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.398636,
+        "lng": 36.740592,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-11T11:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20260",
+       "status": "On the way",
+       "area": "Thika Road",
+       "where": {
+        "lat": -1.220512,
+        "lng": 36.876239,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-12T11:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20261",
+       "status": "Delivered",
+       "area": "Karen",
+       "where": {
+        "lat": -1.320123,
+        "lng": 36.711553,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-12T13:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20262",
+       "status": "On the way",
+       "area": "Ngong Road",
+       "where": {
+        "lat": -1.299487,
+        "lng": 36.769588,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-12T11:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20263",
+       "status": "Delivered",
+       "area": "South B",
+       "where": {
+        "lat": -1.315517,
+        "lng": 36.834091,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-12T14:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20264",
+       "status": "Delivered",
+       "area": "Syokimau",
+       "where": {
+        "lat": -1.369034,
+        "lng": 36.924296,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-12T15:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20265",
+       "status": "Delivered",
+       "area": "Kileleshwa",
+       "where": {
+        "lat": -1.285952,
+        "lng": 36.779696,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-12T12:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20266",
+       "status": "Delivered",
+       "area": "South B",
+       "where": {
+        "lat": -1.305555,
+        "lng": 36.842653,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-12T14:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20267",
+       "status": "Delivered",
+       "area": "Ruaka",
+       "where": {
+        "lat": -1.205714,
+        "lng": 36.788375,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-12T10:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20268",
+       "status": "On the way",
+       "area": "Thika Road",
+       "where": {
+        "lat": -1.216927,
+        "lng": 36.878247,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Musa Hassan",
+      "at": "2026-10-12T10:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20269",
+       "status": "Delivered",
+       "area": "Kileleshwa",
+       "where": {
+        "lat": -1.285728,
+        "lng": 36.788376,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-12T09:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20270",
+       "status": "Delivered",
+       "area": "Rongai",
+       "where": {
+        "lat": -1.394389,
+        "lng": 36.740225,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-12T15:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20271",
+       "status": "Delivered",
+       "area": "Kasarani",
+       "where": {
+        "lat": -1.217359,
+        "lng": 36.901086,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-12T11:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20272",
+       "status": "Delivered",
+       "area": "South B",
+       "where": {
+        "lat": -1.304364,
+        "lng": 36.839472,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-12T19:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20273",
+       "status": "Failed",
+       "area": "Ruaka",
+       "where": {
+        "lat": -1.210054,
+        "lng": 36.782623,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-13T13:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20274",
+       "status": "Picked up",
+       "area": "Kilimani",
+       "where": {
+        "lat": -1.295498,
+        "lng": 36.785332,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-13T18:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20275",
+       "status": "Delivered",
+       "area": "Karen",
+       "where": {
+        "lat": -1.316398,
+        "lng": 36.716513,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-13T17:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20276",
+       "status": "Delivered",
+       "area": "South B",
+       "where": {
+        "lat": -1.314388,
+        "lng": 36.835262,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-13T11:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20277",
+       "status": "Failed",
+       "area": "Kilimani",
+       "where": {
+        "lat": -1.287013,
+        "lng": 36.779854,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-13T14:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20278",
+       "status": "Failed",
+       "area": "Ruaka",
+       "where": {
+        "lat": -1.208096,
+        "lng": 36.785604,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-13T12:50:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20279",
+       "status": "Delivered",
+       "area": "Kileleshwa",
+       "where": {
+        "lat": -1.277819,
+        "lng": 36.782026,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-13T12:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20280",
+       "status": "On the way",
+       "area": "Kasarani",
+       "where": {
+        "lat": -1.226635,
+        "lng": 36.896716,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-13T16:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20281",
+       "status": "Failed",
+       "area": "Kasarani",
+       "where": {
+        "lat": -1.223383,
+        "lng": 36.891409,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-13T11:35:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20282",
+       "status": "Delivered",
+       "area": "Kileleshwa",
+       "where": {
+        "lat": -1.284233,
+        "lng": 36.786204,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-13T14:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20283",
+       "status": "Picked up",
+       "area": "Ngong Road",
+       "where": {
+        "lat": -1.301578,
+        "lng": 36.766602,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-13T17:20:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20284",
+       "status": "On the way",
+       "area": "Kasarani",
+       "where": {
+        "lat": -1.226667,
+        "lng": 36.892268,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Peter Kamau",
+      "at": "2026-10-13T15:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20285",
+       "status": "On the way",
+       "area": "Kileleshwa",
+       "where": {
+        "lat": -1.284848,
+        "lng": 36.786605,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Faith Wambui",
+      "at": "2026-10-13T14:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20286",
+       "status": "On the way",
+       "area": "Ruaka",
+       "where": {
+        "lat": -1.200062,
+        "lng": 36.779623,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-13T16:05:00Z"
+     },
+     {
+      "data": {
+       "order": "HA-20287",
+       "status": "Failed",
+       "area": "Syokimau",
+       "where": {
+        "lat": -1.359254,
+        "lng": 36.930326,
+        "accuracy": 9.0
+       }
+      },
+      "collector": "Kevin Otieno",
+      "at": "2026-10-13T12:50:00Z"
+     }
+    ]
+   }
+  },
+  {
+   "organization": {
     "name": "Mwangaza Creative Studio",
     "sector": "Creative agency"
    },
@@ -60,38 +2433,55 @@
    "existing": true,
    "site_settings": {
     "slug": "mwangaza",
-    "tagline": "Brands that feel like home",
-    "intro": "A Nairobi studio designing campaigns, identities and websites for East African brands.",
-    "about": "Small senior team, fixed-price projects, weekly check-ins.",
+    "tagline": "Pictures that move small businesses",
+    "intro": "A Nairobi studio for photography, video, film and social media, built for small businesses that need to look as good as they are.",
+    "about": "Eight people: photographers, a director, editors and social media managers. Fixed prices, a shoot booked within a week, and content you own.",
     "location": "Westlands, Nairobi",
-    "contact_email": "hello@mwangaza.example",
-    "brand_primary": "#111111",
-    "brand_accent": "#FFE14D",
+    "contact_email": "studio@mwangaza.example",
+    "brand_primary": "#E8590C",
+    "brand_accent": "#FFD43B",
     "show_impact": false,
-    "brand_deep": "#0A0A0A",
-    "heading_font": "space"
+    "brand_deep": "#1F1300",
+    "heading_font": "space",
+    "phone": "0711 909 300",
+    "address": "Mpaka Road, Westlands, Nairobi",
+    "map_query": "Westlands, Nairobi"
    },
    "site_services": [
     {
-     "title": "Brand identity",
+     "title": "Photography",
      "icon": "research",
      "order": 1,
      "published": true,
-     "description": "Naming, logo, colour and voice."
+     "description": "Product, food, portrait and brand photography, in studio or on location."
     },
     {
-     "title": "Campaigns",
-     "icon": "advocacy",
+     "title": "Videography",
+     "icon": "outreach",
      "order": 2,
      "published": true,
-     "description": "Launches across social, radio and outdoor."
+     "description": "Adverts, reels, testimonials and event coverage, shot and edited in-house."
     },
     {
-     "title": "Websites",
+     "title": "Film production",
      "icon": "training",
      "order": 3,
      "published": true,
-     "description": "Fast, accessible sites your team can update."
+     "description": "Brand films and documentaries from treatment and casting to colour grade."
+    },
+    {
+     "title": "Social media management",
+     "icon": "advocacy",
+     "order": 4,
+     "published": true,
+     "description": "A monthly content calendar, posting, community replies and a results report."
+    },
+    {
+     "title": "Small business packages",
+     "icon": "dialogue",
+     "order": 5,
+     "published": true,
+     "description": "A day of shooting plus a month of posts, priced for businesses under 20 staff."
     }
    ],
    "modules": {
@@ -100,30 +2490,397 @@
       "_key": "kilele",
       "name": "Kilele Coffee Co.",
       "kind": "business",
-      "phone": "0711 222 333",
-      "email": "marketing@kilele.example",
-      "location": "Nairobi"
+      "location": "Nairobi",
+      "email": "hello@kilele.example"
      },
      {
       "_key": "zuri",
       "name": "Zuri Microfinance",
-      "kind": "institution",
-      "email": "comms@zuri.example",
-      "location": "Mombasa"
+      "kind": "business",
+      "location": "Mombasa",
+      "email": "hello@zuri.example"
      },
      {
       "_key": "nyota",
       "name": "Nyota Schools",
-      "kind": "institution",
-      "location": "Kisumu"
+      "kind": "business",
+      "location": "Kisumu",
+      "email": "hello@nyota.example"
+     },
+     {
+      "_key": "mama",
+      "name": "Mama Oliech Kitchen",
+      "kind": "business",
+      "location": "Nairobi",
+      "email": "hello@mama.example"
+     },
+     {
+      "_key": "glow",
+      "name": "Glow Naturals Skincare",
+      "kind": "business",
+      "location": "Nairobi",
+      "email": "hello@glow.example"
+     },
+     {
+      "_key": "bike",
+      "name": "Pedal Kenya Bike Hire",
+      "kind": "business",
+      "location": "Naivasha",
+      "email": "hello@bike.example"
+     }
+    ],
+    "productions": [
+     {
+      "title": "Festive menu shoot",
+      "client_id": "mama",
+      "kind": "photography",
+      "shoot_date": "2026-10-16",
+      "location": "Mama Oliech Kitchen, Marcus Garvey Rd",
+      "crew": "Achieng (photo), Tito (assistant)",
+      "budget": 85000,
+      "deliverables": "30 edited photos for menu and Instagram",
+      "due_on": "2026-10-26",
+      "_status": "booked"
+     },
+     {
+      "title": "Launch reel: Glow vitamin C serum",
+      "client_id": "glow",
+      "kind": "videography",
+      "shoot_date": "2026-10-11",
+      "location": "Studio A",
+      "crew": "Wairimu (director), Sam (camera), Lulu (edit)",
+      "budget": 160000,
+      "deliverables": "3 reels (15s, 30s, 60s), 10 stills",
+      "due_on": "2026-10-21",
+      "_status": "editing"
+     },
+     {
+      "title": "Kilele farm-to-cup brand film",
+      "client_id": "kilele",
+      "kind": "film",
+      "shoot_date": "2026-10-04",
+      "location": "Kilele farms, Nyeri",
+      "crew": "Wairimu, Sam, Otieno (sound), drone",
+      "budget": 720000,
+      "deliverables": "4-minute brand film, 3 cut-downs",
+      "due_on": "2026-10-14",
+      "_status": "review"
+     },
+     {
+      "title": "Zuri member stories",
+      "client_id": "zuri",
+      "kind": "film",
+      "shoot_date": "2026-09-23",
+      "location": "Mombasa and Kilifi",
+      "crew": "Wairimu, Sam",
+      "budget": 540000,
+      "deliverables": "5 testimonial films with Swahili subtitles",
+      "due_on": "2026-10-03",
+      "_status": "delivered"
+     },
+     {
+      "title": "Nyota open day coverage",
+      "client_id": "nyota",
+      "kind": "event",
+      "shoot_date": "2026-10-25",
+      "location": "Nyota Schools, Kisumu",
+      "crew": "Achieng, Tito",
+      "budget": 95000,
+      "deliverables": "Highlight video, 80 photos",
+      "due_on": "2026-11-04",
+      "_status": "brief"
+     },
+     {
+      "title": "Pedal Kenya summer campaign",
+      "client_id": "bike",
+      "kind": "social",
+      "shoot_date": "2026-10-13",
+      "location": "Lake Naivasha",
+      "crew": "Sam, Lulu",
+      "budget": 140000,
+      "deliverables": "12 reels, 20 photos",
+      "due_on": "2026-10-23",
+      "_status": "shooting"
+     },
+     {
+      "title": "Glow product catalogue",
+      "client_id": "glow",
+      "kind": "photography",
+      "shoot_date": "2026-09-13",
+      "location": "Studio A",
+      "crew": "Achieng",
+      "budget": 68000,
+      "deliverables": "40 packshots on white",
+      "due_on": "2026-09-23",
+      "_status": "delivered"
+     },
+     {
+      "title": "Kilele barista series",
+      "client_id": "kilele",
+      "kind": "social",
+      "shoot_date": "2026-10-20",
+      "location": "Kilele Westlands",
+      "crew": "Sam",
+      "budget": 110000,
+      "deliverables": "6 short videos",
+      "due_on": "2026-10-30",
+      "_status": "booked"
+     }
+    ],
+    "posts": [
+     {
+      "title": "Behind the scenes: Kilele",
+      "client_id": "kilele",
+      "platform": "instagram",
+      "format": "reel",
+      "publish_on": "2026-10-07",
+      "caption": "Draft caption for client approval.",
+      "_status": "published"
+     },
+     {
+      "title": "Meet the team: Zuri",
+      "client_id": "zuri",
+      "platform": "tiktok",
+      "format": "carousel",
+      "publish_on": "2026-10-08",
+      "caption": "Draft caption for client approval.",
+      "_status": "published"
+     },
+     {
+      "title": "New arrival: Nyota",
+      "client_id": "nyota",
+      "platform": "facebook",
+      "format": "story",
+      "publish_on": "2026-10-09",
+      "caption": "Draft caption for client approval.",
+      "_status": "published"
+     },
+     {
+      "title": "Customer story: Mama",
+      "client_id": "mama",
+      "platform": "linkedin",
+      "format": "video",
+      "publish_on": "2026-10-10",
+      "caption": "Draft caption for client approval.",
+      "_status": "published"
+     },
+     {
+      "title": "New arrival: Glow",
+      "client_id": "glow",
+      "platform": "instagram",
+      "format": "post",
+      "publish_on": "2026-10-11",
+      "caption": "Draft caption for client approval.",
+      "_status": "published"
+     },
+     {
+      "title": "Meet the team: Pedal",
+      "client_id": "bike",
+      "platform": "tiktok",
+      "format": "reel",
+      "publish_on": "2026-10-12",
+      "caption": "Draft caption for client approval.",
+      "_status": "published"
+     },
+     {
+      "title": "Weekend offer: Kilele",
+      "client_id": "kilele",
+      "platform": "instagram",
+      "format": "carousel",
+      "publish_on": "2026-10-13",
+      "caption": "Draft caption for client approval.",
+      "_status": "scheduled"
+     },
+     {
+      "title": "Behind the scenes: Zuri",
+      "client_id": "zuri",
+      "platform": "tiktok",
+      "format": "story",
+      "publish_on": "2026-10-14",
+      "caption": "Draft caption for client approval.",
+      "_status": "scheduled"
+     },
+     {
+      "title": "Meet the team: Nyota",
+      "client_id": "nyota",
+      "platform": "facebook",
+      "format": "video",
+      "publish_on": "2026-10-15",
+      "caption": "Draft caption for client approval.",
+      "_status": "approved"
+     },
+     {
+      "title": "Behind the scenes: Mama",
+      "client_id": "mama",
+      "platform": "linkedin",
+      "format": "post",
+      "publish_on": "2026-10-16",
+      "caption": "Draft caption for client approval.",
+      "_status": "approved"
+     },
+     {
+      "title": "Giveaway: Glow",
+      "client_id": "glow",
+      "platform": "instagram",
+      "format": "reel",
+      "publish_on": "2026-10-17",
+      "caption": "Draft caption for client approval.",
+      "_status": "review"
+     },
+     {
+      "title": "Meet the team: Pedal",
+      "client_id": "bike",
+      "platform": "tiktok",
+      "format": "carousel",
+      "publish_on": "2026-10-18",
+      "caption": "Draft caption for client approval.",
+      "_status": "review"
+     },
+     {
+      "title": "New arrival: Kilele",
+      "client_id": "kilele",
+      "platform": "instagram",
+      "format": "story",
+      "publish_on": "2026-10-19",
+      "caption": "Draft caption for client approval.",
+      "_status": "review"
+     },
+     {
+      "title": "Customer story: Zuri",
+      "client_id": "zuri",
+      "platform": "tiktok",
+      "format": "video",
+      "publish_on": "2026-10-20",
+      "caption": "Draft caption for client approval.",
+      "_status": "draft"
+     },
+     {
+      "title": "Weekend offer: Nyota",
+      "client_id": "nyota",
+      "platform": "facebook",
+      "format": "post",
+      "publish_on": "2026-10-21",
+      "caption": "Draft caption for client approval.",
+      "_status": "draft"
+     },
+     {
+      "title": "Giveaway: Mama",
+      "client_id": "mama",
+      "platform": "linkedin",
+      "format": "reel",
+      "publish_on": "2026-10-22",
+      "caption": "Draft caption for client approval.",
+      "_status": "draft"
+     },
+     {
+      "title": "Behind the scenes: Glow",
+      "client_id": "glow",
+      "platform": "instagram",
+      "format": "carousel",
+      "publish_on": "2026-10-23",
+      "caption": "Draft caption for client approval.",
+      "_status": "draft"
+     },
+     {
+      "title": "How it's made: Pedal",
+      "client_id": "bike",
+      "platform": "tiktok",
+      "format": "story",
+      "publish_on": "2026-10-24",
+      "caption": "Draft caption for client approval.",
+      "_status": "draft"
+     }
+    ],
+    "resources": [
+     {
+      "_key": "studioa",
+      "name": "Studio A (cyclorama)",
+      "kind": "room",
+      "capacity": 12,
+      "rate": 15000,
+      "location": "Mpaka Road"
+     },
+     {
+      "_key": "fx6",
+      "name": "Cinema camera kit (FX6)",
+      "kind": "equipment",
+      "capacity": 1,
+      "rate": 18000,
+      "location": "Gear room"
+     },
+     {
+      "_key": "drone",
+      "name": "Drone with licensed pilot",
+      "kind": "equipment",
+      "capacity": 1,
+      "rate": 25000,
+      "location": "Gear room"
+     },
+     {
+      "_key": "lights",
+      "name": "Lighting kit",
+      "kind": "equipment",
+      "capacity": 1,
+      "rate": 8000,
+      "location": "Gear room"
+     }
+    ],
+    "bookings": [
+     {
+      "guest": "Glow launch reel",
+      "resource_id": "studioa",
+      "starts_on": "2026-10-10",
+      "ends_on": "2026-10-11",
+      "amount": 30000,
+      "_status": "completed"
+     },
+     {
+      "guest": "Mama Oliech festive menu",
+      "resource_id": "studioa",
+      "starts_on": "2026-10-16",
+      "ends_on": "2026-10-16",
+      "amount": 15000,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "Pedal Kenya campaign",
+      "resource_id": "drone",
+      "starts_on": "2026-10-13",
+      "ends_on": "2026-10-14",
+      "amount": 50000,
+      "_status": "checked_in"
+     },
+     {
+      "guest": "Pedal Kenya campaign",
+      "resource_id": "fx6",
+      "starts_on": "2026-10-13",
+      "ends_on": "2026-10-14",
+      "amount": 36000,
+      "_status": "checked_in"
+     },
+     {
+      "guest": "Kilele barista series",
+      "resource_id": "lights",
+      "starts_on": "2026-10-20",
+      "ends_on": "2026-10-20",
+      "amount": 8000,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "Walk-in: portrait session",
+      "resource_id": "studioa",
+      "starts_on": "2026-10-18",
+      "ends_on": "2026-10-18",
+      "amount": 15000,
+      "_status": "tentative"
      }
     ],
     "invoices": [
      {
       "number": "MW-2026-031",
       "customer_id": "kilele",
-      "description": "Launch campaign, phase 1",
-      "amount": 420000,
+      "description": "Brand film, 50% deposit",
+      "amount": 360000,
       "issued_on": "2026-09-01",
       "due_on": "2026-09-30",
       "_status": "paid"
@@ -131,8 +2888,8 @@
      {
       "number": "MW-2026-037",
       "customer_id": "kilele",
-      "description": "Launch campaign, phase 2",
-      "amount": 380000,
+      "description": "Brand film, balance on delivery",
+      "amount": 360000,
       "issued_on": "2026-09-20",
       "due_on": "2026-10-05",
       "_status": "sent"
@@ -140,29 +2897,38 @@
      {
       "number": "MW-2026-039",
       "customer_id": "zuri",
-      "description": "Annual report design",
-      "amount": 150000,
+      "description": "Member stories, five films",
+      "amount": 540000,
       "issued_on": "2026-10-01",
       "due_on": "2026-10-31",
       "_status": "sent"
      },
      {
       "number": "MW-2026-041",
-      "customer_id": "nyota",
-      "description": "Website redesign deposit",
-      "amount": 200000,
+      "customer_id": "glow",
+      "description": "Launch reels and stills",
+      "amount": 160000,
       "issued_on": "2026-10-12",
       "due_on": "2026-10-26",
       "_status": "draft"
+     },
+     {
+      "number": "MW-2026-028",
+      "customer_id": "mama",
+      "description": "Social media management, September",
+      "amount": 45000,
+      "issued_on": "2026-09-01",
+      "due_on": "2026-09-15",
+      "_status": "paid"
      }
     ],
     "events": [
      {
-      "title": "Kilele brand workshop",
+      "title": "Small business content clinic",
       "kind": "meeting",
-      "date": "2026-10-21",
-      "venue": "Studio",
-      "expected": 12,
+      "date": "2026-10-24",
+      "venue": "Studio A",
+      "expected": 30,
       "_status": "planned"
      }
     ]
@@ -206,430 +2972,664 @@
   },
   {
    "organization": {
-    "name": "Hatua Shoes",
-    "sector": "Footwear brand"
-   },
-   "industry": "retail",
-   "admin": {
-    "name": "Wanjiru Mbugua",
-    "email": "wanjiru@hatua.example"
-   },
-   "users": [
-    {
-     "key": "otis",
-     "name": "Otis Kamau",
-     "email": "otis@hatua.example",
-     "role": "member"
-    }
-   ],
-   "site_settings": {
-    "slug": "hatua",
-    "tagline": "Made in Kenya, made to walk",
-    "intro": "Handmade leather sandals and sneakers from Nairobi's Gikomba artisans.",
-    "about": "Every pair is stitched by hand and repairable for life.",
-    "location": "Gikomba, Nairobi",
-    "contact_email": "jambo@hatua.example",
-    "brand_primary": "#8A3B12",
-    "brand_accent": "#C9F25C",
-    "show_impact": false,
-    "brand_deep": "#1C1410",
-    "heading_font": "bricolage"
-   },
-   "site_services": [
-    {
-     "title": "Leather sandals",
-     "icon": "environment",
-     "order": 1,
-     "published": true,
-     "description": "Classic Maasai-bead and plain styles, sizes 35 to 46."
-    },
-    {
-     "title": "Sneakers",
-     "icon": "outreach",
-     "order": 2,
-     "published": true,
-     "description": "Canvas and kitenge uppers on recycled soles."
-    },
-    {
-     "title": "Repairs for life",
-     "icon": "training",
-     "order": 3,
-     "published": true,
-     "description": "Bring any Hatua pair back for free stitching."
-    }
-   ],
-   "modules": {
-    "items": [
-     {
-      "_key": "sandal",
-      "name": "Beaded leather sandal",
-      "category": "other",
-      "unit": "pairs",
-      "reorder_level": 40,
-      "location": "Gikomba workshop",
-      "price": 4200,
-      "description": "Hand-stitched leather with Maasai beadwork. Resoleable for life.",
-      "show_on_site": true
-     },
-     {
-      "_key": "sneaker",
-      "name": "Kitenge sneaker",
-      "category": "other",
-      "unit": "pairs",
-      "reorder_level": 30,
-      "location": "Gikomba workshop",
-      "price": 5600,
-      "description": "Kitenge canvas upper on a recycled-tyre sole. Light, washable, loud.",
-      "show_on_site": true
-     },
-     {
-      "_key": "leather",
-      "name": "Tanned leather hides",
-      "category": "other",
-      "unit": "hides",
-      "reorder_level": 10,
-      "location": "Store room"
-     },
-     {
-      "_key": "boxes",
-      "name": "Shoe boxes",
-      "category": "stationery",
-      "unit": "boxes",
-      "reorder_level": 100,
-      "location": "Store room"
-     },
-     {
-      "_key": "slide",
-      "name": "Kikoi slide",
-      "category": "other",
-      "unit": "pairs",
-      "reorder_level": 20,
-      "location": "Gikomba workshop",
-      "price": 2800,
-      "description": "Soft kikoi strap, cushioned footbed. Beach to boardroom (almost).",
-      "show_on_site": true
-     },
-     {
-      "_key": "boot",
-      "name": "Safari chukka boot",
-      "category": "other",
-      "unit": "pairs",
-      "reorder_level": 15,
-      "location": "Gikomba workshop",
-      "price": 8900,
-      "description": "Suede chukka on a crepe sole, made for dust and dance floors.",
-      "show_on_site": true
-     }
-    ],
-    "stock_moves": [
-     {
-      "item_id": "sandal",
-      "direction": "in",
-      "quantity": 220,
-      "moved_on": "2026-09-01",
-      "note": "September production"
-     },
-     {
-      "item_id": "sandal",
-      "direction": "out",
-      "quantity": 196,
-      "moved_on": "2026-10-10",
-      "note": "Sold: shop and online"
-     },
-     {
-      "item_id": "sneaker",
-      "direction": "in",
-      "quantity": 150,
-      "moved_on": "2026-09-05",
-      "note": "Batch 12"
-     },
-     {
-      "item_id": "sneaker",
-      "direction": "out",
-      "quantity": 88,
-      "moved_on": "2026-10-10",
-      "note": "Sold: shop and online"
-     },
-     {
-      "item_id": "leather",
-      "direction": "in",
-      "quantity": 40,
-      "moved_on": "2026-08-20",
-      "note": "Kariokor tannery"
-     },
-     {
-      "item_id": "leather",
-      "direction": "out",
-      "quantity": 33,
-      "moved_on": "2026-10-01",
-      "note": "Production"
-     },
-     {
-      "item_id": "boxes",
-      "direction": "in",
-      "quantity": 500,
-      "moved_on": "2026-08-01",
-      "note": "Printed boxes"
-     },
-     {
-      "item_id": "boxes",
-      "direction": "out",
-      "quantity": 284,
-      "moved_on": "2026-10-10",
-      "note": "Packed orders"
-     },
-     {
-      "item_id": "slide",
-      "direction": "in",
-      "quantity": 90,
-      "moved_on": "2026-09-20",
-      "note": "Batch 3"
-     },
-     {
-      "item_id": "slide",
-      "direction": "out",
-      "quantity": 41,
-      "moved_on": "2026-10-11",
-      "note": "Sold"
-     },
-     {
-      "item_id": "boot",
-      "direction": "in",
-      "quantity": 24,
-      "moved_on": "2026-09-28",
-      "note": "First run"
-     },
-     {
-      "item_id": "boot",
-      "direction": "out",
-      "quantity": 21,
-      "moved_on": "2026-10-12",
-      "note": "Sold"
-     }
-    ],
-    "vendors": [
-     {
-      "_key": "tannery",
-      "name": "Kariokor Tannery",
-      "category": "Leather",
-      "phone": "0722 555 101",
-      "rating": "4"
-     },
-     {
-      "_key": "prints",
-      "name": "Industrial Area Packaging",
-      "category": "Boxes",
-      "phone": "0733 555 202",
-      "rating": "3"
-     }
-    ],
-    "customers": [
-     {
-      "_key": "carrefour",
-      "name": "Junction Mall boutique",
-      "kind": "business",
-      "location": "Nairobi"
-     },
-     {
-      "_key": "hotel",
-      "name": "Diani Beach Resort shop",
-      "kind": "business",
-      "location": "Diani"
-     },
-     {
-      "_key": "walkin",
-      "name": "Online orders (M-Pesa)",
-      "kind": "individual",
-      "location": "Countrywide"
-     }
-    ],
-    "invoices": [
-     {
-      "number": "HT-0412",
-      "customer_id": "carrefour",
-      "description": "40 pairs, consignment",
-      "amount": 168000,
-      "issued_on": "2026-09-15",
-      "due_on": "2026-09-29",
-      "_status": "sent"
-     },
-     {
-      "number": "HT-0418",
-      "customer_id": "hotel",
-      "description": "25 pairs sandals",
-      "amount": 97500,
-      "issued_on": "2026-10-01",
-      "due_on": "2026-10-31",
-      "_status": "sent"
-     },
-     {
-      "number": "HT-0420",
-      "customer_id": "walkin",
-      "description": "October online sales",
-      "amount": 214000,
-      "issued_on": "2026-10-12",
-      "due_on": "2026-10-12",
-      "_status": "paid"
-     }
-    ],
-    "events": [
-     {
-      "title": "Hatua pop-up, Village Market",
-      "kind": "campaign",
-      "date": "2026-10-25",
-      "venue": "Village Market",
-      "expected": 300,
-      "_status": "planned"
-     }
-    ]
-   },
-   "featured": 3
-  },
-  {
-   "organization": {
-    "name": "Pwani Coast Stays",
-    "sector": "Guesthouse and rentals"
+    "name": "Pwani Hotels & Safaris",
+    "sector": "Hotels, restaurants and tours"
    },
    "industry": "hospitality",
    "admin": {
     "name": "Rehema Salim",
     "email": "rehema@pwani.example"
    },
-   "users": [],
+   "users": [
+    {
+     "key": "front",
+     "name": "Omar Abdalla",
+     "email": "omar@pwani.example",
+     "role": "manager"
+    },
+    {
+     "key": "host",
+     "name": "Neema Charo",
+     "email": "neema@pwani.example",
+     "role": "member"
+    }
+   ],
    "site_settings": {
     "slug": "pwani",
-    "tagline": "Slow days by the ocean",
-    "intro": "Three cottages and a garden venue a short walk from Watamu beach.",
-    "about": "Family-run, solar-powered, breakfast from the garden.",
+    "tagline": "Ocean days. Safari nights.",
+    "intro": "A beachfront hotel in Watamu with three restaurants and guided safaris from the Indian Ocean to Tsavo.",
+    "about": "Forty-two rooms and villas on Watamu beach, a team of licensed guides, and kitchens that buy from the fishermen and farms around us.",
     "location": "Watamu, Kilifi County",
-    "contact_email": "karibu@pwani.example",
+    "contact_email": "reservations@pwani.example",
+    "phone": "0700 900 222",
+    "address": "Turtle Bay Road, Watamu",
+    "map_query": "Watamu, Kenya",
     "brand_primary": "#0E5A6B",
     "brand_accent": "#FF7A59",
-    "show_impact": false,
     "brand_deep": "#083640",
-    "heading_font": "dmserif"
+    "heading_font": "dmserif",
+    "show_impact": false
    },
    "site_services": [
     {
-     "title": "Cottages",
+     "title": "Rooms and villas",
      "icon": "environment",
      "order": 1,
      "published": true,
-     "description": "Sleeps two to five, with kitchenette."
+     "description": "Ocean suites, garden rooms and family villas, all a short walk from the sand."
     },
     {
-     "title": "Garden venue",
+     "title": "Three restaurants",
      "icon": "dialogue",
      "order": 2,
      "published": true,
-     "description": "Weddings and retreats up to 80 guests."
+     "description": "Ocean Grill for seafood, Spice Terrace for Swahili cooking, Beach Bar for sunsets."
+    },
+    {
+     "title": "Safaris and excursions",
+     "icon": "outreach",
+     "order": 3,
+     "published": true,
+     "description": "Tsavo East, Watamu Marine Park, Gede Ruins and Mida Creek with licensed guides."
+    },
+    {
+     "title": "Weddings and conferences",
+     "icon": "training",
+     "order": 4,
+     "published": true,
+     "description": "A garden for 200 and a sea-view hall for 120, with planning included."
     }
    ],
    "modules": {
     "resources": [
      {
-      "_key": "baobab",
-      "name": "Baobab cottage",
+      "_key": "os1",
+      "name": "Ocean Suite 1",
       "kind": "room",
       "capacity": 2,
-      "rate": 7500,
-      "location": "Garden",
-      "description": "A thatched cottage for two under a 300-year-old baobab, outdoor shower, hammock.",
-      "amenities": "Queen bed \u00b7 Outdoor shower \u00b7 Wi-Fi \u00b7 Breakfast",
+      "rate": 28000,
+      "location": "Watamu",
+      "description": "A sea-facing suite with a private terrace and outdoor shower.",
+      "amenities": "King bed \u00b7 Sea view \u00b7 Terrace \u00b7 Breakfast",
       "show_on_site": true
      },
      {
-      "_key": "mnazi",
-      "name": "Mnazi cottage",
+      "_key": "os2",
+      "name": "Ocean Suite 2",
       "kind": "room",
-      "capacity": 4,
-      "rate": 11000,
-      "location": "Pool side",
-      "description": "Family cottage beside the pool with a kitchenette and shaded veranda.",
-      "amenities": "2 bedrooms \u00b7 Kitchenette \u00b7 Pool side \u00b7 Wi-Fi",
+      "capacity": 2,
+      "rate": 28000,
+      "location": "Watamu",
+      "description": "Corner suite with wraparound views of the reef.",
+      "amenities": "King bed \u00b7 Sea view \u00b7 Bathtub \u00b7 Breakfast",
       "show_on_site": true
      },
      {
-      "_key": "garden",
-      "name": "Garden venue",
+      "_key": "gr1",
+      "name": "Garden Room 1",
+      "kind": "room",
+      "capacity": 2,
+      "rate": 16000,
+      "location": "Watamu",
+      "description": "Quiet room among frangipani, steps from the pool.",
+      "amenities": "Queen bed \u00b7 Garden view \u00b7 Breakfast",
+      "show_on_site": true
+     },
+     {
+      "_key": "gr2",
+      "name": "Garden Room 2",
+      "kind": "room",
+      "capacity": 3,
+      "rate": 17500,
+      "location": "Watamu",
+      "description": "Garden room with a day bed for a third guest.",
+      "amenities": "Queen bed \u00b7 Day bed \u00b7 Breakfast",
+      "show_on_site": true
+     },
+     {
+      "_key": "fv1",
+      "name": "Family Villa",
+      "kind": "room",
+      "capacity": 5,
+      "rate": 42000,
+      "location": "Watamu",
+      "description": "Two-bedroom villa with a kitchenette and plunge pool.",
+      "amenities": "2 bedrooms \u00b7 Plunge pool \u00b7 Kitchenette",
+      "show_on_site": true
+     },
+     {
+      "_key": "hm1",
+      "name": "Honeymoon Suite",
+      "kind": "room",
+      "capacity": 2,
+      "rate": 36000,
+      "location": "Watamu",
+      "description": "Top-floor suite with a canopy bed and rooftop deck.",
+      "amenities": "King bed \u00b7 Rooftop deck \u00b7 Champagne on arrival",
+      "show_on_site": true
+     },
+     {
+      "_key": "hall",
+      "name": "Sea View Hall",
       "kind": "venue",
-      "capacity": 80,
-      "rate": 35000,
-      "location": "Main lawn",
-      "description": "A lawn under coconut palms for weddings and retreats up to 80 guests.",
-      "amenities": "Up to 80 guests \u00b7 Power \u00b7 Catering on request",
+      "capacity": 120,
+      "rate": 90000,
+      "location": "Watamu",
+      "description": "Conference hall with sea views, AV and catering.",
+      "amenities": "120 guests \u00b7 AV \u00b7 Catering",
       "show_on_site": true
-     },
-     {
-      "_key": "kipepeo",
-      "name": "Kipepeo studio",
-      "kind": "room",
-      "capacity": 2,
-      "rate": 6000,
-      "location": "Upper garden",
-      "description": "Bright studio with a sea-breeze balcony and a writing desk.",
-      "amenities": "Double bed \u00b7 Balcony \u00b7 Desk \u00b7 Wi-Fi",
-      "show_on_site": true
-     }
-    ],
-    "customers": [
-     {
-      "_key": "g1",
-      "name": "Achieng and Tom",
-      "kind": "individual",
-      "phone": "0701 100 200"
-     },
-     {
-      "_key": "g2",
-      "name": "Watamu Turtle Watch retreat",
-      "kind": "institution",
-      "email": "admin@turtlewatch.example"
      }
     ],
     "bookings": [
      {
-      "guest": "Achieng and Tom",
-      "resource_id": "baobab",
-      "starts_on": "2026-10-14",
-      "ends_on": "2026-10-18",
-      "contact": "0701 100 200",
-      "amount": 30000,
-      "_status": "confirmed"
-     },
-     {
-      "guest": "Kimani family",
-      "resource_id": "mnazi",
+      "guest": "Lena & Markus Weber",
+      "resource_id": "os1",
       "starts_on": "2026-10-10",
       "ends_on": "2026-10-15",
-      "amount": 55000,
+      "contact": "guest0@example.com",
+      "amount": 140000,
       "_status": "checked_in"
      },
      {
-      "guest": "Watamu Turtle Watch retreat",
-      "resource_id": "garden",
-      "starts_on": "2026-10-24",
-      "ends_on": "2026-10-25",
+      "guest": "Achieng and Tom",
+      "resource_id": "os2",
+      "starts_on": "2026-10-12",
+      "ends_on": "2026-10-17",
+      "contact": "guest1@example.com",
+      "amount": 140000,
+      "_status": "checked_in"
+     },
+     {
+      "guest": "The Kimani family",
+      "resource_id": "gr1",
+      "starts_on": "2026-10-13",
+      "ends_on": "2026-10-16",
+      "contact": "guest2@example.com",
+      "amount": 48000,
+      "_status": "checked_in"
+     },
+     {
+      "guest": "Sophie Laurent",
+      "resource_id": "gr2",
+      "starts_on": "2026-10-14",
+      "ends_on": "2026-10-18",
+      "contact": "guest3@example.com",
       "amount": 70000,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "Rahul Mehta",
+      "resource_id": "fv1",
+      "starts_on": "2026-10-11",
+      "ends_on": "2026-10-14",
+      "contact": "guest4@example.com",
+      "amount": 126000,
+      "_status": "checked_in"
+     },
+     {
+      "guest": "Kenya Tour Operators Ltd (group)",
+      "resource_id": "hm1",
+      "starts_on": "2026-10-15",
+      "ends_on": "2026-10-20",
+      "contact": "guest5@example.com",
+      "amount": 180000,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "Ana Costa",
+      "resource_id": "hall",
+      "starts_on": "2026-10-22",
+      "ends_on": "2026-10-23",
+      "contact": "guest6@example.com",
+      "amount": 90000,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "James & Wanjiku",
+      "resource_id": "os1",
+      "starts_on": "2026-10-16",
+      "ends_on": "2026-10-21",
+      "contact": "guest7@example.com",
+      "amount": 140000,
       "_status": "tentative"
      },
      {
-      "guest": "Lena (Germany)",
-      "resource_id": "baobab",
-      "starts_on": "2026-10-20",
-      "ends_on": "2026-10-27",
-      "amount": 52500,
+      "guest": "Yuki Tanaka",
+      "resource_id": "gr1",
+      "starts_on": "2026-10-17",
+      "ends_on": "2026-10-19",
+      "contact": "guest8@example.com",
+      "amount": 32000,
       "_status": "confirmed"
+     },
+     {
+      "guest": "The Ochieng family",
+      "resource_id": "fv1",
+      "starts_on": "2026-10-18",
+      "ends_on": "2026-10-25",
+      "contact": "guest9@example.com",
+      "amount": 294000,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "Corporate retreat: Mavuno Bank",
+      "resource_id": "os2",
+      "starts_on": "2026-10-04",
+      "ends_on": "2026-10-08",
+      "contact": "guest10@example.com",
+      "amount": 112000,
+      "_status": "completed"
+     },
+     {
+      "guest": "Elena Rossi",
+      "resource_id": "gr2",
+      "starts_on": "2026-10-07",
+      "ends_on": "2026-10-11",
+      "contact": "guest11@example.com",
+      "amount": 70000,
+      "_status": "completed"
+     }
+    ],
+    "reservations": [
+     {
+      "guest": "Lena & Markus Weber",
+      "phone": "0739 649 502",
+      "restaurant": "grill",
+      "date": "2026-10-13",
+      "time": "12:30",
+      "covers": 4,
+      "notes": "",
+      "_status": "completed"
+     },
+     {
+      "guest": "Achieng and Tom",
+      "phone": "0741 132 115",
+      "restaurant": "terrace",
+      "date": "2026-10-13",
+      "time": "13:00",
+      "covers": 4,
+      "notes": "Vegetarian",
+      "_status": "completed"
+     },
+     {
+      "guest": "The Kimani family",
+      "phone": "0781 191 551",
+      "restaurant": "beach",
+      "date": "2026-10-13",
+      "time": "19:00",
+      "covers": 6,
+      "notes": "High chair",
+      "_status": "completed"
+     },
+     {
+      "guest": "Sophie Laurent",
+      "phone": "0732 275 342",
+      "restaurant": "grill",
+      "date": "2026-10-13",
+      "time": "19:30",
+      "covers": 2,
+      "notes": "High chair",
+      "_status": "booked"
+     },
+     {
+      "guest": "Rahul Mehta",
+      "phone": "0735 616 874",
+      "restaurant": "terrace",
+      "date": "2026-10-13",
+      "time": "20:00",
+      "covers": 2,
+      "notes": "Vegetarian",
+      "_status": "booked"
+     },
+     {
+      "guest": "Kenya Tour Operators Ltd (group)",
+      "phone": "0745 761 771",
+      "restaurant": "beach",
+      "date": "2026-10-13",
+      "time": "20:30",
+      "covers": 2,
+      "notes": "Vegetarian",
+      "_status": "booked"
+     },
+     {
+      "guest": "Ana Costa",
+      "phone": "0721 119 452",
+      "restaurant": "grill",
+      "date": "2026-10-13",
+      "time": "12:30",
+      "covers": 2,
+      "notes": "",
+      "_status": "booked"
+     },
+     {
+      "guest": "James & Wanjiku",
+      "phone": "0726 680 983",
+      "restaurant": "terrace",
+      "date": "2026-10-14",
+      "time": "13:00",
+      "covers": 4,
+      "notes": "Anniversary",
+      "_status": "booked"
+     },
+     {
+      "guest": "Yuki Tanaka",
+      "phone": "0770 991 810",
+      "restaurant": "beach",
+      "date": "2026-10-14",
+      "time": "19:00",
+      "covers": 2,
+      "notes": "",
+      "_status": "booked"
+     },
+     {
+      "guest": "The Ochieng family",
+      "phone": "0751 279 606",
+      "restaurant": "grill",
+      "date": "2026-10-14",
+      "time": "19:30",
+      "covers": 4,
+      "notes": "",
+      "_status": "booked"
+     },
+     {
+      "guest": "Corporate retreat: Mavuno Bank",
+      "phone": "0727 101 933",
+      "restaurant": "terrace",
+      "date": "2026-10-14",
+      "time": "20:00",
+      "covers": 4,
+      "notes": "",
+      "_status": "booked"
+     },
+     {
+      "guest": "Elena Rossi",
+      "phone": "0799 609 744",
+      "restaurant": "beach",
+      "date": "2026-10-14",
+      "time": "20:30",
+      "covers": 4,
+      "notes": "",
+      "_status": "booked"
+     },
+     {
+      "guest": "Walk-in: Mohamed",
+      "phone": "0782 446 624",
+      "restaurant": "grill",
+      "date": "2026-10-14",
+      "time": "12:30",
+      "covers": 2,
+      "notes": "",
+      "_status": "booked"
+     },
+     {
+      "guest": "Dinner: Hall guests",
+      "phone": "0797 705 121",
+      "restaurant": "terrace",
+      "date": "2026-10-14",
+      "time": "13:00",
+      "covers": 6,
+      "notes": "Window table",
+      "_status": "booked"
+     },
+     {
+      "guest": "Amani Baraka",
+      "phone": "0740 218 486",
+      "restaurant": "beach",
+      "date": "2026-10-15",
+      "time": "19:00",
+      "covers": 2,
+      "notes": "Window table",
+      "_status": "booked"
+     }
+    ],
+    "guides": [
+     {
+      "_key": "g1",
+      "name": "Hamisi Kazungu",
+      "languages": "English, Swahili, German",
+      "licence": "KPSGA-3943",
+      "phone": "0749 864 644",
+      "available": true
+     },
+     {
+      "_key": "g2",
+      "name": "Joyce Mwende",
+      "languages": "English, Swahili, French",
+      "licence": "KPSGA-1171",
+      "phone": "0713 450 853",
+      "available": true
+     },
+     {
+      "_key": "g3",
+      "name": "Salim Bakari",
+      "languages": "English, Swahili, Italian",
+      "licence": "KPSGA-3875",
+      "phone": "0768 704 199",
+      "available": true
+     },
+     {
+      "_key": "g4",
+      "name": "Peter Lekishon",
+      "languages": "English, Swahili, Maa",
+      "licence": "KPSGA-4975",
+      "phone": "0795 582 868",
+      "available": false
+     },
+     {
+      "_key": "g5",
+      "name": "Mariam Juma",
+      "languages": "English, Swahili, Arabic",
+      "licence": "KPSGA-3607",
+      "phone": "0787 614 778",
+      "available": true
+     }
+    ],
+    "tours": [
+     {
+      "_key": "tsavo",
+      "name": "Tsavo East day safari",
+      "duration": "Full day",
+      "price": 18500,
+      "capacity": 14,
+      "description": "Leave at 5:30, game drive in Tsavo East, lunch at Voi, back by sunset.",
+      "show_on_site": true
+     },
+     {
+      "_key": "reef",
+      "name": "Watamu Marine Park snorkelling",
+      "duration": "Half day",
+      "price": 6500,
+      "capacity": 16,
+      "description": "Glass-bottom boat to the coral gardens with a marine guide.",
+      "show_on_site": true
+     },
+     {
+      "_key": "gede",
+      "name": "Gede Ruins and Mida Creek",
+      "duration": "Half day",
+      "price": 5500,
+      "capacity": 20,
+      "description": "The 13th-century Swahili town, then the creek boardwalk at golden hour.",
+      "show_on_site": true
+     },
+     {
+      "_key": "dhow",
+      "name": "Sunset dhow cruise",
+      "duration": "3 hours",
+      "price": 7500,
+      "capacity": 24,
+      "description": "A traditional dhow across Mida Creek with Swahili snacks.",
+      "show_on_site": true
+     },
+     {
+      "_key": "malindi",
+      "name": "Malindi old town walk",
+      "duration": "Half day",
+      "price": 4000,
+      "capacity": 12,
+      "description": "Vasco da Gama pillar, the old mosque and the curio market.",
+      "show_on_site": true
+     }
+    ],
+    "tour_bookings": [
+     {
+      "guest": "Lena & Markus Weber",
+      "tour_id": "tsavo",
+      "date": "2026-10-14",
+      "pax": 2,
+      "guide_id": "g1",
+      "phone": "guest0@example.com",
+      "amount": 37000,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "The Kimani family",
+      "tour_id": "reef",
+      "date": "2026-10-13",
+      "pax": 5,
+      "guide_id": "g2",
+      "phone": "guest1@example.com",
+      "amount": 32500,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "Sophie Laurent",
+      "tour_id": "gede",
+      "date": "2026-10-15",
+      "pax": 1,
+      "guide_id": "g2",
+      "phone": "guest2@example.com",
+      "amount": 5500,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "Rahul Mehta",
+      "tour_id": "dhow",
+      "date": "2026-10-13",
+      "pax": 2,
+      "guide_id": "g3",
+      "phone": "guest3@example.com",
+      "amount": 15000,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "Kenya Tour Operators Ltd (group)",
+      "tour_id": "tsavo",
+      "date": "2026-10-17",
+      "pax": 12,
+      "guide_id": "g1",
+      "phone": "guest4@example.com",
+      "amount": 222000,
+      "_status": "confirmed"
+     },
+     {
+      "guest": "Ana Costa",
+      "tour_id": "malindi",
+      "date": "2026-10-16",
+      "pax": 2,
+      "guide_id": null,
+      "phone": "guest5@example.com",
+      "amount": 8000,
+      "_status": "enquiry"
+     },
+     {
+      "guest": "Yuki Tanaka",
+      "tour_id": "reef",
+      "date": "2026-10-18",
+      "pax": 1,
+      "guide_id": null,
+      "phone": "guest6@example.com",
+      "amount": 6500,
+      "_status": "enquiry"
+     },
+     {
+      "guest": "Elena Rossi",
+      "tour_id": "tsavo",
+      "date": "2026-10-10",
+      "pax": 2,
+      "guide_id": "g1",
+      "phone": "guest7@example.com",
+      "amount": 37000,
+      "_status": "completed"
+     },
+     {
+      "guest": "The Ochieng family",
+      "tour_id": "dhow",
+      "date": "2026-10-12",
+      "pax": 4,
+      "guide_id": "g5",
+      "phone": "guest8@example.com",
+      "amount": 30000,
+      "_status": "completed"
+     }
+    ],
+    "customers": [
+     {
+      "_key": "kto",
+      "name": "Kenya Tour Operators Ltd",
+      "kind": "business",
+      "location": "Mombasa"
+     },
+     {
+      "_key": "mav",
+      "name": "Mavuno Bank",
+      "kind": "business",
+      "location": "Nairobi"
      }
     ],
     "invoices": [
      {
-      "number": "PCS-118",
-      "customer_id": "g2",
-      "description": "Retreat deposit",
-      "amount": 35000,
+      "number": "PHS-2210",
+      "customer_id": "kto",
+      "description": "Group stay and Tsavo safari, 12 guests",
+      "amount": 684000,
       "issued_on": "2026-10-01",
       "due_on": "2026-10-10",
       "_status": "sent"
+     },
+     {
+      "number": "PHS-2216",
+      "customer_id": "mav",
+      "description": "Corporate retreat deposit, Sea View Hall",
+      "amount": 180000,
+      "issued_on": "2026-10-08",
+      "due_on": "2026-10-22",
+      "_status": "sent"
+     },
+     {
+      "number": "PHS-2198",
+      "customer_id": "kto",
+      "description": "September group stays",
+      "amount": 1240000,
+      "issued_on": "2026-09-05",
+      "due_on": "2026-09-30",
+      "_status": "paid"
+     }
+    ],
+    "vendors": [
+     {
+      "_key": "fish",
+      "name": "Watamu Fishermen Co-op",
+      "category": "Seafood",
+      "phone": "0722 888 101",
+      "rating": "5"
+     },
+     {
+      "_key": "farm",
+      "name": "Malindi Fresh Farms",
+      "category": "Produce",
+      "phone": "0733 101 202",
+      "rating": "4"
+     }
+    ],
+    "events": [
+     {
+      "title": "Full moon beach dinner",
+      "kind": "campaign",
+      "date": "2026-10-17",
+      "venue": "Beach Bar",
+      "expected": 80,
+      "_status": "planned"
      }
     ]
    },

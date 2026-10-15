@@ -7,7 +7,7 @@ import SPEC from "../modules.json";
 import PLATFORM from "../platform.json";
 import { SEED } from "./seed";
 
-const KEY = "kept_preview_db_v12";
+const KEY = "kept_preview_db_v13";
 export const TODAY = "2026-10-13";
 const AT_RISK_GAP = 15, DUE_SOON = 3, ESCALATE = 2;
 
@@ -642,7 +642,7 @@ on("GET", "/dashboard", (u) => {
   const low = mine("items").filter((r) => r.reorder_level != null && computed("items", r).stock <= Number(r.reorder_level)).length;
   const sev = { high: 0, medium: 1, low: 2 };
   return {
-    installed: org2.installed_apps || [], industry: org2.industry,
+    installed: org2.installed_apps || [], industry: org2.industry, ops: opsSummary(org, org2.installed_apps || []),
     top_flags: T("flags").filter((f) => f.organization_id === org && f.status === "open").sort((a, b) => sev[a.severity] - sev[b.severity] || a.opened_at.localeCompare(b.opened_at)).slice(0, 6).map((f) => ({ rule: f.rule, title: f.title, detail: f.detail, severity: f.severity })),
     sales: { outstanding: sumOf(inv.filter((i) => i.status === "sent"), "amount"), paid: sumOf(inv.filter((i) => i.status === "paid"), "amount"), overdue: inv.filter((i) => i.status === "sent" && i.due_on < TODAY).length, drafts: inv.filter((i) => i.status === "draft").length },
     inventory: { items: mine("items").length, low_stock: low, units: mine("items").reduce((a, r) => a + computed("items", r).stock, 0) },
@@ -952,6 +952,7 @@ on("GET", "/public/forms/:id", (_, __, id2) => { const f = publicForm(id2); cons
   return { id: f.id, title: f.title, description: f.description, fields: f.fields, collect_gps: !!f.collect_gps, organization: byId("orgs", f.organization_id).name, brand: { primary: site?.brand_primary || "#5B4CDB", accent: site?.brand_accent || "#18181B" } }; });
 on("POST", "/public/forms/:id", (_, { body }, id2) => { const f = publicForm(id2); const p = payloadOf(body); if (p.website || body.website) return { ok: true }; delete p.data.website;
   const [s2, created] = saveSub(f, p, "public", null); return { ok: true, id: s2.id, duplicate: !created }; });
+on("POST", "/auth/logout-everywhere", (u) => { log(u.organization_id, u.id, "signed_out_everywhere", "user", u.id, `${u.full_name} signed out of every device`); return null; });
 on("POST", "/auth/password", (u, { body }) => {
   if (u.password !== body.current_password) E(400, "Your current password is not right.");
   const pw = body.new_password || ""; if (pw.length < 10 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) vErr("Password needs at least 10 characters and letters and numbers.", "password");
@@ -970,6 +971,7 @@ function requireApp(u, key) {
 }
 on("GET", "/platform", () => ({ apps: APPDEFS, palettes: PLATFORM.palettes, industries: PLATFORM.industries.map((i) => ({ ...i, app_names: i.apps.map(appName) })) }));
 const SHOW_ORDER = { timiza: 1, tumaini: 2, hatua: 3, mwangaza: 4, pwani: 5 };
+on("POST", "/platform/demo-request", (_, { body }) => { if ((body.name || "").trim().length < 2) E(422, "Enter your name."); if ((body.organization || "").trim().length < 2) E(422, "Enter your organization."); if ((body.contact || "").trim().length < 5) E(422, "Enter an email or phone number."); return { ok: true }; });
 on("GET", "/platform/showcase", () => mrows("site_settings").map((s2) => { const o = byId("orgs", s2.organization_id);
   return { slug: s2.slug, organization: o.name, industry: INDS[o.industry]?.name || o.industry, kind: ["retail", "hospitality", "agency"].includes(o.industry) ? "Business" : "Organization",
     tagline: s2.tagline, primary: s2.brand_primary, accent: s2.brand_accent, deep: s2.brand_deep }; }).sort((a, b) => (SHOW_ORDER[a.slug] || 99) - (SHOW_ORDER[b.slug] || 99)));
@@ -1058,7 +1060,10 @@ on("POST", "/public/:slug/order", (_, { body }, slug) => {
   for (const ln of body.items) { const r = mrows("items").find((x) => x.id === ln.id && x.organization_id === site.organization_id && x.show_on_site); if (!r) E(422, "One of those products is no longer available.");
     const st = computed("items", r).stock; if (ln.qty > st) E(409, `Only ${st} ${r.unit} of ${r.name} left.`); total += Number(r.price || 0) * ln.qty; lines.push(`${ln.qty} x ${r.name} @ KES ${Number(r.price || 0).toLocaleString()}`); }
   const ref = `ORD-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
+  if ((byId("orgs", site.organization_id).installed_apps || []).includes("deliveries")) mrows("deliveries").push({ id: uid(), organization_id: site.organization_id, created_by_id: null, created_at: nowIso(), updated_at: nowIso(),
+    reference: null, customer: body.name.trim(), phone: body.contact.trim(), address: (body.address || "To be confirmed").trim(), amount: total, items: lines.join("\n"), status: "new", _pending_ref: true });
   publicInsert(site, "inquiries", { name: body.name.trim(), contact: body.contact.trim(), kind: "order", message: `${ref}\n${lines.join("\n")}\nTotal KES ${total.toLocaleString()}${body.message ? `\nNote: ${body.message}` : ""}` }, `Website order ${ref}: KES ${total.toLocaleString()}`);
+  mrows("deliveries").filter((d) => d._pending_ref).forEach((d) => { d.reference = ref; delete d._pending_ref; });
   return { ok: true, reference: ref, total, message: `Order ${ref} received. We'll confirm on ${body.contact.trim()} within the hour.` };
 });
 const roomFree = (org, rid, s2, e2) => !mrows("bookings").some((b) => b.organization_id === org && b.resource_id === rid && b.status !== "cancelled" && b.starts_on <= e2 && b.ends_on >= s2);
@@ -1079,3 +1084,56 @@ on("POST", "/public/:slug/booking-request", (_, { body }, slug) => {
   mrows("bookings").push(b); log(site.organization_id, null, "bookings_created", "bookings", b.id, `Website booking request: ${r.name}, ${nights} nights`);
   return { ok: true, nights, amount, message: `${r.name} is held for you: ${nights} nights, KES ${amount.toLocaleString()}. We'll confirm within a few hours.` };
 });
+
+// ---------- industry figures and industry websites (mirror of routers/erp.py) ----------
+function opsSummary(org, apps) {
+  const mine = (k) => mrows(k).filter((r) => r.organization_id === org); const has = (a) => apps.includes(a); const out = {};
+  const count = (rows, key) => rows.reduce((a, r) => { a[r[key]] = (a[r[key]] || 0) + 1; return a; }, {});
+  if (has("branches")) {
+    const month = TODAY.slice(0, 8) + "01"; const sales = mine("branch_sales");
+    const rows = mine("branches").sort((a, b) => a.name.localeCompare(b.name)).map((b) => ({ name: b.name, target: Number(b.monthly_target || 0), month: sumOf(sales.filter((x) => x.branch_id === b.id && x.date >= month), "gross") }));
+    out.branches = { today: sumOf(sales.filter((x) => x.date === TODAY), "gross"), month: rows.reduce((a, r) => a + r.month, 0), days_elapsed: dnum(TODAY) - dnum(month) + 1, rows };
+    out.transfers_open = mine("transfers").filter((t) => ["requested", "dispatched"].includes(t.status)).length;
+  }
+  if (has("deliveries")) out.deliveries = count(mine("deliveries"), "status");
+  if (has("studio")) { const pr = mine("productions"); out.productions = count(pr, "status");
+    out.shoots = pr.filter((r) => r.shoot_date >= TODAY && ["brief", "booked", "shooting"].includes(r.status)).sort((a, b) => a.shoot_date.localeCompare(b.shoot_date)).slice(0, 5).map((r) => ({ title: r.title, date: r.shoot_date, kind: r.kind })); }
+  if (has("social")) { const po = mine("posts"); const wk = addDays(TODAY, 7); out.posts_week = po.filter((p) => p.publish_on >= TODAY && p.publish_on < wk).length; out.posts_review = po.filter((p) => p.status === "review").length; }
+  if (has("bookings")) { const rooms = mine("resources").filter((r) => r.kind === "room"); const ids = new Set(rooms.map((r) => r.id)); const bk = mine("bookings");
+    out.rooms = { total: rooms.length, occupied: bk.filter((b) => ids.has(b.resource_id) && ["confirmed", "checked_in"].includes(b.status) && b.starts_on <= TODAY && b.ends_on > TODAY).length,
+      arrivals: bk.filter((b) => b.starts_on === TODAY && b.status !== "cancelled").length, departures: bk.filter((b) => b.ends_on === TODAY && b.status !== "cancelled").length }; }
+  if (has("dining")) { const names = { grill: "Ocean Grill", terrace: "Spice Terrace", beach: "Beach Bar" }; const g = {};
+    mine("reservations").filter((r) => r.date === TODAY && ["booked", "seated", "completed"].includes(r.status)).forEach((r) => { (g[r.restaurant] ||= { label: names[r.restaurant] || r.restaurant, tables: 0, covers: 0 }); g[r.restaurant].tables++; g[r.restaurant].covers += Number(r.covers); });
+    out.dining = Object.values(g); }
+  if (has("tours")) { const tb = mine("tour_bookings"); out.tours = { week: tb.filter((b) => b.date >= TODAY && b.date < addDays(TODAY, 7) && ["enquiry", "confirmed"].includes(b.status)).length,
+    unassigned: tb.filter((b) => b.status === "confirmed" && !b.guide_id).length, enquiries: tb.filter((b) => b.status === "enquiry").length }; }
+  return out;
+}
+on("GET", "/public/:slug/stores", (_, __, slug) => { const site = siteFor(slug);
+  return mrows("branches").filter((b) => b.organization_id === site.organization_id && b.show_on_site).sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)).map((b) => ({ name: b.name, city: b.city, address: b.address, phone: b.phone, hours: b.hours })); });
+on("GET", "/public/:slug/track", (_, { params }, slug) => { const site = siteFor(slug);
+  const digits = (x) => String(x || "").replace(/\D/g, "").slice(-9);
+  const r = mrows("deliveries").find((d) => d.organization_id === site.organization_id && String(d.reference || "").toUpperCase() === String(params.ref || "").trim().toUpperCase());
+  if (!r || !digits(params.phone) || digits(params.phone) !== digits(r.phone)) E(404, "We could not find an order with that reference and phone number.");
+  const steps = ["new", "assigned", "out", "delivered"];
+  return { reference: r.reference, status: r.status, step: steps.indexOf(r.status), rider: (r.rider || "").split(" ")[0] || null, area: r.address.split(",")[0], updated_at: r.updated_at }; });
+on("GET", "/public/:slug/tours", (_, __, slug) => { const site = siteFor(slug);
+  return mrows("tours").filter((t) => t.organization_id === site.organization_id && t.show_on_site).sort((a, b) => b.price - a.price).map((t) => ({ id: t.id, name: t.name, duration: t.duration, price: Number(t.price || 0), capacity: Number(t.capacity || 0), description: t.description })); });
+on("POST", "/public/:slug/tour-booking", (_, { body }, slug) => { const site = siteFor(slug); if (body.website) return { ok: true };
+  if ((body.name || "").trim().length < 2) E(422, "Enter your name."); if ((body.contact || "").trim().length < 5) E(422, "Enter a phone number or email.");
+  const pax = Number(body.pax); if (!(pax >= 1 && pax <= 40)) E(422, "Choose between 1 and 40 people."); if (!body.date || body.date < TODAY) E(422, "Choose a date from today onwards.");
+  const tour = mrows("tours").find((t) => t.id === body.tour_id && t.organization_id === site.organization_id && t.show_on_site); if (!tour) E(422, "Choose one of our tours.");
+  const booked = mrows("tour_bookings").filter((b) => b.tour_id === tour.id && b.date === body.date && ["enquiry", "confirmed"].includes(b.status)).reduce((a, b) => a + Number(b.pax), 0);
+  if (tour.capacity && booked + pax > tour.capacity) E(409, `Only ${Math.max(0, tour.capacity - booked)} seats left on ${tour.name} that day. Try another date.`);
+  const amount = Number(tour.price) * pax; const b = { id: uid(), organization_id: site.organization_id, created_by_id: null, created_at: nowIso(), updated_at: nowIso(), guest: body.name.trim(), tour_id: tour.id, date: body.date, pax, guide_id: null, phone: body.contact.trim(), amount, status: "enquiry" };
+  mrows("tour_bookings").push(b); log(site.organization_id, null, "tour_bookings_created", "tour_bookings", b.id, `Website tour request: ${tour.name}, ${pax} people`);
+  return { ok: true, amount, message: `${tour.name} on ${fmt(body.date)} for ${pax}: KES ${amount.toLocaleString()}. A guide will confirm shortly.` }; });
+on("POST", "/public/:slug/table", (_, { body }, slug) => { const site = siteFor(slug); if (body.website) return { ok: true };
+  if (!["grill", "terrace", "beach"].includes(body.restaurant)) E(422, "Choose a restaurant."); if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(body.time || "")) E(422, "Choose a time.");
+  const covers = Number(body.covers); if (!(covers >= 1 && covers <= 20)) E(422, "Tables are for 1 to 20 guests."); if (!body.date || body.date < TODAY) E(422, "Choose a date from today onwards.");
+  if ((body.name || "").trim().length < 2) E(422, "Enter your name."); if ((body.phone || "").trim().length < 5) E(422, "Enter your phone number.");
+  const taken = mrows("reservations").filter((r) => r.organization_id === site.organization_id && r.restaurant === body.restaurant && r.date === body.date && r.time === body.time && ["booked", "seated"].includes(r.status)).reduce((a, r) => a + Number(r.covers), 0);
+  if (taken + covers > 40) E(409, "That sitting is full. Try thirty minutes earlier or later.");
+  const r = { id: uid(), organization_id: site.organization_id, created_by_id: null, created_at: nowIso(), updated_at: nowIso(), guest: body.name.trim(), phone: body.phone.trim(), restaurant: body.restaurant, date: body.date, time: body.time, covers, notes: body.notes || null, status: "booked" };
+  mrows("reservations").push(r); log(site.organization_id, null, "reservations_created", "reservations", r.id, `Website table for ${covers} at ${body.time}`);
+  return { ok: true, message: `Table for ${covers} on ${fmt(body.date)} at ${body.time} is booked.` }; });

@@ -58,8 +58,8 @@
   },
   {
    "key": "bookings",
-   "name": "Bookings",
-   "tagline": "Rooms and venues, no double-booking",
+   "name": "Rooms and bookings",
+   "tagline": "Room availability, stays and check-ins",
    "color": "#FF8B5C",
    "icon": "key"
   },
@@ -97,6 +97,48 @@
    "tagline": "Your public site, live numbers, inquiries",
    "color": "#FFB020",
    "icon": "globe"
+  },
+  {
+   "key": "branches",
+   "name": "Branches",
+   "tagline": "Branch sales, targets and stock transfers",
+   "color": "#7C5CFF",
+   "icon": "store"
+  },
+  {
+   "key": "deliveries",
+   "name": "Deliveries",
+   "tagline": "Dispatch to doorstep, with rider tracking",
+   "color": "#FF6B35",
+   "icon": "truck"
+  },
+  {
+   "key": "studio",
+   "name": "Studio",
+   "tagline": "Shoots and films from brief to delivery",
+   "color": "#FFB627",
+   "icon": "camera"
+  },
+  {
+   "key": "social",
+   "name": "Content calendar",
+   "tagline": "Client posts from draft to published",
+   "color": "#3BA7FF",
+   "icon": "megaphone"
+  },
+  {
+   "key": "dining",
+   "name": "Dining",
+   "tagline": "Table reservations by restaurant and sitting",
+   "color": "#FF6B35",
+   "icon": "utensils"
+  },
+  {
+   "key": "tours",
+   "name": "Tours",
+   "tagline": "Excursions, guides and tour bookings",
+   "color": "#3BA7FF",
+   "icon": "compass"
   }
  ],
  "industries": [
@@ -121,13 +163,14 @@
   },
   {
    "key": "agency",
-   "name": "Agency or consultancy",
+   "name": "Creative studio or agency",
    "template": "client_engagement",
    "apps": [
-    "projects",
-    "forms",
-    "events",
+    "studio",
+    "social",
     "sales",
+    "bookings",
+    "inventory",
     "finance",
     "people",
     "documents",
@@ -136,29 +179,32 @@
   },
   {
    "key": "retail",
-   "name": "Retail shop or brand",
+   "name": "Retail chain",
    "template": null,
    "apps": [
+    "branches",
     "sales",
     "inventory",
     "procurement",
-    "finance",
+    "deliveries",
     "forms",
-    "events",
+    "finance",
     "people",
     "website"
    ]
   },
   {
    "key": "hospitality",
-   "name": "Hospitality and rentals",
+   "name": "Hotels, dining and tours",
    "template": null,
    "apps": [
     "bookings",
+    "dining",
+    "tours",
     "sales",
     "inventory",
+    "procurement",
     "finance",
-    "forms",
     "people",
     "documents",
     "website"

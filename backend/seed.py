@@ -35,7 +35,7 @@ from app.services.audit import log
 from app.templates_builtin import ensure_builtin_templates
 
 PASSWORD = "kept-demo-2026"
-DEMO_ORGS = ["Tumaini Community Network", "Mwangaza Creative Studio", "Timiza Youth Initiative", "Hatua Shoes", "Pwani Coast Stays"]
+DEMO_ORGS = ["Tumaini Community Network", "Mwangaza Creative Studio", "Timiza Youth Initiative", "Hatua Shoes", "Pwani Coast Stays", "Hatua Apparel", "Pwani Hotels & Safaris"]
 
 
 def at(d: date, hour=15) -> datetime:
@@ -501,6 +501,20 @@ def seed_tracker(db, org, people, projects, spec):
     db.flush()
 
 
+def seed_tazama(db, org, owner, spec):
+    """A ready-made Tazama form with its recorded submissions (identical in the preview)."""
+    from app.models import Form, FormSubmission
+    fields = [{"required": False, "options": [], "min": None, "max": None, "show_if": None, **f} for f in spec["fields"]]
+    form = Form(organization_id=org.id, title=spec["title"], description=spec["description"], fields=fields, is_public=spec["is_public"], status="open",
+                target=spec.get("target"), collect_gps=spec.get("collect_gps", False), created_by_id=owner.id)
+    db.add(form)
+    db.flush()
+    for x in spec["submissions"]:
+        at = datetime.fromisoformat(x["at"].replace("Z", "+00:00"))
+        db.add(FormSubmission(form_id=form.id, organization_id=org.id, data=x["data"], source="public", collector=x["collector"],
+                              location=x["data"].get("where"), created_at=at, captured_at=at))
+
+
 def seed_tenants(db, pw):
     """Other industries on the same platform: an agency, a shoe brand, a guesthouse."""
     from app import erp
@@ -526,7 +540,8 @@ def seed_tenants(db, pw):
         owner = people.get("admin") or db.scalar(select(User).where(User.organization_id == org.id, User.role == Role.admin))
         keys = {}
         records = {"site_settings": [t["site_settings"]], "site_services": t.get("site_services", []), "site_stories": t.get("site_stories", []), **t.get("modules", {})}
-        order = ["site_settings", "site_services", "site_stories", "vendors", "customers", "items", "stock_moves", "resources", "invoices", "bookings", "events"]
+        order = ["site_settings", "site_services", "site_stories", "vendors", "customers", "branches", "items", "stock_moves", "branch_sales", "transfers", "deliveries",
+                 "resources", "invoices", "bookings", "productions", "posts", "reservations", "guides", "tours", "tour_bookings", "events"]
         for key in [k for k in order if k in records]:
             m, tbl = erp.MODULES[key], erp.TABLES[key]
             fields = {f["key"]: f for f in m["fields"]}
@@ -536,7 +551,7 @@ def seed_tenants(db, pw):
                     if k.startswith("_") or k not in fields:
                         continue
                     f = fields[k]
-                    values[k] = keys[v] if f["type"] == "ref" else date.fromisoformat(v) if f["type"] == "date" else v
+                    values[k] = None if v is None else keys[v] if f["type"] == "ref" else date.fromisoformat(v) if f["type"] == "date" else v
                 rid = uuid.uuid4()
                 if m.get("status"):
                     values[m["status"]["field"]] = rec.get("_status", m["status"]["default"])
@@ -545,6 +560,8 @@ def seed_tenants(db, pw):
                 if rec.get("_key"):
                     keys[rec["_key"]] = rid
         seed_event_forms(db, org, owner)
+        if t.get("tazama"):
+            seed_tazama(db, org, owner, t["tazama"])
         db.commit()
         rules.evaluate_org(db, org.id, today())
 

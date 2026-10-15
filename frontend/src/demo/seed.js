@@ -278,16 +278,24 @@ function seedTenants(db, id, makeOrg, makeUser, mwangazaAdmin) {
     (t.users || []).forEach((u) => makeUser(o, u.name, u.email, u.role));
     const keys = {};
     const records = { site_settings: [t.site_settings], site_services: t.site_services || [], site_stories: t.site_stories || [], ...(t.modules || {}) };
-    for (const key of ["site_settings", "site_services", "site_stories", "vendors", "customers", "items", "stock_moves", "resources", "invoices", "bookings", "events"].filter((k) => records[k])) {
+    for (const key of ["site_settings", "site_services", "site_stories", "vendors", "customers", "branches", "items", "stock_moves", "branch_sales", "transfers", "deliveries",
+      "resources", "invoices", "bookings", "productions", "posts", "reservations", "guides", "tours", "tour_bookings", "events"].filter((k) => records[k])) {
       const m = mods[key]; const fields = Object.fromEntries(m.fields.map((f) => [f.key, f])); db.m[key] = db.m[key] || [];
       for (const rec of records[key]) {
-        const row = {}; for (const [k, v] of Object.entries(rec)) { if (k.startsWith("_") || !fields[k]) continue; row[k] = fields[k].type === "ref" ? keys[v] : v; }
+        const row = {}; for (const [k, v] of Object.entries(rec)) { if (k.startsWith("_") || !fields[k]) continue; row[k] = v === null || v === undefined ? null : fields[k].type === "ref" ? keys[v] : v; }
         const r = { id: id(key.slice(0, 3)), organization_id: o.id, created_by_id: owner.id, created_at: "2026-10-08T09:00:00.000Z", updated_at: "2026-10-08T09:00:00.000Z", ...row };
         if (m.status) r[m.status.field] = rec._status || m.status.default;
         db.m[key].push(r); if (rec._key) keys[rec._key] = r.id;
       }
     }
     seedEventForms(db, id, o, owner);
+    if (t.tazama) {
+      const z = t.tazama;
+      const form = { id: id("frm"), organization_id: o.id, project_id: null, title: z.title, description: z.description, fields: z.fields.map((f) => ({ required: false, options: [], min: null, max: null, show_if: null, ...f })),
+        is_public: z.is_public, status: "open", target: z.target ?? null, collect_gps: !!z.collect_gps, created_by_id: owner.id, created_at: "2026-10-01T08:00:00.000Z" };
+      db.forms.push(form);
+      for (const x of z.submissions) db.form_submissions.push({ id: id("sub"), form_id: form.id, organization_id: o.id, data: x.data, source: "public", submitted_by_id: null, collector: x.collector, client_id: null, location: x.data.where || null, created_at: x.at.replace("Z", ".000Z"), captured_at: x.at.replace("Z", ".000Z") });
+    }
   }
 }
 

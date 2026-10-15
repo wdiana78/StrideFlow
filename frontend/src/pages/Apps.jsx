@@ -14,10 +14,13 @@ export const APP_ICONS = {
   wallet: "M3 7h18v12H3zM16 13h2M3 7l12-4v4", receipt: "M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6", cart: "M3 4h2l2.5 11h10L20 7H6.5M9 20h.01M17 20h.01",
   box: "M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10", key: "M15 3a6 6 0 00-5.6 8.2L3 17.6V21h3.4l1-1v-2h2v-2h2l1.4-1.4A6 6 0 1015 3zM16 8h.01",
   users: "M16 20v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8M20 20v-2a3 3 0 00-2-2.8M4 20v-2a3 3 0 012-2.8", id: "M3 5h18v14H3zM7 10a2 2 0 104 0 2 2 0 00-4 0M6 16c1-2 5-2 6 0M14 9h4M14 13h4",
-  file: "M6 3h9l4 4v14H6zM14 3v5h5", gavel: "M14 4l6 6M11 7l6 6M12.5 5.5l-6 6M4 20h10M8 14l-4 4", globe: "M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
+  file: "M6 3h9l4 4v14H6zM14 3v5h5", store: "M3 9l2-5h14l2 5M3 9h18v11H3zM3 9a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0M9 20v-6h6v6",
+  truck: "M2 6h12v10H2zM14 9h4l3 3v4h-7M6 19a2 2 0 100-4 2 2 0 000 4zM17 19a2 2 0 100-4 2 2 0 000 4z", camera: "M4 7h3l2-3h6l2 3h3v12H4zM12 17a4 4 0 100-8 4 4 0 000 8z",
+  megaphone: "M3 11v3l12 5V6L3 11zM15 9h2a3 3 0 010 6h-2M6 15l1 5h3l-1-4", utensils: "M5 3v8a2 2 0 004 0V3M7 11v10M17 3c-2 2-2 6 0 8v10", compass: "M12 3a9 9 0 100 18 9 9 0 000-18zM15.5 8.5l-2 5-5 2 2-5z", gavel: "M14 4l6 6M11 7l6 6M12.5 5.5l-6 6M4 20h10M8 14l-4 4", globe: "M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
 };
 const SLOT = { projects: "var(--p2)", forms: "var(--p3)", events: "var(--p4)", funding: "var(--p5)", finance: "var(--p1)", sales: "var(--p2)", procurement: "var(--p3)", inventory: "var(--p5)",
-  bookings: "var(--p4)", people: "var(--p2)", participants: "var(--p5)", documents: "var(--p1)", governance: "var(--p3)", website: "var(--p4)" };
+  bookings: "var(--p4)", people: "var(--p2)", participants: "var(--p5)", documents: "var(--p1)", governance: "var(--p3)", website: "var(--p4)",
+  branches: "var(--p2)", deliveries: "var(--p3)", studio: "var(--p4)", social: "var(--p5)", dining: "var(--p3)", tours: "var(--p5)" };
 export function AppIcon({ app, size = 52 }) {
   const c = SLOT[app.key] || "var(--p2)";
   return (

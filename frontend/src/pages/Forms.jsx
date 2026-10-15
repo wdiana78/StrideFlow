@@ -14,12 +14,12 @@ export const publicFormUrl = (id) => `${window.location.origin}${window.location
 
 // ---------- list ----------
 export function FormsList() {
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const { data, error, loading, reload } = useApi("/forms");
   return (
     <>
       <div className="page-hero">
-        <div className="stack-sm" style={{ gap: 2 }}><h1>Tazama</h1><span className="muted">Field data collection with live tracking. Works offline on any phone.</span></div>
+        <div className="stack-sm" style={{ gap: 2 }}><h1>Tazama</h1><span className="muted">{user.organization.industry === "retail" ? "Rider check-ins and live delivery tracking. Works offline on any phone." : user.organization.industry === "hospitality" ? "Guest feedback and staff checklists, live." : "Field data collection with live tracking. Works offline on any phone."}</span></div>
         {can.manage && <Link className="btn btn-accent" to="/app/forms/new">+ New form</Link>}
       </div>
       <ErrorNotice error={error} onRetry={reload} />
@@ -301,7 +301,7 @@ export function FormDetail() {
   return (
     <>
       <div className="page-hero">
-        <div className="stack-sm" style={{ gap: 2 }}><span className="muted small">{f.project_name || "Data collection"}</span><h1>{f.title}</h1><span className="muted">{fmtNum(f.responses)} responses · {f.fields.length} questions · {f.is_public ? "public link on" : "staff only"}</span></div>
+        <div className="stack-sm" style={{ gap: 2 }}><span className="muted small">Tazama{f.project_name ? ` · ${f.project_name}` : ""}</span><h1>{f.title}</h1><span className="muted">{fmtNum(f.responses)} responses · {f.fields.length} questions · {f.is_public ? "public link on" : "staff only"}</span></div>
         <div className="row wrap">
           <button className="btn btn-primary" onClick={() => setTab("collect")}>Add response</button>
           <button className="btn" onClick={csv}>Export CSV</button>

@@ -48,8 +48,8 @@ export function Login() {
             <b style={{ fontSize: 14 }}>Try it as</b>
             {[["zawadi@timiza.example", "Timiza Youth Initiative", "Community organization · manager"],
               ["wairimu@mwangaza.example", "Mwangaza Creative Studio", "Agency · admin"],
-              ["wanjiru@hatua.example", "Hatua Shoes", "Retail brand · admin"],
-              ["rehema@pwani.example", "Pwani Coast Stays", "Hospitality · admin"],
+              ["wanjiru@hatua.example", "Hatua Apparel", "Retail chain · owner"],
+              ["rehema@pwani.example", "Pwani Hotels & Safaris", "Hotels and tours · general manager"],
               ["admin@timiza.example", "Timiza, administrator", "Install apps, people, audit log"],
               ["baraka@timiza.example", "Timiza, field officer", "Member: only their own work"]].map(([email, name, what]) => (
               <button key={email} type="button" className="btn" style={{ height: "auto", padding: "10px 14px", justifyContent: "flex-start", textAlign: "left", whiteSpace: "normal" }}

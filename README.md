@@ -24,6 +24,31 @@ Moringa School capstone, 2026. All organizations and people in the demo data are
 
 Every meaningful action, including those made by the rules, is written to the audit log.
 
+## Case studies
+
+Five organizations run on the same platform, each with its own tools, website and branded dashboard.
+
+| Organization | Industry | Its own tools | Website (production domain) |
+|---|---|---|---|
+| Timiza Youth Initiative | Community organization | Programmes and M&E, Tazama field data, funding and donations, volunteers, participant registry | timiza.or.ke |
+| Tumaini Community Network | Community organization | Programmes, participants, finance | tumaini.kept.africa |
+| Hatua Apparel | Retail chain, five branches | Branch takings against target, stock transfers, deliveries with rider tracking (Tazama), online shop with order tracking | hatua.co.ke |
+| Mwangaza Creative Studio | Photography, video, film, social media | Production pipeline, content calendar, studio and gear bookings, client invoicing | mwangaza.studio |
+| Pwani Hotels & Safaris | Hotel, restaurants and tours | Rooms, table reservations by sitting, tours with guide assignment, online booking for all three | pwanihotels.co.ke |
+
+A member of the public types the organization's address (or searches its name) and lands on its website. In this repository every site is also served at `/site/<slug>`; in production each organization points its own domain at Kept, or uses `<slug>.kept.africa`.
+
+## Roles
+
+Staff sign in from their organization's website (Staff login) and land on a home built for their role:
+
+- **Administrator**: everything a manager sees, plus team, roles, apps, audit log and website settings.
+- **Manager**: the operations home for their industry (programmes, branches, rooms or productions), approvals and alerts.
+- **Field team**: "Your day": their own tasks, Tazama forms ready to collect, and alerts assigned to them.
+- **Board and partners**: a read-only overview of results, money and reports.
+
+The dashboard has a top bar (search, notifications, account menu) and a sidebar, and a My account page for password changes and signing out on all devices.
+
 ## How the platform works (the Odoo model)
 
 Kept is the product. Its home page sells the platform: apps, industries and live customer examples.
@@ -52,7 +77,7 @@ Six colour roles, each with a job:
 | Role | Kept | Timiza's dashboard | Used for |
 |---|---|---|---|
 | Night | `#22184F` (derived) | deep navy (derived from Timiza blue) | Sidebar, home banner, footer |
-| Primary | Violet `#6D4AFF` | Timiza blue `#2563EB` | Buttons, active menu item, charts, links |
+| Primary | Violet `#7C5CFF` (sweetened) | Timiza blue `#2563EB` | Buttons, active menu item, charts, links |
 | Accent | Tangerine `#FF6B35` | Timiza red `#EF4444` | Alert counts, highlights |
 | Marigold | `#FFB627` | `#FFB627` | Positive emphasis, chart series, user avatar |
 | Sky | `#3BA7FF` | `#3BA7FF` | Information, chart series |
