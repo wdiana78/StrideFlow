@@ -1028,7 +1028,7 @@ wrap("POST", "/m/:key/:id/transition", (inner, u, req, key, id2) => {
 });
 const _forms = ["/forms", "/forms/:id", "/forms/:id/submissions", "/forms/:id/tracker", "/forms/:id/import", "/forms/:id/sheet", "/forms/:id/sheet-sync"];
 for (const pat of _forms) for (const mth of ["GET", "POST", "PUT", "DELETE"]) wrap(mth, pat, (inner, u, ...a) => {
-  if (!(byId("orgs", u.organization_id).installed_apps || []).includes("forms")) E(404, "Install the Data collection app to use this.");
+  if (!(byId("orgs", u.organization_id).installed_apps || []).includes("forms")) E(404, "Install the Tazama app to use this.");
   if (mth === "GET" && pat === "/forms" && a[0].params?.event_id) return inner(u, ...a).filter((f) => f.event_id === a[0].params.event_id);
   return inner(u, ...a);
 });

@@ -13,14 +13,14 @@ export const APP_HOME = { projects: "/app/projects", forms: "/app/forms", events
   documents: "/app/m/documents", governance: "/app/m/meetings", website: "/app/m/site_settings" };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const TONES = ["#5B4CDB", "#3B82F6", "#3B82F6", "#0EA5E9", "#7C6FE6", "#18181B"];
-const Ico = ({ d }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
+const TONES = ["var(--p2)", "var(--p3)", "var(--p4)", "var(--p5)", "var(--p1)", "color-mix(in srgb, var(--p2) 60%, var(--p3))"];
+const Ico = ({ d }) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
 
 function Kpi({ label, value, sub, to, i, icon }) {
   const fg = TONES[i % TONES.length];
   return (
-    <Link to={to} className="kpi">
-      <span className="kpi-icon" style={{ background: fg }}><Ico d={icon} /></span>
+    <Link to={to} className="kpi" style={{ "--kpi-c": fg }}>
+      <span className="kpi-icon" style={{ background: fg, color: fg === "var(--p4)" ? "#2B1E00" : "#fff" }}><Ico d={icon} /></span>
       <span className="kpi-label">{label}</span>
       <span className="kpi-value">{value}</span>
       <span className="kpi-sub">{sub}</span>

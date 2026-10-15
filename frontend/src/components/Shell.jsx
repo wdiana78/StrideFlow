@@ -44,7 +44,7 @@ function Links({ openFlags, approvals, admin, onNavigate, installed, siteSlug })
       <L to="/app/calendar"><Icon d={I.calendar} />Calendar</L>
       {(has("projects") || has("forms")) && <div className="nav-section">Programmes</div>}
       {has("projects") && <><L to="/app/projects"><Icon d={I.projects} />Projects</L><L to="/app/work"><Icon d={I.work} />Tasks</L><L to="/app/analytics"><Icon d={I.analytics} />Insights</L></>}
-      {has("forms") && <L to="/app/forms"><Icon d={I.forms} />Forms</L>}
+      {has("forms") && <L to="/app/forms"><Icon d={I.forms} />Tazama<span className="nav-tag">Field</span></L>}
       {has("projects") && <L to="/app/reports"><Icon d={I.reports} />Reports</L>}
       {groups.length > 0 && <div className="nav-section">Operations</div>}
       {groups.map((g) => {
@@ -90,6 +90,10 @@ export default function Shell() {
         const root = document.documentElement.style;
         if (st?.brand_primary) { setOrgColor(st.brand_primary); root.setProperty("--brand", st.brand_primary); }
         if (st?.brand_accent) root.setProperty("--brand-2", st.brand_accent);
+        // Text on the accent and primary colours flips to dark when those colours are light (lime, yellow).
+        const light = (hex) => { const h = (hex || "").replace("#", ""); if (h.length !== 6) return false; const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255); return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.6; };
+        root.setProperty("--on-brand-2", light(st?.brand_accent) ? "#1A1A1A" : "#FFFFFF");
+        root.setProperty("--on-brand", light(st?.brand_primary) ? "#1A1A1A" : "#FFFFFF");
         if (st?.logo?.url) setOrgLogo(fileUrl(st.logo.url));
       }).catch(() => {});
     }
@@ -101,7 +105,7 @@ export default function Shell() {
     window.addEventListener("kept:changed", load);
     const key = (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setSearch(true); } };
     window.addEventListener("keydown", key);
-    return () => { window.removeEventListener("kept:changed", load); window.removeEventListener("keydown", key); document.documentElement.style.removeProperty("--brand"); document.documentElement.style.removeProperty("--brand-2"); };
+    return () => { window.removeEventListener("kept:changed", load); window.removeEventListener("keydown", key); document.documentElement.style.removeProperty("--brand"); document.documentElement.style.removeProperty("--brand-2"); document.documentElement.style.removeProperty("--on-brand-2"); document.documentElement.style.removeProperty("--on-brand"); };
   }, [installed.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
   const out = () => { nav(siteSlug ? `/site/${siteSlug}` : "/"); setTimeout(signOut, 0); };
   const linkProps = { openFlags, approvals, admin: can.admin, installed, siteSlug };

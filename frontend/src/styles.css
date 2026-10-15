@@ -594,3 +594,145 @@ dl.facts dt { color: var(--slate); } dl.facts dd { margin: 0; }
 .org-brand .org-brand-name { font-weight: 650; font-size: 15px; line-height: 19px; }
 .org-brand .org-brand-sub { font-size: 12.5px; color: var(--slate); }
 .shell .main { background: linear-gradient(90deg, var(--brand) 0 72%, var(--brand-2, var(--brand)) 72% 100%) top left / 100% 3px no-repeat; }
+
+/* =====================================================================
+   Colour system (final layer)
+   Six roles, each with a job. Kept uses its own six; an organization's dashboard derives
+   the same six roles from its brand (primary and accent), so Timiza's dashboard is Timiza-coloured.
+     p1 Night    sidebar, hero, deep surfaces      derived from the primary
+     p2 Primary  actions, active states, charts     Kept violet  / Timiza blue
+     p3 Accent   alerts badge, highlights           Kept tangerine / Timiza red
+     p4 Marigold positive emphasis, chart series
+     p5 Sky      information, chart series
+     p6 Tint     page background wash, soft fills   derived from the primary
+   ===================================================================== */
+:root {
+  --brand: #6D4AFF; --brand-2: #FF6B35;
+  --p1: color-mix(in srgb, var(--brand) 38%, #0B0A26);
+  --p2: var(--brand); --p3: var(--brand-2); --p4: #FFB627; --p5: #3BA7FF;
+  --p6: color-mix(in srgb, var(--brand) 8%, #FFFFFF);
+  --bg: color-mix(in srgb, var(--brand) 5%, #FFFFFF);
+  --surface: #FFFFFF; --surface-2: color-mix(in srgb, var(--brand) 6%, #FFFFFF); --elev: #FFFFFF;
+  --ink: #17153A; --ink-2: #3D3A63; --slate: #6B6890;
+  --rule: color-mix(in srgb, var(--brand) 14%, #E7E5F0); --rule-soft: color-mix(in srgb, var(--brand) 8%, #F1F0F6);
+  --control: color-mix(in srgb, var(--brand) 22%, #D6D3E6); --stone: var(--surface-2); --track: color-mix(in srgb, var(--brand) 12%, #ECEAF4);
+  --cobalt: var(--brand); --cobalt-dark: color-mix(in srgb, var(--brand) 78%, #000); --cobalt-tint: color-mix(in srgb, var(--brand) 11%, #FFFFFF); --cobalt-soft: color-mix(in srgb, var(--brand) 38%, #FFFFFF);
+  --shadow-1: 0 1px 2px color-mix(in srgb, var(--brand) 10%, transparent), 0 1px 3px rgba(23, 21, 58, .04);
+  --shadow-2: 0 8px 24px color-mix(in srgb, var(--brand) 14%, transparent), 0 2px 6px rgba(23, 21, 58, .05);
+}
+:root[data-theme="dark"] {
+  --p1: color-mix(in srgb, var(--brand) 30%, #07061A);
+  --p6: color-mix(in srgb, var(--brand) 22%, #12112C);
+  --bg: color-mix(in srgb, var(--brand) 12%, #0C0B22); --surface: color-mix(in srgb, var(--brand) 14%, #15143A); --surface-2: color-mix(in srgb, var(--brand) 20%, #1A1944); --elev: color-mix(in srgb, var(--brand) 18%, #1A1944);
+  --ink: #F2F0FF; --ink-2: #CFCBEF; --slate: #A19DC8;
+  --rule: color-mix(in srgb, var(--brand) 28%, #2B2952); --rule-soft: color-mix(in srgb, var(--brand) 20%, #232147); --control: color-mix(in srgb, var(--brand) 35%, #3A3770);
+  --stone: var(--surface-2); --track: color-mix(in srgb, var(--brand) 28%, #2A2850);
+  --cobalt: color-mix(in srgb, var(--brand) 72%, #FFFFFF); --cobalt-dark: color-mix(in srgb, var(--brand) 40%, #FFFFFF); --cobalt-tint: color-mix(in srgb, var(--brand) 28%, #15143A); --cobalt-soft: color-mix(in srgb, var(--brand) 55%, #15143A);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .35); --shadow-2: 0 10px 28px rgba(0, 0, 0, .4);
+}
+body { background: var(--bg); }
+.btn-primary, .shell .btn-primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+.btn-primary:hover, .shell .btn-primary:hover { background: color-mix(in srgb, var(--brand) 82%, #000); border-color: color-mix(in srgb, var(--brand) 82%, #000); color: #fff; }
+:root[data-theme="dark"] .btn-primary, :root[data-theme="dark"] .shell .btn-primary { background: var(--cobalt); border-color: var(--cobalt); color: #12102E; }
+.btn-accent { background: var(--p4); border-color: var(--p4); color: #2B1E00; }
+.btn-accent:hover { background: color-mix(in srgb, var(--p4) 88%, #000); border-color: color-mix(in srgb, var(--p4) 88%, #000); color: #2B1E00; }
+
+/* ---------- sidebar: the organization's night colour ---------- */
+.sidebar { background: var(--p1); border-right: 0; color: #fff; }
+.sidebar .nav-link { color: rgba(255, 255, 255, .78); }
+.sidebar .nav-link svg { color: rgba(255, 255, 255, .62); }
+.sidebar .nav-link:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+.sidebar .nav-link.active, .shell .sidebar .nav-link.active { background: var(--brand); color: var(--on-brand, #fff); font-weight: 600; box-shadow: 0 6px 16px color-mix(in srgb, var(--brand) 40%, transparent); }
+.sidebar .nav-link.active svg, .shell .sidebar .nav-link.active svg { color: #fff; }
+.sidebar .nav-section { color: rgba(255, 255, 255, .5); }
+.sidebar .nav-group { color: rgba(255, 255, 255, .92); }
+.sidebar .nav-group:hover { background: rgba(255, 255, 255, .07); }
+.sidebar .nav-badge { background: var(--p3); color: var(--on-brand-2, #fff); padding: 0 7px; border-radius: 10px; font-size: 11.5px; line-height: 19px; }
+.sidebar .nav-tag { margin-left: auto; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #2B1E00; background: var(--p4); border-radius: 5px; padding: 1px 6px; }
+.sidebar .user-box { border-top-color: rgba(255, 255, 255, .12); color: #fff; }
+.sidebar .user-box .muted, .sidebar .small.muted { color: rgba(255, 255, 255, .6) !important; }
+.sidebar .user-box .btn-quiet { color: #fff; }
+.sidebar .avatar { background: var(--p4); color: #2B1E00 !important; border: 0; }
+.org-brand { border-bottom-color: rgba(255, 255, 255, .12); color: #fff; }
+.org-brand img { background: #fff; padding: 6px 10px; border-radius: 10px; height: 54px; }
+.org-brand .org-brand-sub { color: rgba(255, 255, 255, .62); }
+.org-brand .org-brand-name { color: #fff; }
+.sidebar .brand { color: #fff; }
+.side-scroll::-webkit-scrollbar { width: 6px; } .side-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .2); border-radius: 3px; }
+.shell .main { background: linear-gradient(90deg, var(--p2) 0 40%, var(--p3) 40% 60%, var(--p4) 60% 80%, var(--p5) 80%) top left / 100% 4px no-repeat; }
+.topbar { background: var(--p1) !important; color: #fff; border-bottom: 0 !important; }
+.topbar .nav-link, .topbar .btn-quiet, .topbar .btn-icon { color: #fff; }
+
+/* ---------- home banner ---------- */
+.hero-navy { position: relative; overflow: hidden; border-radius: 18px; padding: 28px 30px; border: 0; color: #fff; align-items: center;
+  padding-right: 150px;
+  background: radial-gradient(circle at calc(100% - 34px) 30px, var(--p4) 0 46px, transparent 47px), radial-gradient(circle at calc(100% - 92px) calc(100% + 24px), var(--p3) 0 64px, transparent 65px), radial-gradient(circle at calc(100% - 12px) calc(100% - 8px), var(--p5) 0 22px, transparent 23px), linear-gradient(115deg, var(--p1), var(--brand)); }
+.hero-navy h1 { color: #fff; font-size: 30px; line-height: 36px; font-weight: 700; }
+.hero-navy .muted { color: rgba(255, 255, 255, .78) !important; }
+.hero-navy .btn { background: rgba(255, 255, 255, .14); color: #fff; border-color: rgba(255, 255, 255, .28); }
+.hero-navy .btn-primary { background: #fff; color: var(--p1); border-color: #fff; }
+.hero-navy .btn-primary:hover { background: color-mix(in srgb, #fff 90%, var(--brand)); color: var(--p1); }
+@media (max-width: 700px) { .hero-navy { padding-right: 24px; background: linear-gradient(115deg, var(--p1), var(--brand)); } }
+
+/* ---------- KPIs and tiles: each card owns one colour of the six ---------- */
+.kpi { border: 0; box-shadow: var(--shadow-1); }
+.kpi .kpi-icon { display: flex; position: absolute; right: 14px; top: 14px; width: 36px; height: 36px; border-radius: 11px; align-items: center; justify-content: center; }
+.kpi .kpi-label { padding-right: 44px; }
+.kpi::after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--kpi-c, var(--brand)); opacity: .9; }
+.tile { border-color: transparent; box-shadow: var(--shadow-1); }
+.tile:hover { border-color: var(--cobalt-soft); }
+.panel { border-color: transparent; box-shadow: var(--shadow-1); }
+.panel-head { border-bottom-color: var(--rule-soft); }
+.table th { background: var(--p6); color: var(--ink-2); }
+.chip[aria-pressed="true"] { border-color: var(--brand); background: var(--cobalt-tint); color: var(--cobalt-dark); }
+.tracker-kpis > div { border: 0; box-shadow: var(--shadow-1); position: relative; overflow: hidden; }
+.tracker-kpis > div::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 0; }
+.tracker-kpis > div:nth-child(1) b { color: var(--p2); } .tracker-kpis > div:nth-child(2) b { color: var(--p3); }
+.tracker-kpis > div:nth-child(3) b { color: color-mix(in srgb, var(--p4) 70%, #6B4500); } .tracker-kpis > div:nth-child(4) b { color: var(--p5); }
+:root[data-theme="dark"] .tracker-kpis > div:nth-child(3) b { color: var(--p4); }
+.tracker-kpis > div { border-top: 3px solid transparent; }
+.tracker-kpis > div:nth-child(1) { border-top-color: var(--p2); } .tracker-kpis > div:nth-child(2) { border-top-color: var(--p3); }
+.tracker-kpis > div:nth-child(3) { border-top-color: var(--p4); } .tracker-kpis > div:nth-child(4) { border-top-color: var(--p5); }
+.searchbar { border-color: transparent; box-shadow: var(--shadow-1); }
+
+/* ---------- Kept marketing site in Kept's six ---------- */
+.mk { background: #FFFFFF; }
+:root[data-theme="dark"] .mk { background: var(--bg); }
+.mk-hero { position: relative; }
+.mk-hero h1 em { font-style: normal; color: var(--p2); }
+.mk-hero h1 em.mk-hl { background: linear-gradient(transparent 62%, color-mix(in srgb, var(--p4) 70%, transparent) 62%); color: inherit; }
+.mk-hero-wrap { background: radial-gradient(circle at 8% 22%, color-mix(in srgb, var(--p4) 55%, transparent) 0 46px, transparent 47px), radial-gradient(circle at 93% 16%, color-mix(in srgb, var(--p3) 45%, transparent) 0 30px, transparent 31px), radial-gradient(circle at 88% 78%, color-mix(in srgb, var(--p5) 35%, transparent) 0 70px, transparent 71px), var(--p6); padding-bottom: 72px; }
+.mk-mock { box-shadow: 0 30px 70px color-mix(in srgb, var(--brand) 26%, transparent); border: 0; }
+.mk-mock-side { background: var(--p1); border-right: 0; }
+.mk-mock-side span { color: rgba(255, 255, 255, .7); }
+.mk-mock-side span.on { background: var(--brand); color: #fff; }
+.mk-mock-kpis div { border: 0; background: var(--p6); }
+.mk-mock-kpis div:nth-child(1) b { color: var(--p2); } .mk-mock-kpis div:nth-child(2) b { color: var(--p3); } .mk-mock-kpis div:nth-child(3) b { color: color-mix(in srgb, var(--p4) 70%, #6B4500); }
+.mk-mock-chart span:nth-child(odd) { background: var(--p2); } .mk-mock-chart span:nth-child(even) { background: var(--p5); }
+.mk-mock-chart span:last-child { background: var(--p3); opacity: 1 !important; }
+.mk-mock-rows b { color: var(--p3); }
+.mk-logos a:nth-child(6n+2) { color: var(--p2); } .mk-logos a:nth-child(6n+3) { color: var(--p3); } .mk-logos a:nth-child(6n+4) { color: color-mix(in srgb, var(--p4) 70%, #6B4500); } .mk-logos a:nth-child(6n+5) { color: var(--p5); } .mk-logos a:nth-child(6n+6) { color: var(--p1); }
+.eyebrow { color: var(--p3); font-weight: 600; }
+.mk-step { border-top: 0; background: var(--p6); border-radius: 16px; padding: 22px; }
+.mk-step span { display: inline-flex; width: 34px; height: 34px; border-radius: 10px; align-items: center; justify-content: center; color: #fff; font-weight: 700; background: var(--p2); }
+.mk-cols3 .mk-step:nth-child(2) span { background: var(--p3); } .mk-cols3 .mk-step:nth-child(3) span { background: var(--p4); color: #2B1E00; }
+.mk-band { background: var(--p6); border: 0; }
+.mk-band .mk-app, .mk-band .mk-faq-item { border-bottom-color: color-mix(in srgb, var(--brand) 14%, transparent); }
+.mk-tabs button[aria-selected="true"] { color: var(--p2); border-bottom-color: var(--p2); }
+.mk-case { background: var(--surface); border: 0; box-shadow: var(--shadow-2); }
+.mk-case-mark { height: 6px; width: 48px; }
+.mk-fact { border-top: 3px solid var(--p2); }
+.mk-cols4 .mk-fact:nth-child(2) { border-top-color: var(--p3); } .mk-cols4 .mk-fact:nth-child(3) { border-top-color: var(--p4); } .mk-cols4 .mk-fact:nth-child(4) { border-top-color: var(--p5); }
+.mk-cta { background: linear-gradient(120deg, var(--p1), var(--brand)); color: #fff; border-radius: 24px; margin-bottom: 72px; padding: 72px 32px; position: relative; overflow: hidden; }
+.mk-cta h2 { color: #fff; }
+.mk-cta .btn-primary { background: var(--p4); border-color: var(--p4); color: #2B1E00; }
+.mk-footer { background: var(--p1); color: rgba(255, 255, 255, .72); border-top: 0; }
+.mk-footer .mk-brand, .mk-footer-col b { color: #fff; }
+.mk-footer-col a, .mk-footer-brand p, .mk-footer-legal { color: rgba(255, 255, 255, .66) !important; }
+.mk-footer-col a:hover { color: #fff !important; }
+.mk-footer-legal { border-top-color: rgba(255, 255, 255, .12) !important; }
+.mk-palette { display: flex; gap: 0; border-radius: 12px; overflow: hidden; height: 40px; max-width: 520px; margin: 28px auto 0; box-shadow: var(--shadow-1); }
+.mk-palette span { flex: 1; display: flex; align-items: flex-end; padding: 0 8px 4px; font-size: 10.5px; font-weight: 600; }
+.mk-palette { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.mk-palette span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(255, 255, 255, .72); }
+.mk-palette i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25); }

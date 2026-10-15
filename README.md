@@ -34,7 +34,7 @@ Kept is the product. Its home page sells the platform: apps, industries and live
 - **Demo tenants**: Timiza Youth Initiative (community), Mwangaza Creative Studio (agency), Hatua Shoes (retail), Pwani Coast Stays (hospitality).
 - **A dedicated deployment** for one customer's own domain (for example timiza.or.ke) sets `VITE_SITE_SLUG=timiza`, which makes that organization's website the home page.
 
-## Field tracking (replaces the Google Sheet)
+## Tazama: field tracking (replaces the Google Sheet)
 
 Every form in Data collection works like a field-survey tool:
 
@@ -47,7 +47,20 @@ Timiza's demo has an "Outreach field tracker" with two weeks of GPS-tagged recor
 
 ## Design system
 
-**Kept** (the dashboard and kept.africa) is deliberately quiet: one accent (`#5B4CDB`), a neutral zinc scale, Inter throughout, and hierarchy carried by type size and weight rather than colour. No gradients, decorative patterns, emoji or badge pills. Labels are short and plain: Home, Alerts, Approvals, Calendar, Projects, Tasks, Insights, Forms, Reports, Apps, Settings. Light and dark themes share the same tokens.
+Six colour roles, each with a job:
+
+| Role | Kept | Timiza's dashboard | Used for |
+|---|---|---|---|
+| Night | `#22184F` (derived) | deep navy (derived from Timiza blue) | Sidebar, home banner, footer |
+| Primary | Violet `#6D4AFF` | Timiza blue `#2563EB` | Buttons, active menu item, charts, links |
+| Accent | Tangerine `#FF6B35` | Timiza red `#EF4444` | Alert counts, highlights |
+| Marigold | `#FFB627` | `#FFB627` | Positive emphasis, chart series, user avatar |
+| Sky | `#3BA7FF` | `#3BA7FF` | Information, chart series |
+| Tint | Lilac (derived) | pale blue (derived) | Page background, table headers, soft fills |
+
+Every organization's dashboard derives the same six roles from its own primary and accent colours (Website, then Site settings), so Timiza's staff work in Timiza colours and Hatua's in Hatua's. Dark mode deepens the same colours into indigo or navy rather than black. Text on light accents (lime, yellow) switches to dark automatically. Kept's own pages (home, sign-up, platform sign-in) always use Kept's six.
+
+The field data collection app is called **Tazama** (Swahili: "observe").
 
 **Timiza's website** follows timiza.vercel.app exactly: dark contact bar with both phone numbers, white header with their logo and centred navigation (Home, About Us, Our Work, Contact Us, Gallery), red Donate button, Inter headings with blue eyebrows, photo page headers with a title card, white cards on light grey, and the dark "Connect with Us" footer. Their logo, photos, partner logos and copy are used as published on their site (`assets/timiza`). Additions in the same visual language: live impact figures, a page per program with progress from verified records, a gallery lightbox, a map on Contact Us, a volunteer form, the donation flow and Staff login. Any organization on the community template gets this structure in its own colours and photos (`pages/CommunitySite.jsx`).
 

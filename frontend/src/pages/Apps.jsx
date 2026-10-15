@@ -6,6 +6,7 @@ import { notifyChanged } from "../components/Shell";
 import { ErrorNotice, Loading, Toast } from "../components/ui";
 import { useApi } from "../hooks";
 import PLATFORM from "../platform.json";
+import { APP_HOME } from "./Overview";
 
 export const APP_ICONS = {
   target: "M12 3a9 9 0 100 18 9 9 0 000-18zM12 8a4 4 0 100 8 4 4 0 000-8z", clipboard: "M8 4h8v3H8zM6 6h12v15H6zM9 12h6M9 16h4",
@@ -15,10 +16,14 @@ export const APP_ICONS = {
   users: "M16 20v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8M20 20v-2a3 3 0 00-2-2.8M4 20v-2a3 3 0 012-2.8", id: "M3 5h18v14H3zM7 10a2 2 0 104 0 2 2 0 00-4 0M6 16c1-2 5-2 6 0M14 9h4M14 13h4",
   file: "M6 3h9l4 4v14H6zM14 3v5h5", gavel: "M14 4l6 6M11 7l6 6M12.5 5.5l-6 6M4 20h10M8 14l-4 4", globe: "M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
 };
+const SLOT = { projects: "var(--p2)", forms: "var(--p3)", events: "var(--p4)", funding: "var(--p5)", finance: "var(--p1)", sales: "var(--p2)", procurement: "var(--p3)", inventory: "var(--p5)",
+  bookings: "var(--p4)", people: "var(--p2)", participants: "var(--p5)", documents: "var(--p1)", governance: "var(--p3)", website: "var(--p4)" };
 export function AppIcon({ app, size = 52 }) {
+  const c = SLOT[app.key] || "var(--p2)";
   return (
-    <span style={{ width: size, height: size, borderRadius: size * 0.26, background: "var(--surface-2)", border: "1px solid var(--rule)", display: "inline-flex", alignItems: "center", justifyContent: "center", flex: `0 0 ${size}px`, color: "var(--ink)" }}>
-      <svg width={size * 0.46} height={size * 0.46} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={APP_ICONS[app.icon] || APP_ICONS.box} /></svg>
+    <span style={{ width: size, height: size, borderRadius: size * 0.28, background: c, display: "inline-flex", alignItems: "center", justifyContent: "center", flex: `0 0 ${size}px`,
+      color: c === "var(--p4)" ? "#2B1E00" : "#fff", boxShadow: `0 6px 14px color-mix(in srgb, ${c} 28%, transparent)` }}>
+      <svg width={size * 0.48} height={size * 0.48} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={APP_ICONS[app.icon] || APP_ICONS.box} /></svg>
     </span>
   );
 }
@@ -62,8 +67,8 @@ export default function Apps() {
             <div className="row wrap" style={{ gap: 6 }}>{a.modules.map((m) => <span key={m.key} className="chip-tone" style={{ background: "var(--stone)", color: "var(--ink-2)", fontWeight: 500 }}>{m.label}</span>)}</div>
             <div className="row" style={{ marginTop: "auto" }}>
               <span className="small muted">{a.installed ? "Installed" : "Not installed"}</span>
-              {a.installed && a.modules[0] && <Link className="btn btn-ghost" style={{ marginLeft: "auto" }} to={`/app/m/${a.modules[0].key}`}>Open</Link>}
-              {can.admin && <button className={"btn " + (a.installed ? "btn-ghost-danger" : "btn-primary")} style={{ marginLeft: a.installed && a.modules[0] ? 0 : "auto" }} disabled={busy === a.key} onClick={() => toggle(a)}>{busy === a.key ? "…" : a.installed ? "Remove" : "Install"}</button>}
+              {a.installed && <Link className="btn btn-primary" style={{ marginLeft: "auto" }} to={APP_HOME[a.key] || `/app/m/${a.modules[0]?.key}`}>Open</Link>}
+              {can.admin && <button className={"btn " + (a.installed ? "btn-ghost-danger" : "btn-primary")} style={{ marginLeft: a.installed ? 0 : "auto" }} disabled={busy === a.key} onClick={() => toggle(a)}>{busy === a.key ? "…" : a.installed ? "Remove" : "Install"}</button>}
             </div>
           </div>
         ))}

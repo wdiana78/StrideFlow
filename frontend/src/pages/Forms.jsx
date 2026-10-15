@@ -19,7 +19,7 @@ export function FormsList() {
   return (
     <>
       <div className="page-hero">
-        <div className="stack-sm" style={{ gap: 2 }}><h1>Data collection</h1><span className="muted">Surveys, registers and checklists with instant charts.</span></div>
+        <div className="stack-sm" style={{ gap: 2 }}><h1>Tazama</h1><span className="muted">Field data collection with live tracking. Works offline on any phone.</span></div>
         {can.manage && <Link className="btn btn-accent" to="/app/forms/new">+ New form</Link>}
       </div>
       <ErrorNotice error={error} onRetry={reload} />
@@ -539,7 +539,7 @@ function PointsMap({ points }) {
   const X = (lng) => ((lng - minLng) / (maxLng - minLng || 1)) * W, Y = (lat) => H - ((lat - minLat) / (maxLat - minLat || 1)) * H;
   const groups = {}; points.forEach((p) => { (groups[p.label] ||= []).push(p); });
   const labels = Object.keys(groups);
-  const colors = ["#5B4CDB", "#18181B", "#3B82F6", "#A39BEF", "#71717A", "#0EA5E9", "#7C6FE6", "#52525B"];
+  const colors = ["var(--p2)", "var(--p3)", "var(--p4)", "var(--p5)", "var(--p1)", "var(--cobalt-soft)", "color-mix(in srgb, var(--p3) 55%, #fff)", "color-mix(in srgb, var(--p5) 55%, #fff)"];
   return (
     <div className="stack-sm">
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", background: "var(--surface-2)", borderRadius: 8 }} role="img" aria-label={`${points.length} response locations`}>

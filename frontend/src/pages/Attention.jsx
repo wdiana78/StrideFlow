@@ -30,7 +30,7 @@ export default function Attention() {
     <>
       <div className="spread" style={{ alignItems: "flex-end" }}>
         <div className="stack-sm" style={{ gap: 4 }}>
-          <h1 className="page-title">Attention</h1>
+          <h1 className="page-title">Alerts</h1>
           <span className="muted">{loading ? "Checking rules…" : view === "resolved" ? "Recently resolved flags." : `${items.length} open${rule ? ` · ${RULE_LABEL[rule]}` : ""}. Rules were checked just now.`}</span>
         </div>
         <div className="seg" role="group" aria-label="Whose flags">

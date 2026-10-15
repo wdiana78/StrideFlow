@@ -1,7 +1,7 @@
 // Small, dependency-free SVG charts. Every chart has a text alternative for screen readers.
 import { fmtNum } from "../format";
 
-export const PALETTE = ["var(--cobalt)", "#18181B", "var(--brand-2, #A39BEF)", "#3B82F6", "#71717A", "#C4BEF6", "#0EA5E9", "#D4D4D8", "#7C6FE6", "#52525B"];
+export const PALETTE = ["var(--p2)", "var(--p3)", "var(--p4)", "var(--p5)", "var(--p1)", "var(--cobalt-soft)", "color-mix(in srgb, var(--p3) 55%, #fff)", "color-mix(in srgb, var(--p5) 55%, #fff)", "color-mix(in srgb, var(--p4) 60%, #fff)", "color-mix(in srgb, var(--p2) 55%, var(--p1))"];
 const short = (n) => (Math.abs(n) >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : Math.abs(n) >= 1e3 ? `${Math.round(n / 1e3)}k` : fmtNum(Math.round(n * 10) / 10));
 
 export function Bars({ data, format = fmtNum, color, colors, max }) {

@@ -192,7 +192,7 @@ def _gps_from_fields(fields: list[dict], data: dict, explicit) -> dict | None:
 
 def _form(db: Session, fid: uuid.UUID, user: User) -> Form:
     if "forms" not in (user.organization.installed_apps or []):
-        raise HTTPException(404, "Install the Data collection app to use this.")
+        raise HTTPException(404, "Install the Tazama app to use this.")
     f = db.get(Form, fid)
     if not f or f.organization_id != user.organization_id:
         raise HTTPException(404, "Form not found.")
@@ -223,7 +223,7 @@ def _check_project(db: Session, user: User, pid):
 @router.get("/forms")
 def list_forms(event_id: uuid.UUID | None = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if "forms" not in (user.organization.installed_apps or []):
-        raise HTTPException(404, "Install the Data collection app to use this.")
+        raise HTTPException(404, "Install the Tazama app to use this.")
     q = select(Form).where(Form.organization_id == user.organization_id)
     if event_id:
         q = q.where(Form.event_id == event_id)
@@ -233,7 +233,7 @@ def list_forms(event_id: uuid.UUID | None = None, user: User = Depends(get_curre
 @router.post("/forms", status_code=201)
 def create_form(body: FormIn, user: User = Depends(can_manage), db: Session = Depends(get_db)):
     if "forms" not in (user.organization.installed_apps or []):
-        raise HTTPException(404, "Install the Data collection app to use this.")
+        raise HTTPException(404, "Install the Tazama app to use this.")
     _check_project(db, user, body.project_id)
     f = Form(organization_id=user.organization_id, created_by_id=user.id, **body.model_dump(exclude={"fields"}), fields=[x.model_dump() for x in body.fields])
     db.add(f)

@@ -69,8 +69,9 @@ export default function Landing() {
         {menu && <nav className="container mk-mobile" aria-label="Mobile">{NAVS.map(([id, l]) => <a key={id} href={`#${id}`} onClick={go(id, () => setMenu(false))}>{l}</a>)}{!user && <><Link to="/login">Sign in</Link><Link to="/register">Get started</Link></>}</nav>}
       </header>
 
+      <div className="mk-hero-wrap">
       <section className="container mk-hero">
-        <h1>Run your organization, and the website that tells its story, from one place.</h1>
+        <h1>Run your <em>organization</em>, and the website that <em className="mk-hl">tells its story</em>, from one place.</h1>
         <p>Kept connects your programmes, money, people and stock to a public website that updates itself from the work.</p>
         <div className="row wrap" style={{ gap: 10, justifyContent: "center" }}>
           <Link className="btn btn-primary btn-lg" to="/register">Get started</Link>
@@ -78,6 +79,7 @@ export default function Landing() {
         </div>
       </section>
       <section className="container"><ProductMock /></section>
+      </div>
 
       <section className="container mk-logos">
         <span>Used by</span>
@@ -169,7 +171,8 @@ export default function Landing() {
 
       <footer className="mk-footer">
         <div className="container mk-footer-in">
-          <div className="mk-footer-brand"><span className="mk-brand"><Logo size={22} />Kept</span><p>Operations and websites for community organizations and growing businesses.</p></div>
+          <div className="mk-footer-brand"><span className="mk-brand"><Logo size={22} />Kept</span><p>Operations and websites for community organizations and growing businesses.</p>
+            <div className="mk-palette" aria-label="Kept brand palette">{[["Night", "#22184F"], ["Violet", "#6D4AFF"], ["Tangerine", "#FF6B35"], ["Marigold", "#FFB627"], ["Sky", "#3BA7FF"], ["Lilac", "#F1EDFF"]].map(([n, c]) => <span key={n}><i style={{ background: c }} />{n}</span>)}</div></div>
           {[["Product", [["Apps", "#product"], ["How it works", "#how"], ["Industries", "#industries"], ["Questions", "#faq"]]],
             ["Customers", (showcase || []).map((s) => [s.organization, `/site/${s.slug}`])],
             ["Company", [["Sign in", "/login"], ["Get started", "/register"], ["Contact", "mailto:hello@kept.africa"]]]].map(([h, ls]) => (
