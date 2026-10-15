@@ -9,7 +9,8 @@
   --bg: #FAFAFA; --surface: #FFFFFF; --surface-2: #F4F4F5; --elev: #FFFFFF;
   --ink: #18181B; --ink-2: #3F3F46; --slate: #71717A;
   --rule: #E4E4E7; --rule-soft: #F0F0F2; --control: #D4D4D8; --stone: #F4F4F5; --track: #EDEDF0;
-  --cobalt: var(--accent-500); --cobalt-dark: var(--accent-600); --cobalt-tint: var(--accent-50); --cobalt-soft: #B9B2F0;
+  --brand: var(--accent-500);
+  --cobalt: var(--brand); --cobalt-dark: color-mix(in srgb, var(--brand) 78%, #000); --cobalt-tint: color-mix(in srgb, var(--brand) 9%, #fff); --cobalt-soft: color-mix(in srgb, var(--brand) 40%, #fff);
   --accent: #18181B; --accent-ink: #FFFFFF; --accent-tint: #F4F4F5;
   --navy: #18181B; --blue: var(--accent-500); --sunflower: #18181B; --maroon: #B42318; --sky: #3B82F6; --maroon-tint: #FEF3F2; --sky-tint: #EFF6FF;
   --ok: #067647; --ok-tint: #ECFDF3; --risk: #B54708; --risk-tint: #FFFAEB; --bad: #B42318; --bad-tint: #FEF3F2;
@@ -26,7 +27,7 @@
   --ink: #FAFAFA; --ink-2: #D4D4D8; --slate: #A1A1AA;
   --rule: #27272A; --rule-soft: #1F1F23; --control: #3F3F46; --stone: #18181B; --track: #27272A;
   --accent-500: #8B80F0; --accent-600: #A79FF5; --accent-50: #1E1B3A;
-  --cobalt: var(--accent-500); --cobalt-dark: var(--accent-600); --cobalt-tint: var(--accent-50); --cobalt-soft: #4B42A8;
+  --cobalt: color-mix(in srgb, var(--brand) 70%, #fff); --cobalt-dark: color-mix(in srgb, var(--brand) 45%, #fff); --cobalt-tint: color-mix(in srgb, var(--brand) 20%, #111113); --cobalt-soft: color-mix(in srgb, var(--brand) 55%, #111113);
   --accent: #FAFAFA; --accent-ink: #09090B; --accent-tint: #27272A; --maroon-tint: #2A1414; --sky-tint: #13233F;
   --ok: #47CD89; --ok-tint: #0B2A1B; --risk: #FDB022; --risk-tint: #2B2008; --bad: #F97066; --bad-tint: #2D1212;
   --shadow-1: 0 1px 2px rgba(0, 0, 0, .5); --shadow-2: 0 4px 14px rgba(0, 0, 0, .45); --shadow-float: 0 20px 50px rgba(0, 0, 0, .6);
@@ -578,3 +579,18 @@ dl.facts dt { color: var(--slate); } dl.facts dd { margin: 0; }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); animation: pulse 2s infinite; }
 @keyframes pulse { 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
 .row-new td { background: var(--cobalt-tint); transition: background 1s; }
+
+/* ---------- organization-branded dashboard ---------- */
+.shell .btn-primary { background: var(--cobalt); border-color: var(--cobalt); color: #fff; }
+.shell .btn-primary:hover { background: var(--cobalt-dark); border-color: var(--cobalt-dark); color: #fff; }
+:root[data-theme="dark"] .shell .btn-primary { color: #0A0A0B; }
+.shell .nav-link.active { background: var(--cobalt-tint); color: var(--cobalt-dark); }
+.shell .nav-link.active svg { color: var(--cobalt); }
+.shell .tab[aria-selected="true"] { border-bottom-color: var(--cobalt); }
+.shell .chip[aria-pressed="true"] { border-color: var(--cobalt); background: var(--cobalt-tint); color: var(--cobalt-dark); }
+.org-brand { display: flex; flex-direction: column; gap: 10px; padding: 6px 8px 14px; margin-bottom: 6px; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); }
+.org-brand img { height: 46px; width: auto; max-width: 170px; object-fit: contain; object-position: left; }
+:root[data-theme="dark"] .org-brand img { background: #fff; padding: 4px 6px; border-radius: 6px; }
+.org-brand .org-brand-name { font-weight: 650; font-size: 15px; line-height: 19px; }
+.org-brand .org-brand-sub { font-size: 12.5px; color: var(--slate); }
+.shell .main { background: linear-gradient(90deg, var(--brand) 0 72%, var(--brand-2, var(--brand)) 72% 100%) top left / 100% 3px no-repeat; }

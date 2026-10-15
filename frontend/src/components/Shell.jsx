@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { api, PREVIEW } from "../api";
+import { api, fileUrl, PREVIEW } from "../api";
 import { useAuth } from "../auth";
 import { initials } from "../format";
 import { GROUP_COLOR, MODS, NAV } from "../modules";
@@ -79,11 +79,19 @@ export default function Shell() {
   const [search, setSearch] = useState(false);
   const [siteSlug, setSiteSlug] = useState(null);
   const [orgColor, setOrgColor] = useState("#6D3FC9");
+  const [orgLogo, setOrgLogo] = useState(null);
   const installed = user.organization.installed_apps || [];
   useEffect(() => {
     if (installed.includes("website")) {
       // The workspace always wears Kept's brand; the organization's own colour only marks its logo.
-      api("/m/site_settings", { params: { page_size: 1 } }).then((d) => { const st = d.items[0]; setSiteSlug(st?.slug || null); if (st?.brand_primary) setOrgColor(st.brand_primary); }).catch(() => {});
+      // Each organization's dashboard wears its own brand: logo, primary colour and accent. Kept stays in the footer.
+      api("/m/site_settings", { params: { page_size: 1 } }).then((d) => {
+        const st = d.items[0]; setSiteSlug(st?.slug || null);
+        const root = document.documentElement.style;
+        if (st?.brand_primary) { setOrgColor(st.brand_primary); root.setProperty("--brand", st.brand_primary); }
+        if (st?.brand_accent) root.setProperty("--brand-2", st.brand_accent);
+        if (st?.logo?.url) setOrgLogo(fileUrl(st.logo.url));
+      }).catch(() => {});
     }
     const load = () => {
       api("/flags").then((d) => setOpenFlags(d.items.length)).catch(() => {});
@@ -93,14 +101,17 @@ export default function Shell() {
     window.addEventListener("kept:changed", load);
     const key = (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setSearch(true); } };
     window.addEventListener("keydown", key);
-    return () => { window.removeEventListener("kept:changed", load); window.removeEventListener("keydown", key); };
+    return () => { window.removeEventListener("kept:changed", load); window.removeEventListener("keydown", key); document.documentElement.style.removeProperty("--brand"); document.documentElement.style.removeProperty("--brand-2"); };
   }, [installed.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
   const out = () => { nav(siteSlug ? `/site/${siteSlug}` : "/"); setTimeout(signOut, 0); };
   const linkProps = { openFlags, approvals, admin: can.admin, installed, siteSlug };
   return (
     <div className="shell">
       <aside className={"sidebar" + (menu ? " open" : "")} aria-label="Main">
-        <Link to="/app" className="org-chip" style={{ textDecoration: "none", color: "var(--ink)" }}><span className="logo" style={{ background: orgColor }}>{initials(user.organization.name)}</span><span style={{ minWidth: 0 }}><b style={{ fontSize: 14.5, display: "block", lineHeight: "18px" }}>{user.organization.name}</b><span className="small muted">Staff dashboard</span></span></Link>
+        <Link to="/app" className="org-brand" aria-label={`${user.organization.name} dashboard`}>
+          {orgLogo ? <img src={orgLogo} alt={user.organization.name} /> : <span className="org-chip" style={{ margin: 0, padding: 0, background: "none", border: 0 }}><span className="logo" style={{ background: orgColor }}>{initials(user.organization.name)}</span><span className="org-brand-name">{user.organization.name}</span></span>}
+          <span className="org-brand-sub">Staff dashboard</span>
+        </Link>
         {siteSlug && <Link to={`/site/${siteSlug}`} className="nav-link" style={{ fontSize: 13.5 }}><Icon d="M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" />View public website ↗</Link>}
         <nav className="stack-sm side-scroll" style={{ gap: 2 }} aria-label="Sections"><Links {...linkProps} onNavigate={() => setMenu(false)} /></nav>
         <div className="user-box">

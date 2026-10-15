@@ -1,7 +1,7 @@
 // Small, dependency-free SVG charts. Every chart has a text alternative for screen readers.
 import { fmtNum } from "../format";
 
-export const PALETTE = ["#5B4CDB", "#18181B", "#A39BEF", "#3B82F6", "#71717A", "#C4BEF6", "#0EA5E9", "#D4D4D8", "#7C6FE6", "#52525B"];
+export const PALETTE = ["var(--cobalt)", "#18181B", "var(--brand-2, #A39BEF)", "#3B82F6", "#71717A", "#C4BEF6", "#0EA5E9", "#D4D4D8", "#7C6FE6", "#52525B"];
 const short = (n) => (Math.abs(n) >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : Math.abs(n) >= 1e3 ? `${Math.round(n / 1e3)}k` : fmtNum(Math.round(n * 10) / 10));
 
 export function Bars({ data, format = fmtNum, color, colors, max }) {
@@ -31,7 +31,7 @@ export function Columns({ data, format = short, colors = PALETTE, height = 170, 
         const x = (i * w * 400) / 100 + 8, bw = (w * 400) / 100 - 16;
         return (
           <g key={d.label + i}>
-            <rect x={x} y={height - 26 - h} width={Math.max(bw, 4)} height={Math.max(h, d.value ? 2 : 0)} rx="5" fill={highlightLast ? (i === data.length - 1 ? colors[0] : "#DCCDF5") : colors[i % colors.length]} />
+            <rect x={x} y={height - 26 - h} width={Math.max(bw, 4)} height={Math.max(h, d.value ? 2 : 0)} rx="5" fill={highlightLast ? (i === data.length - 1 ? colors[0] : "var(--cobalt-soft)") : colors[i % colors.length]} />
             {d.value > 0 && <text x={x + bw / 2} y={height - 32 - h} textAnchor="middle" fontSize="12" fontWeight="600" style={{ fill: "var(--ink)" }}>{format(d.value)}</text>}
             <text x={x + bw / 2} y={height - 8} textAnchor="middle" fontSize="11.5" style={{ fill: "var(--slate)" }}>{d.label.length > 14 ? d.label.slice(0, 13) + "…" : d.label}</text>
           </g>
