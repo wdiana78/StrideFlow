@@ -1,260 +1,304 @@
 # Kept
 
-Kept turns the promises an organization makes to funders, clients and partners into tracked work, and builds the proof and the report from the work itself.
+**One system for the work, the money and the proof.**
 
-Moringa School capstone, 2026. All organizations and people in the demo data are fictional.
+Kept is a multi-tenant operations platform (ERP) with a built-in public website for every organization on it. An organization picks its industry, Kept installs the apps that industry needs, and the organization gets two front doors on one account:
 
-## What it does
+- a **public website** on its own domain, in its own brand, whose figures, stock and availability come straight from its records, and
+- a **private staff dashboard**, reached from the website's *Staff login*, in the same brand, with a home screen that depends on the person's role.
 
-1. **Commit.** A project holds commitments: what is owed, to whom, the target, the unit and the due date.
-2. **Plan.** Each commitment is broken into activities with an owner, a due date, an optional dependency, and the proof required to complete it (copied from the project's template).
-3. **Prove.** An activity cannot be completed until its required proof exists (a count, a file, a note). Only completed activities count toward targets.
-4. **Flag.** A rules engine runs after every change and opens or closes flags automatically:
+Built by Sparks as an individual capstone project at Moringa School (Nairobi, 2026). The primary case study is **Timiza Youth Initiative**, a community-based organization in Kilifi County; four further case studies show the same platform serving a retail chain, a creative studio, a hotel group and a second community organization.
 
-   | Rule | Fires when | Goes to |
-   |---|---|---|
-   | Due soon | Not started, due within 3 days | Activity owner |
-   | Overdue | Past due and not done | Owner; project manager after 2 days late |
-   | Missing proof | Completion was refused and proof is still missing | Activity owner |
-   | Blocked | Depends on an activity that is past due (status set to blocked automatically) | Activity owner |
-   | Behind pace | Commitment 15+ points behind expected-by-today | Project manager |
+---
 
-   Pace: `expected = target × (days since project start ÷ days from project start to the commitment's due date)`. A flag closes itself when its condition clears. A manually resolved flag stays closed for 3 days.
-5. **Report.** A period report (planned against actual, charts, issues and resolutions, evidence index) is generated from the records and stored as a frozen snapshot. It prints to PDF, and "Copy AI brief" copies a prompt of verified figures and opens ChatGPT, with no paid API.
+## Contents
 
-Every meaningful action, including those made by the rules, is written to the audit log.
+1. [Quick start](#quick-start)
+2. [Live preview](#live-preview)
+3. [Demo accounts](#demo-accounts)
+4. [What is in the box](#what-is-in-the-box)
+5. [Architecture](#architecture)
+6. [Repository layout](#repository-layout)
+7. [Case studies](#case-studies)
+8. [Roles](#roles)
+9. [Tazama: field data and live tracking](#tazama-field-data-and-live-tracking)
+10. [Design system](#design-system)
+11. [Testing](#testing)
+12. [Deployment](#deployment)
+13. [Configuration](#configuration)
+14. [Known limitations](#known-limitations)
+15. [Further documentation](#further-documentation)
 
-## Case studies
+---
 
-Five organizations run on the same platform, each with its own tools, website and branded dashboard.
+## Quick start
 
-| Organization | Industry | Its own tools | Website (production domain) |
-|---|---|---|---|
-| Timiza Youth Initiative | Community organization | Programmes and M&E, Tazama field data, funding and donations, volunteers, participant registry | timiza.or.ke |
-| Tumaini Community Network | Community organization | Programmes, participants, finance | tumaini.kept.africa |
-| Hatua Apparel | Retail chain, five branches | Branch takings against target, stock transfers, deliveries with rider tracking (Tazama), online shop with order tracking | hatua.co.ke |
-| Mwangaza Creative Studio | Photography, video, film, social media | Production pipeline, content calendar, studio and gear bookings, client invoicing | mwangaza.studio |
-| Pwani Hotels & Safaris | Hotel, restaurants and tours | Rooms, table reservations by sitting, tours with guide assignment, online booking for all three | pwanihotels.co.ke |
-
-A member of the public types the organization's address (or searches its name) and lands on its website. In this repository every site is also served at `/site/<slug>`; in production each organization points its own domain at Kept, or uses `<slug>.kept.africa`.
-
-## Roles
-
-Staff sign in from their organization's website (Staff login) and land on a home built for their role:
-
-- **Administrator**: everything a manager sees, plus team, roles, apps, audit log and website settings.
-- **Manager**: the operations home for their industry (programmes, branches, rooms or productions), approvals and alerts.
-- **Field team**: "Your day": their own tasks, Tazama forms ready to collect, and alerts assigned to them.
-- **Board and partners**: a read-only overview of results, money and reports.
-
-The dashboard has a top bar (search, notifications, account menu) and a sidebar, and a My account page for password changes and signing out on all devices.
-
-## How the platform works (the Odoo model)
-
-Kept is the product. Its home page sells the platform: apps, industries and live customer examples.
-
-- **Sign-up** asks for the industry (community organization, agency, retail, hospitality, school, clinic), the organization name, an optional website address and a brand palette. Kept installs the apps that industry needs.
-- **Apps** (14): Projects and M&E, Data collection, Events, Funding, Budgets and expenses, Sales and invoicing, Procurement, Inventory and assets, Bookings, People, Participant registry, Documents, Governance, Website. Admins install or remove them in Apps; data is kept when an app is removed. The API refuses requests to apps an organization has not installed.
-- **Every organization** gets its own branded website at `/site/<slug>` and a private, isolated workspace, themed in its own colours.
-- **Demo tenants**: Timiza Youth Initiative (community), Mwangaza Creative Studio (agency), Hatua Shoes (retail), Pwani Coast Stays (hospitality).
-- **A dedicated deployment** for one customer's own domain (for example timiza.or.ke) sets `VITE_SITE_SLUG=timiza`, which makes that organization's website the home page.
-
-## Tazama: field tracking (replaces the Google Sheet)
-
-Every form in Data collection works like a field-survey tool:
-
-- **Question types** include location (GPS from the phone) and photo (taken with the camera, downscaled on the device before upload), alongside choices, numbers, ratings, dates and text. **Skip logic** shows a question only when an earlier answer matches.
-- **Offline first.** On a phone with no signal, responses are kept on the device and sent automatically when it reconnects. Each carries a client id, so a retry never creates a duplicate. Field officers without accounts use the public link and enter their name once.
-- **Live tracker** (the default view of each form): today, last 7 days, progress to target, responses per day, a collector league table, a map of where responses were collected, a breakdown by any choice question, and a feed of the latest responses. It refreshes every 5 seconds.
-- **Moving off Google Sheets.** Import the existing sheet as CSV (columns are matched to questions by name, and rows that fail validation are listed with reasons), or connect the sheet's link and press Sync to pull only new rows while the team switches over.
-
-Timiza's demo has an "Outreach field tracker" with two weeks of GPS-tagged records from three field officers. In the preview, "Simulate a field team" shows responses arriving live.
-
-## Design system
-
-Six colour roles, each with a job:
-
-| Role | Kept | Timiza's dashboard | Used for |
-|---|---|---|---|
-| Night | `#22184F` (derived) | deep navy (derived from Timiza blue) | Sidebar, home banner, footer |
-| Primary | Violet `#7C5CFF` (sweetened) | Timiza blue `#2563EB` | Buttons, active menu item, charts, links |
-| Accent | Tangerine `#FF6B35` | Timiza red `#EF4444` | Alert counts, highlights |
-| Marigold | `#FFB627` | `#FFB627` | Positive emphasis, chart series, user avatar |
-| Sky | `#3BA7FF` | `#3BA7FF` | Information, chart series |
-| Tint | Lilac (derived) | pale blue (derived) | Page background, table headers, soft fills |
-
-Every organization's dashboard derives the same six roles from its own primary and accent colours (Website, then Site settings), so Timiza's staff work in Timiza colours and Hatua's in Hatua's. Dark mode deepens the same colours into indigo or navy rather than black. Text on light accents (lime, yellow) switches to dark automatically. Kept's own pages (home, sign-up, platform sign-in) always use Kept's six.
-
-The field data collection app is called **Tazama** (Swahili: "observe").
-
-**Timiza's website** follows timiza.vercel.app exactly: dark contact bar with both phone numbers, white header with their logo and centred navigation (Home, About Us, Our Work, Contact Us, Gallery), red Donate button, Inter headings with blue eyebrows, photo page headers with a title card, white cards on light grey, and the dark "Connect with Us" footer. Their logo, photos, partner logos and copy are used as published on their site (`assets/timiza`). Additions in the same visual language: live impact figures, a page per program with progress from verified records, a gallery lightbox, a map on Contact Us, a volunteer form, the donation flow and Staff login. Any organization on the community template gets this structure in its own colours and photos (`pages/CommunitySite.jsx`).
-
-**Tenant websites** wear the organization's own brand (primary, accent, deep colour and a heading font chosen in Website → Site settings) and get an industry-specific design:
-
-| Organization | Industry | Palette and type | Website features |
-|---|---|---|---|
-| Timiza Youth Initiative | Community organization | Ocean blue, mango, Fraunces | Programmes with live progress, impact counters, gallery, stories, donations, volunteer sign-up |
-| Tumaini Community Network | Community organization | Forest green, harvest gold, DM Serif | Same community layout, different brand |
-| Hatua Shoes | Retail | Cognac, lime, Bricolage | Shop from live inventory, bag, stock-checked orders that land in Inquiries |
-| Pwani Coast Stays | Hospitality | Deep sea, coral, DM Serif | Availability search, rooms, booking requests that create tentative bookings with double-booking checks |
-| Mwangaza Creative Studio | Agency | Black, electric yellow, Space Grotesk | Portfolio case studies, services, project brief form |
-
-## What Timiza sees first
-
-On Timiza's own domain (`VITE_SITE_SLUG=timiza`), the home page is Timiza's public website: home, about, programmes, services, stories, impact, get involved, contact and donate. Staff sign in from the top bar to reach the ERP behind it. Website content, brand colours, programmes, services, stories and team are all edited in the ERP's Website section, and the impact numbers on the site are counted live from verified records.
-
-**Donations**: M-Pesa STK push and card in sandbox mode by default. Set `PAYMENTS_MODE=mpesa` and the Daraja variables to take real M-Pesa payments. A confirmed donation automatically becomes an Income record and moves the campaign progress bar.
-
-**Data collection**: build surveys, registers and checklists (8 question types), collect in the app or through a public link, and get charts for every question, cross-filtering and CSV export.
-
-**M&E analytics**: progress lines against targets, participants by gender, age, ward, disability and programme, event turnout, spending and volunteer hours.
-
-See `SECURITY.md` for the security review and `AUDIT.md` for the audit against the original brief.
-
-## ERP modules (case study: Timiza Youth Initiative)
-
-Beyond programmes and M&E, Kept runs the whole organization. Every module below is defined once in `backend/app/modules.json`; that spec generates the PostgreSQL tables (prefixed `m_`, with real foreign keys), the validated API, the workflow rules and the screens.
-
-| Area | Modules | Highlights |
-|---|---|---|
-| Funding | Grants, Income | Pipeline board from prospect to closed; application and report deadlines flagged |
-| Finance | Budget lines, Expenses, Budget against actual | Approval workflow, receipts required before approval, no self-approval, overspend flags |
-| Procurement | Purchase requests, Vendors | Request, approve, order (vendor required), receive |
-| Inventory | Stock items, Stock movements, Assets | Live stock levels, low-stock flags, asset custodians and condition |
-| People | Volunteers, Volunteer hours, Leave | Website sign-ups land as applicants; leave approval |
-| Participants | Participant registry | Anonymised codes for disaggregated reporting, consent recorded, no names |
-| Operations | Events, Documents, Inquiries | Calendar, document expiry flags, website messages |
-| Governance | Meetings, Decisions and actions | Minutes and owned follow-ups |
-| Website | Site settings, Programme pages, Team | Public portfolio at `/site/<slug>` with live results from verified records |
-
-Also: an organization overview dashboard, an approvals inbox, a combined calendar, CSV export on every module, table and board views, and full history on every record. API reference: `/docs` on the running API.
-
-## Stack
-
-- **Frontend:** React 18, React Router, Vite, plain CSS design system. Vitest.
-- **Backend:** FastAPI, SQLAlchemy 2, Alembic migrations, Pydantic validation, JWT auth with bcrypt-hashed passwords. Pytest.
-- **Database:** PostgreSQL.
-- **Hosting:** Vercel (frontend), Render (API and database).
-
-```
-backend/
-  app/
-    main.py              app, CORS, error format, routers
-    config.py            settings from environment / .env
-    db.py                engine and session
-    models.py            12 tables
-    schemas.py           request and response validation
-    security.py          bcrypt and JWT
-    deps.py              current user, role checks, tenant-scoped lookups
-    templates_builtin.py Community programme and Client engagement templates
-    routers/             auth, org (people, stakeholders, templates, audit), projects, activities, flags
-    services/            pace, rules engine, report builder, audit
-  migrations/            Alembic
-  tests/                 45 API, business-rule, ERP, apps and security tests
-  seed.py                fictional demo data
-frontend/
-  src/pages              Landing, Auth, Attention, Projects, Project, Activity, Work, Reports, ReportView, Settings
-  src/components         Shell (navigation), ui (status, pace line, dialog, fields, states)
-```
-
-## Roles (enforced by the API, not just hidden in the UI)
-
-| Role | Can |
-|---|---|
-| Admin | Everything, plus people, roles, stakeholders and the audit log |
-| Manager | Create and edit projects, commitments and activities; resolve, reassign and snooze flags; generate reports |
-| Member | Update status and add proof on activities they own |
-| Viewer | Read only |
-
-Each organization's data is isolated: another organization's ids return 404.
-
-## See it right now (no setup)
-
-Open `kept-live-preview.html` (in the project root) in any browser, or use the hosted link. It is the same React app running against `frontend/src/demo/engine.js`, an in-browser port of the API (same endpoints, rules, pace maths, permissions and reports) with data saved in the browser. Use **Switch account** to try each role and **Reset data** to start over. Rebuild it with `cd frontend && npm run build:preview`.
-
-The real app below uses the FastAPI backend and PostgreSQL; the preview engine is never included in the normal build.
-
-## Run it locally
-
-Requirements: Python 3.12, Node 20+, PostgreSQL 14+.
+Requirements: Python 3.12, Node 20 or newer, PostgreSQL 15 or newer.
 
 ```bash
 # 1. Database
-createuser kept --pwprompt        # password: kept
-createdb -O kept kept
-createdb -O kept kept_test
+createdb kept            # or: docker run -e POSTGRES_PASSWORD=kept -p 5432:5432 postgres:16
 
-# 2. API
+# 2. Backend
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-alembic upgrade head
-python seed.py                    # optional demo data
-uvicorn app.main:app --reload     # http://localhost:8000/docs for interactive API docs
+cp .env.example .env     # edit DATABASE_URL and JWT_SECRET
+alembic upgrade head     # 10 migrations
+python seed.py           # five demo organizations, all with data
+KEPT_TODAY=2026-10-13 uvicorn app.main:app --reload    # http://localhost:8000/docs
 
-# 3. Web app (new terminal)
+# 3. Frontend (new terminal)
 cd frontend
 npm install
-npm run dev                       # http://localhost:5173
+npm run dev              # http://localhost:5173
 ```
 
-### Demo accounts (password `kept-demo-2026`)
+`KEPT_TODAY` freezes "today" at 13 October 2026 so the demo alerts, paces and calendars stay meaningful. Leave it unset in production.
 
-| Email | Role |
-|---|---|
-| zawadi@timiza.example | Manager, Timiza Youth Initiative case study (full ERP data) |
-| admin@timiza.example | Admin, Timiza |
-| achieng@tumaini.example | Manager |
-| admin@tumaini.example | Admin |
-| brian@tumaini.example | Member |
-| viewer@tumaini.example | Viewer |
-| wairimu@mwangaza.example | Admin of the second organization (client-engagement example) |
-
-`KEPT_TODAY=2026-10-13` in `.env` freezes "today" so the demo always shows the same situation. Remove it for real use.
-
-### The 2-minute demo
-
-1. Sign in as Achieng. Attention lists 13 flags, worst first.
-2. Open **Women in Agribusiness**. Training is 22 points behind pace.
-3. Open **Session 9, Kangundo group**. Click **Mark complete**: refused, the signed sheet is missing.
-4. Attach any image as the sheet, then **Mark complete**. 21 women are added, training goes from 64 to 85 of 120, and the Behind pace flag closes itself.
-5. Back on the project, **Generate report**. Print it or copy the AI brief.
-
-## Tests
+To build the single-file offline preview (the whole app plus an in-browser copy of the API):
 
 ```bash
-cd backend && pytest -q          # 56 tests: auth, roles, tenant isolation, validation,
-                                 # proof rules, pace, flags, escalation, dependencies, reports
-cd frontend && npm test
+cd frontend && npm run build:preview      # writes kept-live-preview.html
 ```
 
-## Deploy
+---
 
-### API and database on Render
+## Live preview
 
-1. Push this repository to GitHub.
-2. In Render, choose **New > Blueprint** and select the repo. `render.yaml` creates `kept-api` and a free PostgreSQL database `kept-db`, wires `DATABASE_URL`, and generates `JWT_SECRET`.
-3. After the first deploy, open the service's **Shell** and run `python seed.py` if you want the demo data.
-4. Note the API URL, for example `https://kept-api.onrender.com`.
+`kept-live-preview.html` is a self-contained build that runs entirely in the browser. A JavaScript port of the API (`frontend/src/demo/engine.js`) answers every request and keeps data in `localStorage`, so the preview needs no server. Use **Reset** in the dashboard's top bar to restore the starting data.
 
-Start command (already in the blueprint): `alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
+| Start here | What it is |
+|---|---|
+| `/` | Kept's own website: Home, Product, Solutions, Customers, Pricing, Contact |
+| `/site/timiza` | Timiza Youth Initiative's public website |
+| `/site/hatua`, `/site/pwani`, `/site/mwangaza`, `/site/tumaini` | The other four organizations' websites |
+| `/site/<slug>/login` | That organization's staff sign-in |
+| `/login`, `/register` | Kept's platform sign-in and the three-step sign-up |
+| `/app` | The dashboard (after signing in) |
+| `/f/<form-id>` | A public Tazama form, for field teams without accounts |
 
-### Web app on Vercel
+In production each organization points its own domain (for example `timiza.or.ke`) at Kept, or uses `<slug>.kept.africa`. A single-tenant deployment can set `VITE_SITE_SLUG=timiza` so that organization's website is the home page.
 
-1. **Add New > Project**, import the repo, set **Root Directory** to `frontend`.
-2. Framework preset: Vite. Build: `npm run build`. Output: `dist`.
-3. Environment variable: `VITE_API_URL=https://kept-api.onrender.com`. If you set `KEPT_TODAY` on the API, set `VITE_TODAY` to the same date.
-4. Deploy, then put the Vercel URL in Render's `CORS_ORIGINS` (comma-separate several) and redeploy the API.
+---
 
-`vercel.json` rewrites all paths to `index.html` so deep links like `/app/projects/…` work.
+## Demo accounts
 
-### Known limits
+Every password is `kept-demo-2026`. On each organization's staff login page the preview also shows one-click demo buttons.
 
-- Uploaded files are stored on the API server's disk. Render's free disk is wiped on redeploy, so use a Render disk or move uploads to object storage (Cloudinary or S3) before real use.
-- Files are served from unguessable URLs without a token check. Signed URLs are the next step.
-- Pace assumes steady progress; front- or back-loaded commitments (for example certificates issued at the end) will flag early.
+| Organization | Name | Email | Role |
+|---|---|---|---|
+| Timiza Youth Initiative | Amani Charo | admin@timiza.example | Administrator |
+| | Zawadi Kahindi | zawadi@timiza.example | Manager |
+| | Baraka Katana, Neema Kazungu, Juma Mwangome | baraka@ / neema@ / juma@timiza.example | Field team |
+| | Partner Observer | viewer@timiza.example | Board and partners (read only) |
+| Hatua Apparel | Wanjiru Mbugua | wanjiru@hatua.example | Administrator |
+| | Otis Kamau | otis@hatua.example | Manager |
+| | Achola Were | achola@hatua.example | Field team (store and dispatch) |
+| Pwani Hotels & Safaris | Rehema Salim | rehema@pwani.example | Administrator |
+| | Omar Abdalla | omar@pwani.example | Manager |
+| | Neema Charo | neema@pwani.example | Field team (reservations) |
+| Mwangaza Creative Studio | Wairimu Kamau | wairimu@mwangaza.example | Administrator |
+| | Otieno Were | otieno@mwangaza.example | Field team |
+| Tumaini Community Network | Grace Nduta | admin@tumaini.example | Administrator |
+| | Achieng Otieno | achieng@tumaini.example | Manager |
+| | Kevin Kiprop, Faith Wanjiru, Brian Mutua | kevin@ / faith@ / brian@tumaini.example | Field team |
+| | Board Observer | viewer@tumaini.example | Read only |
 
-## Next iteration
+---
 
-Budget lines and expenditure, approval routing, recurring activities, email reminders, custom fields per template, a read-only stakeholder portal, offline phone capture, WhatsApp and M-Pesa integrations.
+## What is in the box
+
+- **20 installable apps** built from **40 spec-driven modules** (one JSON file describes fields, validation, workflow states, permissions and list views; the API, database tables and screens are generated from it).
+- **6 industries**, each installing a different set of apps: community organization, retail chain, creative studio, hotels/dining/tours, school, clinic.
+- **Programmes and M&E**: commitments with targets and deadlines, required evidence, daily pace, a frozen-snapshot report generator.
+- **Alerts engine**: 11 rules (overdue, due soon, behind pace, missing proof, blocked, over budget, approval waiting, expiring document, low stock, report due, overdue invoice) with ownership, snooze, reassign and resolution notes.
+- **Tazama**: KoboToolbox-style field data collection with GPS, photos, skip logic, offline queueing, a live tracker and Google Sheets import and sync.
+- **Public websites** with live impact figures, donations (M-Pesa and card, sandbox by default), volunteer and contact forms, an online shop with order tracking, room, table and tour booking, and portfolios.
+- **Role-based dashboards** with a sidebar, a top bar (search, notifications, account menu), light and dark themes, and each organization's own branding.
+- **77 API endpoints**, 58 backend tests, 48 browser checks, Bandit, pip-audit and npm audit all clean.
+
+---
+
+## Architecture
+
+| Layer | Technology |
+|---|---|
+| API | FastAPI 0.143, Pydantic 2, SQLAlchemy 2.1, Alembic |
+| Database | PostgreSQL (JSONB for flexible fields) |
+| Auth | JWT (HS256, 8-hour expiry, token-version revocation), bcrypt |
+| Frontend | React 18.3, React Router 7, Vite 6, plain CSS design tokens, no UI library |
+| Charts | Hand-written SVG components (`components/charts.jsx`) |
+| Payments | Safaricom Daraja STK push (behind `PAYMENTS_MODE=mpesa`), sandbox simulator by default |
+| Preview | The same React app built with `VITE_DEMO=1`, talking to `demo/engine.js` instead of HTTP |
+| Hosting plan | Render (API and PostgreSQL), Vercel (frontend) |
+
+Key ideas:
+
+- **Multi-tenancy.** Every row carries `organization_id`; every query is scoped to the caller's organization; another organization's ids return 404.
+- **Spec-driven modules.** `backend/app/modules.json` defines each module once. `app/erp.py` turns it into tables, validation, CRUD, workflow transitions, CSV export and grouped statistics; `pages/Module.jsx` renders the matching table, board and forms.
+- **Apps and industries.** `backend/app/platform.json` lists apps (groups of modules) and which apps each industry installs. The API refuses requests to apps an organization has not installed.
+- **One source of seed data.** `backend/seed_data/*.json` feeds both `seed.py` (PostgreSQL) and `frontend/src/demo/seed.js` (preview), so the two always match.
+
+---
+
+## Repository layout
+
+```
+kept/
+├── backend/
+│   ├── app/
+│   │   ├── main.py            app, middleware, file serving, error handler
+│   │   ├── config.py          settings and production safety checks
+│   │   ├── models.py          core tables (organizations, users, projects, flags, forms ...)
+│   │   ├── erp.py             spec-driven module engine
+│   │   ├── modules.json       40 module definitions
+│   │   ├── platform.json      apps, industries, palettes, event form template
+│   │   ├── hardening.py       rate limits, password policy, upload checks, security headers
+│   │   ├── routers/           auth, org, projects, activities, flags, erp (incl. public site APIs), forms (Tazama), apps
+│   │   └── services/          pace, rules (alerts), reports, payments, audit
+│   ├── migrations/            10 Alembic migrations
+│   ├── seed.py, seed_data/    timiza.json, tenants.json
+│   └── tests/                 58 pytest tests
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx            routes
+│   │   ├── components/        Shell (sidebar, top bar), charts, ui, ThemeToggle
+│   │   ├── pages/             Landing (Kept website), Overview (role homes), Module, Forms (Tazama),
+│   │   │                      PublicSite, CommunitySite (Timiza template), SiteKits (shop, rooms, dining, tours ...),
+│   │   │                      Account, Apps, Attention (alerts), Approvals, Finance, Calendar, Projects, Reports ...
+│   │   ├── field.js           offline queue, GPS capture, photo downscaling
+│   │   ├── styles.css         design tokens and components (light and dark)
+│   │   └── demo/              in-browser API engine and seeds for the preview
+│   └── vercel.json            rewrites and security headers
+├── tests-e2e/                 Playwright suites: core_flows.py, case_studies.py, tazama.py
+├── assets/timiza/             Timiza's logo, photos and partner logos
+├── kept-live-preview.html     single-file offline build
+├── SECURITY.md                threat model and controls
+├── AUDIT.md                   audit against the original brief
+└── render.yaml                Render blueprint
+```
+
+---
+
+## Case studies
+
+| Organization | Industry | Its own tools | Website |
+|---|---|---|---|
+| Timiza Youth Initiative | Community organization (Kilifi) | Programmes and M&E, Tazama surveys, funding and donations, volunteers, participant registry, governance | Faithful rebuild of timiza.vercel.app plus live impact, programme pages, gallery, donations, volunteer form, map |
+| Tumaini Community Network | Community organization (Machakos) | Programmes, participants, finance | Same community template in Tumaini's brand |
+| Hatua Apparel | Retail chain, five branches | Branch takings against target, stock transfers, deliveries, rider tracking in Tazama, invoicing | Online shop with live stock, store locator, order tracking |
+| Mwangaza Creative Studio | Photography, video, film, social media | Production pipeline, content calendar, studio and gear bookings, invoicing | Portfolio, services, "Book a shoot" brief form |
+| Pwani Hotels & Safaris | Hotel, three restaurants, tours | Rooms and bookings, table reservations, tours, guides, invoicing | Availability search, room booking, table reservations, tour booking |
+
+---
+
+## Roles
+
+| Role | Home screen | Can |
+|---|---|---|
+| Administrator | Manager home plus an Administration card | Everything, plus users and roles, apps, audit log, website |
+| Manager | Industry operations home (programmes, branches, rooms or productions) | Plan, approve, build forms, issue reports, resolve alerts |
+| Field team (member) | "Your day": own tasks, Tazama forms to collect, own alerts | Record work and evidence, collect data, raise requests |
+| Board and partners (viewer) | Read-only overview of results, money and reports | Read and download only |
+
+---
+
+## Tazama: field data and live tracking
+
+Swahili for "observe". Build a form with ten question types (including GPS and photo) and skip logic, then collect in the dashboard or through a public link. Responses made without signal are queued on the phone and sent on reconnect, each with a client id so retries never duplicate. Every form opens on a **Live tracker** that refreshes every five seconds: today, last 7 days, progress to target, responses per day, a collector league table, a map of locations, a breakdown by any choice question, and the latest responses. Existing spreadsheets come in by CSV import, or by connecting a published Google Sheet and pressing Sync (server only).
+
+Timiza uses it for outreach surveys and event attendance; Hatua uses it for rider check-ins with photo proof of delivery.
+
+---
+
+## Design system
+
+Six colour roles, defined as CSS variables in `styles.css`:
+
+| Role | Kept | Derived for each organization | Used for |
+|---|---|---|---|
+| Night | `#22184F` | mixed from the organization's primary | sidebar, home banner, footer |
+| Primary | Violet `#7C5CFF` | the organization's primary | buttons, active states, charts |
+| Accent | Tangerine `#FF6B35` | the organization's accent | alert counts, highlights |
+| Marigold | `#FFB627` | shared | positive emphasis, chart series |
+| Sky | `#3BA7FF` | shared | information, chart series |
+| Tint | Lilac | mixed from the primary | page background, soft fills |
+
+Dark mode deepens the same colours into indigo or navy, never black. Kept's own pages always use Kept's palette; each organization's dashboard and website use its own. Timiza's website reproduces timiza.vercel.app: Inter, blue `#2563EB`, red Donate `#EF4444`, dark bar and footer `#020617`.
+
+---
+
+## Testing
+
+```bash
+cd backend && pytest -q                     # 58 tests: auth, permissions, isolation, business rules, ERP, apps, Tazama, security
+cd frontend && npx vitest run               # unit tests
+pip install playwright && playwright install chromium
+python tests-e2e/core_flows.py              # 21 flows across the product
+python tests-e2e/case_studies.py            # 17 flows across the five organizations and four roles
+python tests-e2e/tazama.py                  # 10 flows: live updates, GPS, skip logic, offline, import
+```
+
+The Playwright suites run against `kept-live-preview.html` by default; set `KEPT_URL` to test a deployed frontend.
+
+Security scans: `bandit -r backend/app`, `pip-audit -r backend/requirements.txt`, `npm audit` (all clean at the time of writing).
+
+---
+
+## Deployment
+
+**API on Render** (`render.yaml` provisions the service and database):
+
+```
+Build:  pip install -r requirements.txt
+Start:  alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+**Frontend on Vercel**: root `frontend`, build `npm run build`, output `dist`, environment variable `VITE_API_URL=https://<your-render-service>`. `vercel.json` sets the SPA rewrite and security headers (CSP, HSTS, frame denial).
+
+Then set `CORS_ORIGINS` on Render to the Vercel URL and run `python seed.py` once if you want the demo data.
+
+---
+
+## Configuration
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DATABASE_URL` | local PostgreSQL | SQLAlchemy URL (`postgresql+psycopg://...`) |
+| `JWT_SECRET` | development value | Must be 32+ random characters in production (the app refuses to start otherwise) |
+| `JWT_EXPIRE_MINUTES` | 480 | Session length |
+| `ENVIRONMENT` | development | `production` enables the safety checks |
+| `CORS_ORIGINS` | http://localhost:5173 | Comma-separated frontend origins |
+| `UPLOAD_DIR` | uploads | Where uploaded files are stored |
+| `KEPT_TODAY` | unset | Freeze "today" for demos only |
+| `PAYMENTS_MODE` | sandbox | `mpesa` to call Safaricom Daraja |
+| `MPESA_*` | empty | Daraja keys, shortcode, passkey, callback URL and callback token |
+| `VITE_API_URL` | same origin | Frontend: API base URL |
+| `VITE_SITE_SLUG` | unset | Frontend: make one organization's website the home page |
+| `VITE_DEMO` | unset | Frontend: build the offline preview |
+
+---
+
+## Known limitations
+
+- Custom domains and subdomain routing are designed but not implemented; organizations are served at `/site/<slug>`.
+- Payments run in sandbox. The Daraja integration is written but untested against Safaricom; card payments need a hosted provider (Pesapal, Flutterwave or Stripe).
+- Google Sheets sync needs the server; the preview cannot reach Google. The preview also draws a stand-in map; production embeds Google Maps.
+- Tazama forms must be opened once while online; installing them as an offline app (PWA) is the next step.
+- Notifications are in-app only (no SMS, email or WhatsApp yet).
+- No double-entry accounting, payroll or POS integration. Branch takings are entered daily, and stock is held centrally rather than per branch.
+- Hotels: no channel manager (Booking.com, Airbnb), seasonal rates or housekeeping. Restaurants assume 40 covers per sitting.
+- Studios: no time tracking, file proofing or direct posting to social networks.
+- Uploaded files live on local disk (wiped on Render redeploys); move to object storage.
+- The rate limiter is in memory (one instance); the session token is stored in `localStorage`.
+- Timiza's photos and logo were cropped from screenshots of timiza.vercel.app and are lower resolution than the originals. Staff names and figures are illustrative; real data needs Timiza's permission.
+- Pricing, customer domains and all figures in the demo are illustrative.
+
+---
+
+## Further documentation
+
+- `SECURITY.md`: threat model, controls and the tests that prove them.
+- `AUDIT.md`: requirement-by-requirement audit against the original capstone brief.
+- `Kept_System_Description.docx`: the full product and system description (workflows, every dashboard, every case study, limitations).
