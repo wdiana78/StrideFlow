@@ -2603,5 +2603,129 @@
    ]
   }
  ],
- "industry": "community"
+ "industry": "community",
+ "tracker": {
+  "title": "Outreach field tracker",
+  "project": "Health Advocacy",
+  "target": 600,
+  "description": "One entry per outreach session. Location is captured automatically.",
+  "wards": [
+   [
+    "Sokoni",
+    -3.63,
+    39.85,
+    22
+   ],
+   [
+    "Mnarani",
+    -3.64,
+    39.835,
+    14
+   ],
+   [
+    "Tezo",
+    -3.58,
+    39.88,
+    12
+   ],
+   [
+    "Watamu",
+    -3.354,
+    40.024,
+    18
+   ],
+   [
+    "Matsangoni",
+    -3.5,
+    39.95,
+    10
+   ],
+   [
+    "Kaloleni",
+    -3.81,
+    39.63,
+    16
+   ]
+  ],
+  "activities": [
+   [
+    "School outreach",
+    34
+   ],
+   [
+    "Market outreach",
+    26
+   ],
+   [
+    "Door to door",
+    22
+   ],
+   [
+    "Community dialogue",
+    18
+   ]
+  ],
+  "fields": [
+   {
+    "id": "ward",
+    "label": "Ward",
+    "type": "select",
+    "required": true
+   },
+   {
+    "id": "activity",
+    "label": "Activity",
+    "type": "select",
+    "required": true
+   },
+   {
+    "id": "reached",
+    "label": "Young people reached",
+    "type": "number",
+    "required": true,
+    "min": 0,
+    "max": 500
+   },
+   {
+    "id": "female",
+    "label": "Of whom female",
+    "type": "number",
+    "min": 0,
+    "max": 500
+   },
+   {
+    "id": "referred",
+    "label": "Any referrals made?",
+    "type": "yesno",
+    "required": true
+   },
+   {
+    "id": "referrals",
+    "label": "Number of referrals",
+    "type": "number",
+    "required": true,
+    "min": 1,
+    "max": 50,
+    "show_if": {
+     "field": "referred",
+     "equals": "yes"
+    }
+   },
+   {
+    "id": "where",
+    "label": "Location",
+    "type": "gps"
+   },
+   {
+    "id": "photo",
+    "label": "Photo of the session",
+    "type": "photo"
+   },
+   {
+    "id": "notes",
+    "label": "Notes",
+    "type": "textarea"
+   }
+  ]
+ }
 }

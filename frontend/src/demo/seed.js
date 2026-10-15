@@ -180,6 +180,7 @@ export function SEED() {
   seedErp(db, id, tz, ppl, sk, projByName);
   seedForms(db, id, tz, ppl, projByName);
   seedEventForms(db, id, tz, ppl.zawadi);
+  seedTracker(db, id, tz, ppl, projByName, TIMIZA.tracker);
   seedTenants(db, id, org, user, lead);
   return db;
 }
@@ -287,5 +288,31 @@ function seedTenants(db, id, makeOrg, makeUser, mwangazaAdmin) {
       }
     }
     seedEventForms(db, id, o, owner);
+  }
+}
+
+function seedTracker(db, id, org, ppl, projects, spec) {
+  const next = lcg(123);
+  const pick = (w) => { const r = next() * w.reduce((a, b) => a + b, 0); let acc = 0; for (let k = 0; k < w.length; k++) { acc += w[k]; if (r < acc) return k; } return w.length - 1; };
+  const wards = spec.wards, acts = spec.activities;
+  const fields = spec.fields.map((f) => ({ required: false, options: [], min: null, max: null, show_if: null, ...f, ...(f.id === "ward" ? { options: wards.map((w) => w[0]) } : {}), ...(f.id === "activity" ? { options: acts.map((a) => a[0]) } : {}) }));
+  const form = { id: id("frm"), organization_id: org.id, project_id: projects[spec.project].id, title: spec.title, description: spec.description, fields, is_public: true, status: "open",
+    target: spec.target, collect_gps: true, created_by_id: ppl.zawadi.id, created_at: "2026-09-29T08:00:00.000Z" };
+  db.forms.push(form);
+  const officers = [ppl.baraka, ppl.neema, ppl.juma];
+  for (let d = 0; d < 14; d++) {
+    const day = new Date(Date.UTC(2026, 8, 30 + d)).toISOString().slice(0, 10);
+    const n = 4 + Math.floor(next() * 6) + (d > 9 ? 2 : 0);
+    for (let k = 0; k < n; k++) {
+      const w = wards[pick(wards.map((x) => x[3]))]; const a = acts[pick(acts.map((x) => x[1]))][0];
+      const reached = 10 + Math.floor(next() * 60); const female = Math.floor(reached * (0.4 + next() * 0.25)); const referred = next() < 0.35;
+      const data = { ward: w[0], activity: a, reached, female, referred };
+      if (referred) data.referrals = 1 + Math.floor(next() * 4);
+      const lat = Math.round((w[1] + (next() - 0.5) * 0.03) * 1e6) / 1e6, lng = Math.round((w[2] + (next() - 0.5) * 0.03) * 1e6) / 1e6;
+      data.where = { lat, lng, accuracy: 12 };
+      const officer = officers[Math.floor(next() * 3)]; const hour = 8 + Math.floor(next() * 9);
+      const at = `${day}T${String(hour).padStart(2, "0")}:00:00.000Z`;
+      db.form_submissions.push({ id: id("sub"), form_id: form.id, organization_id: org.id, data, source: "app", submitted_by_id: officer.id, collector: officer.full_name, client_id: null, location: data.where, created_at: at, captured_at: at });
+    }
   }
 }

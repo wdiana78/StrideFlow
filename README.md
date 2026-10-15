@@ -34,6 +34,17 @@ Kept is the product. Its home page sells the platform: apps, industries and live
 - **Demo tenants**: Timiza Youth Initiative (community), Mwangaza Creative Studio (agency), Hatua Shoes (retail), Pwani Coast Stays (hospitality).
 - **A dedicated deployment** for one customer's own domain (for example timiza.or.ke) sets `VITE_SITE_SLUG=timiza`, which makes that organization's website the home page.
 
+## Field tracking (replaces the Google Sheet)
+
+Every form in Data collection works like a field-survey tool:
+
+- **Question types** include location (GPS from the phone) and photo (taken with the camera, downscaled on the device before upload), alongside choices, numbers, ratings, dates and text. **Skip logic** shows a question only when an earlier answer matches.
+- **Offline first.** On a phone with no signal, responses are kept on the device and sent automatically when it reconnects. Each carries a client id, so a retry never creates a duplicate. Field officers without accounts use the public link and enter their name once.
+- **Live tracker** (the default view of each form): today, last 7 days, progress to target, responses per day, a collector league table, a map of where responses were collected, a breakdown by any choice question, and a feed of the latest responses. It refreshes every 5 seconds.
+- **Moving off Google Sheets.** Import the existing sheet as CSV (columns are matched to questions by name, and rows that fail validation are listed with reasons), or connect the sheet's link and press Sync to pull only new rows while the team switches over.
+
+Timiza's demo has an "Outreach field tracker" with two weeks of GPS-tagged records from three field officers. In the preview, "Simulate a field team" shows responses arriving live.
+
 ## Design system
 
 **Kept** (the dashboard and kept.africa) is deliberately quiet: one accent (`#5B4CDB`), a neutral zinc scale, Inter throughout, and hierarchy carried by type size and weight rather than colour. No gradients, decorative patterns, emoji or badge pills. Labels are short and plain: Home, Alerts, Approvals, Calendar, Projects, Tasks, Insights, Forms, Reports, Apps, Settings. Light and dark themes share the same tokens.
@@ -175,7 +186,7 @@ npm run dev                       # http://localhost:5173
 ## Tests
 
 ```bash
-cd backend && pytest -q          # 45 tests (16 security): auth, roles, tenant isolation, validation,
+cd backend && pytest -q          # 56 tests: auth, roles, tenant isolation, validation,
                                  # proof rules, pace, flags, escalation, dependencies, reports
 cd frontend && npm test
 ```

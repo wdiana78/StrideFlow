@@ -271,6 +271,7 @@ def seed_case_study(db, pw):
     seed_erp(db, org, people, stakes, projects_by_name, data)
     seed_forms(db, org, people, projects_by_name, data["forms"])
     seed_event_forms(db, org, people["zawadi"])
+    seed_tracker(db, org, people, projects_by_name, data["tracker"])
     log(db, org.id, people["amani"].id, "organization_created", "organization", org.id, "Case study data loaded")
     db.commit()
     rules.evaluate_org(db, org.id, today())
@@ -446,6 +447,57 @@ def seed_event_forms(db, org, creator):
                 {"id": "again", "type": "yesno", "p": 0.9}]}, rng, i)[0]
             db.add(FormSubmission(form_id=form.id, organization_id=org.id, data=data, source="public",
                                   created_at=datetime.fromisoformat(ev.date.isoformat() + "T16:00:00+00:00")))
+    db.flush()
+
+
+def seed_tracker(db, org, people, projects, spec):
+    """Two weeks of outreach logged by three field officers, with GPS points around Kilifi wards (mirrored in the preview)."""
+    from app.models import Form, FormSubmission
+
+    rng = Lcg(123)
+
+    def pick(weights):
+        r, acc = rng.next() * sum(weights), 0.0
+        for k, w in enumerate(weights):
+            acc += w
+            if r < acc:
+                return k
+        return len(weights) - 1
+    wards, acts = spec["wards"], spec["activities"]
+    fields = []
+    for f in spec["fields"]:
+        f = {"required": False, "options": [], "min": None, "max": None, "show_if": None, **f}
+        if f["id"] == "ward":
+            f["options"] = [w[0] for w in wards]
+        if f["id"] == "activity":
+            f["options"] = [a[0] for a in acts]
+        fields.append(f)
+    form = Form(organization_id=org.id, project_id=projects[spec["project"]].id, title=spec["title"], description=spec["description"], fields=fields,
+                is_public=True, status="open", target=spec["target"], collect_gps=True, created_by_id=people["zawadi"].id)
+    db.add(form)
+    db.flush()
+    officers = [people["baraka"], people["neema"], people["juma"]]
+    start = date(2026, 9, 30)
+    for d in range(14):
+        day = start + timedelta(days=d)
+        n = 4 + int(rng.next() * 6) + (2 if d > 9 else 0)
+        for _ in range(n):
+            w = wards[pick([x[3] for x in wards])]
+            a = acts[pick([x[1] for x in acts])][0]
+            reached = 10 + int(rng.next() * 60)
+            female = int(reached * (0.4 + rng.next() * 0.25))
+            referred = rng.next() < 0.35
+            data = {"ward": w[0], "activity": a, "reached": reached, "female": female, "referred": referred}
+            if referred:
+                data["referrals"] = 1 + int(rng.next() * 4)
+            lat = round(w[1] + (rng.next() - 0.5) * 0.03, 6)
+            lng = round(w[2] + (rng.next() - 0.5) * 0.03, 6)
+            data["where"] = {"lat": lat, "lng": lng, "accuracy": 12.0}
+            officer = officers[int(rng.next() * 3)]
+            hour = 8 + int(rng.next() * 9)
+            at = datetime(day.year, day.month, day.day, hour, 0, tzinfo=timezone.utc)
+            db.add(FormSubmission(form_id=form.id, organization_id=org.id, data=data, source="app", submitted_by_id=officer.id, collector=officer.full_name,
+                                  location=data["where"], created_at=at, captured_at=at))
     db.flush()
 
 

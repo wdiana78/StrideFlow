@@ -7,7 +7,7 @@ import SPEC from "../modules.json";
 import PLATFORM from "../platform.json";
 import { SEED } from "./seed";
 
-const KEY = "kept_preview_db_v11";
+const KEY = "kept_preview_db_v12";
 export const TODAY = "2026-10-13";
 const AT_RISK_GAP = 15, DUE_SOON = 3, ESCALATE = 2;
 
@@ -29,6 +29,9 @@ function load() {
   if (!db) { db = SEED(); evaluateAll(); save(); }
   return db;
 }
+// Several preview tabs (a manager's tracker and a field officer's form) share one browser store, like they would share one server.
+if (typeof window !== "undefined") window.addEventListener("storage", (e) => { if (e.key === KEY && e.newValue) { try { db = JSON.parse(e.newValue); } catch { /* ignore */ } } });
+
 export function resetPreview() { try { localStorage.removeItem(KEY); localStorage.removeItem("kept_token"); } catch { /* ignore */ } db = null; }
 
 // ---------- lookups ----------
@@ -593,7 +596,7 @@ on("POST", "/uploads", async (u, { form }) => {
   const file = form.get("file"); if (!file || !file.size) E(422, "That file is empty.");
   if (file.size > 10 * 1024 * 1024) E(413, "Files must be 10 MB or smaller.");
   if (!/\.(jpe?g|png|webp|pdf|docx?|xlsx?|csv|txt)$/i.test(file.name)) E(422, "Upload a photo, PDF, Word, Excel, CSV or text file.");
-  const url = file.size < 600 * 1024 ? await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(""); fr.readAsDataURL(file); }) : "";
+  const url = file.size < 1200 * 1024 ? await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(""); fr.readAsDataURL(file); }) : "";
   return { name: file.name, url, size: file.size };
 });
 
@@ -825,8 +828,8 @@ on("POST", "/public/:slug/donations/:id/simulate", (_, { body }, slug, id2) => {
   }
   return dOut(d);
 });
-// ---- data collection
-const FTYPES = new Set(["text", "textarea", "number", "select", "multi", "yesno", "rating", "date"]);
+// ---- data collection and field tracking (mirror of routers/forms.py)
+const FTYPES = new Set(["text", "textarea", "number", "select", "multi", "yesno", "rating", "date", "gps", "photo"]);
 const forms = () => (db.forms ||= []); const subs = () => (db.form_submissions ||= []);
 function vErr(msg, field) { throw Object.assign(new HttpError(422, msg), { data: { detail: { message: msg, field }, errors: field ? [{ field, message: msg }] : [] } }); }
 function validateForm(b) {
@@ -836,33 +839,65 @@ function validateForm(b) {
   const ids = new Set();
   for (const f of b.fields) {
     if (!/^[a-z0-9_]{1,40}$/.test(f.id || "")) vErr("Question ids use lowercase letters, numbers and underscores.");
-    if (ids.has(f.id)) vErr("Each question needs a different id."); ids.add(f.id);
+    if (ids.has(f.id)) vErr("Each question needs a different id.");
     if (!(f.label || "").trim()) vErr("Every question needs a label.");
     if (!FTYPES.has(f.type)) vErr("Unknown question type.");
     if (["select", "multi"].includes(f.type) && (f.options || []).filter((o) => o.trim()).length < 2) vErr(`'${f.label}' needs at least two choices.`);
+    if (f.show_if && !ids.has(f.show_if.field)) vErr(`'${f.label}' can only depend on a question that comes before it.`);
+    ids.add(f.id);
   }
+  const target = b.target ? Number(b.target) : null; if (target !== null && !(target >= 1)) vErr("Target must be a positive number.", "target");
   return { title: b.title.trim(), description: b.description || "", project_id: b.project_id || null, is_public: !!b.is_public, status: ["draft", "open", "closed"].includes(b.status) ? b.status : "open",
-    fields: b.fields.map((f) => ({ id: f.id, label: f.label.trim(), type: f.type, required: !!f.required, options: (f.options || []).map((o) => o.trim()).filter(Boolean), min: f.min ?? null, max: f.max ?? null })) };
+    target, collect_gps: !!b.collect_gps,
+    fields: b.fields.map((f) => ({ id: f.id, label: f.label.trim(), type: f.type, required: !!f.required, options: (f.options || []).map((o) => o.trim()).filter(Boolean), min: f.min ?? null, max: f.max ?? null, show_if: f.show_if && f.show_if.field ? { field: f.show_if.field, equals: String(f.show_if.equals) } : null })) };
+}
+function visibleQ(f, data) {
+  const c = f.show_if; if (!c) return true; const v = data[c.field];
+  if (Array.isArray(v)) return v.includes(c.equals); if (typeof v === "boolean") return c.equals.toLowerCase() === (v ? "yes" : "no");
+  return v !== undefined && v !== null && String(v) === c.equals;
+}
+function parseGps(v) {
+  if (typeof v === "string") { const p2 = v.replace(";", ",").split(",").map((x) => x.trim()); if (p2.length < 2) throw new Error("bad"); v = { lat: p2[0], lng: p2[1] }; }
+  const lat = Number(v.lat), lng = Number(v.lng); if (!(lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) || Number.isNaN(lat) || Number.isNaN(lng)) throw new Error("bad");
+  return { lat: Math.round(lat * 1e6) / 1e6, lng: Math.round(lng * 1e6) / 1e6, accuracy: v.accuracy == null || v.accuracy === "" ? null : Math.round(Number(v.accuracy) * 10) / 10 };
 }
 function validateAnswers(fields, data) {
   const out = {};
   for (const f of fields) {
-    let v = data[f.id]; const empty = v === undefined || v === null || v === "" || (Array.isArray(v) && !v.length);
+    if (!visibleQ(f, { ...data, ...out })) continue;
+    let v = data[f.id]; const empty = v === undefined || v === null || v === "" || (Array.isArray(v) && !v.length) || (typeof v === "object" && v && !Array.isArray(v) && !Object.keys(v).length);
     if (empty) { if (f.required) vErr(`Answer '${f.label}'.`, f.id); continue; }
     const bad = () => vErr(`Check your answer to '${f.label}'.`, f.id);
-    if (f.type === "number") { v = Number(v); if (Number.isNaN(v) || (f.min != null && v < f.min) || (f.max != null && v > f.max)) bad(); }
-    else if (f.type === "rating") { v = Number(v); if (!(v >= 1 && v <= 5)) bad(); }
-    else if (f.type === "yesno") { if (![true, false, "yes", "no"].includes(v)) bad(); v = v === true || v === "yes"; }
-    else if (f.type === "select") { if (!f.options.includes(v)) bad(); }
-    else if (f.type === "multi") { if (!Array.isArray(v) || v.some((x) => !f.options.includes(x))) bad(); v = [...new Set(v)]; }
-    else v = String(v).trim().slice(0, f.type === "text" ? 200 : 4000);
+    try {
+      if (f.type === "number") { v = Number(v); if (Number.isNaN(v) || (f.min != null && v < f.min) || (f.max != null && v > f.max)) bad(); }
+      else if (f.type === "rating") { v = Number(v); if (!(v >= 1 && v <= 5)) bad(); }
+      else if (f.type === "yesno") { if (typeof v === "string") v = v.trim().toLowerCase(); if (![true, false, "yes", "no", "y", "n", "true", "false", "1", "0"].includes(v)) bad(); v = [true, "yes", "y", "true", "1"].includes(v); }
+      else if (f.type === "select") { const m2 = f.options.find((o) => o.toLowerCase() === String(v).trim().toLowerCase()); if (!m2) bad(); v = m2; }
+      else if (f.type === "multi") { const items = Array.isArray(v) ? v : String(v).split(";").map((x) => x.trim()).filter(Boolean); const norm = Object.fromEntries(f.options.map((o) => [o.toLowerCase(), o])); if (items.some((x) => !norm[x.toLowerCase()])) bad(); v = [...new Set(items.map((x) => norm[x.toLowerCase()]))]; }
+      else if (f.type === "gps") v = parseGps(v);
+      else if (f.type === "photo") { if (!v || typeof v !== "object" || !String(v.url || "").match(/^(\/files\/[0-9a-f]{32}\.(jpg|jpeg|png|webp)|data:image\/(jpeg|png|webp);base64,)/)) bad(); v = { url: v.url, name: String(v.name || "photo").slice(0, 120) }; }
+      else if (f.type === "date") v = String(v).slice(0, 10);
+      else v = String(v).trim().slice(0, f.type === "text" ? 200 : 4000);
+    } catch (e) { if (e instanceof HttpError) throw e; bad(); }
     out[f.id] = v;
   }
   return out;
 }
 const formOut = (f) => { const ss = subs().filter((s2) => s2.form_id === f.id); const last = ss.map((s2) => s2.created_at).sort().pop();
-  return { ...f, project_name: f.project_id ? byId("projects", f.project_id)?.name : null, responses: ss.length, last_response_at: last || null }; };
+  return { ...f, project_name: f.project_id ? byId("projects", f.project_id)?.name : null, responses: ss.length, last_response_at: last || null, target: f.target ?? null, collect_gps: !!f.collect_gps, sheet_url: f.sheet_url || null, sheet_synced_at: f.sheet_synced_at || null }; };
+const subOut = (s2) => ({ id: s2.id, data: s2.data, source: s2.source, collector: s2.collector || refLabel("users", s2.submitted_by_id), submitted_by: refLabel("users", s2.submitted_by_id), location: s2.location || null, created_at: s2.created_at, captured_at: s2.captured_at || null });
 const getForm = (u, id2) => { const f = forms().find((x) => x.id === id2 && x.organization_id === u.organization_id); if (!f) E(404, "Form not found."); return f; };
+const payloadOf = (body) => (body && typeof body.data === "object" && body.data && !Array.isArray(body.data) ? body : { data: body || {} });
+function saveSub(f, p, source, u) {
+  if (p.client_id) { const dup = subs().find((x) => x.form_id === f.id && x.client_id === p.client_id); if (dup) return [dup, false]; }
+  const data = validateAnswers(f.fields, p.data);
+  let loc = null;
+  if (p.location) { try { loc = parseGps(p.location); } catch { E(422, "The location sent with this response is not valid."); } }
+  else { const g = f.fields.find((x) => x.type === "gps" && data[x.id]); if (g) loc = data[g.id]; }
+  const s2 = { id: uid(), form_id: f.id, organization_id: f.organization_id, data, source, submitted_by_id: u ? u.id : null, collector: (p.collector || "").trim().slice(0, 120) || (u ? u.full_name : null),
+    client_id: p.client_id || null, location: loc, captured_at: p.captured_at || null, created_at: nowIso() };
+  subs().push(s2); return [s2, true];
+}
 on("GET", "/forms", (u) => forms().filter((f) => f.organization_id === u.organization_id).sort((a, b) => b.created_at.localeCompare(a.created_at)).map(formOut));
 on("POST", "/forms", (u, { body }) => { manage(u); const f = { id: uid(), organization_id: u.organization_id, created_by_id: u.id, created_at: nowIso(), ...validateForm(body) };
   forms().push(f); log(u.organization_id, u.id, "form_created", "form", f.id, `${u.full_name} created form '${f.title}'`); return formOut(f); });
@@ -870,17 +905,53 @@ on("GET", "/forms/:id", (u, _, id2) => formOut(getForm(u, id2)));
 on("PUT", "/forms/:id", (u, { body }, id2) => { manage(u); const f = getForm(u, id2); Object.assign(f, validateForm(body)); log(u.organization_id, u.id, "form_updated", "form", f.id, `${u.full_name} updated form '${f.title}'`); return formOut(f); });
 on("DELETE", "/forms/:id", (u, _, id2) => { adminOnly(u); const f = getForm(u, id2); db.forms = forms().filter((x) => x.id !== id2); db.form_submissions = subs().filter((s2) => s2.form_id !== id2);
   log(u.organization_id, u.id, "form_deleted", "form", f.id, `${u.full_name} deleted form '${f.title}' and its responses`); return null; });
-on("GET", "/forms/:id/submissions", (u, _, id2) => { const f = getForm(u, id2); const ss = subs().filter((s2) => s2.form_id === f.id).sort((a, b) => b.created_at.localeCompare(a.created_at));
-  return { total: ss.length, items: ss.map((s2) => ({ id: s2.id, data: s2.data, source: s2.source, submitted_by: refLabel("users", s2.submitted_by_id), created_at: s2.created_at })) }; });
+on("GET", "/forms/:id/submissions", (u, { params }, id2) => { const f = getForm(u, id2);
+  let ss = subs().filter((s2) => s2.form_id === f.id); if (params.since) ss = ss.filter((s2) => s2.created_at > params.since);
+  ss.sort((a, b) => b.created_at.localeCompare(a.created_at)); return { total: ss.length, items: ss.map(subOut), server_time: nowIso() }; });
 on("POST", "/forms/:id/submissions", (u, { body }, id2) => { if (u.role === "viewer") E(403, "Viewers cannot submit responses."); const f = getForm(u, id2); if (f.status !== "open") E(409, "This form is not accepting responses.");
-  const s2 = { id: uid(), form_id: f.id, organization_id: f.organization_id, data: validateAnswers(f.fields, body), source: "app", submitted_by_id: u.id, created_at: nowIso() }; subs().push(s2); return { id: s2.id }; });
+  const [s2, created] = saveSub(f, payloadOf(body), "app", u); return { id: s2.id, duplicate: !created }; });
 on("DELETE", "/forms/:id/submissions/:sid", (u, _, id2, sid) => { manage(u); const f = getForm(u, id2); if (!subs().some((s2) => s2.id === sid && s2.form_id === f.id)) E(404, "Response not found.");
   db.form_submissions = subs().filter((s2) => s2.id !== sid); log(u.organization_id, u.id, "form_response_deleted", "form", f.id, `${u.full_name} deleted a response to '${f.title}'`); return null; });
+on("GET", "/forms/:id/tracker", (u, { params }, id2) => {
+  const f = getForm(u, id2); const rows = subs().filter((s2) => s2.form_id === f.id).sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const day = (r) => (r.captured_at || r.created_at).slice(0, 10); const coll = (r) => r.collector || refLabel("users", r.submitted_by_id) || "Public link";
+  const days = Array.from({ length: 14 }, (_, i) => addDays(TODAY, i - 13)); const perDay = {}; rows.forEach((r) => { perDay[day(r)] = (perDay[day(r)] || 0) + 1; });
+  const choice = f.fields.filter((x) => ["select", "yesno"].includes(x.type)); const by = choice.some((x) => x.id === params.by) ? params.by : choice[0]?.id || null;
+  const bd = {}; if (by) rows.forEach((r) => { const v = r.data[by]; if (v !== undefined && v !== null) { const k = v === true ? "Yes" : v === false ? "No" : String(v); bd[k] = (bd[k] || 0) + 1; } });
+  const all = {}, tod = {}; rows.forEach((r) => { all[coll(r)] = (all[coll(r)] || 0) + 1; if (day(r) >= TODAY) tod[coll(r)] = (tod[coll(r)] || 0) + 1; });
+  return { server_time: nowIso(), total: rows.length, today: rows.filter((r) => day(r) >= TODAY).length, week: rows.filter((r) => day(r) > addDays(TODAY, -7)).length, target: f.target ?? null,
+    with_location: rows.filter((r) => r.location).length, per_day: days.map((d) => ({ date: d, count: perDay[d] || 0 })),
+    collectors: Object.entries(all).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([name, total]) => ({ name, total, today: tod[name] || 0 })),
+    by, by_options: choice.map((x) => ({ id: x.id, label: x.label })), breakdown: Object.entries(bd).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([label, count]) => ({ label, count })),
+    points: rows.filter((r) => r.location).slice(0, 2000).map((r) => ({ lat: r.location.lat, lng: r.location.lng, collector: coll(r), at: r.created_at, label: by && r.data[by] !== undefined ? String(r.data[by]) : "" })),
+    latest: rows.slice(0, 12).map(subOut) };
+});
+const hashRow = (row) => { const str = JSON.stringify(Object.keys(row).sort().map((k) => [k, row[k]])); let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0; return String(h); };
+on("POST", "/forms/:id/import", (u, { body }, id2) => {
+  manage(u); const f = getForm(u, id2); if (!Array.isArray(body.rows) || !body.rows.length) E(422, "Nothing to import."); if (body.rows.length > 5000) E(422, "Up to 5,000 rows at a time.");
+  let created = 0, skipped = 0; const errors = [];
+  body.rows.forEach((row, i) => { try { const data = Object.fromEntries(Object.entries(row).filter(([k]) => !k.startsWith("_"))); const [, n2] = saveSub(f, { data, client_id: "import:" + hashRow(row), collector: row._collector }, "import", u); n2 ? created++ : skipped++; }
+    catch (e) { errors.push({ row: i + 1, message: e.data?.detail?.message || e.message }); } });
+  log(u.organization_id, u.id, "form_imported", "form", f.id, `${u.full_name} imported ${created} responses into '${f.title}'`);
+  return { created, skipped_duplicates: skipped, errors: errors.slice(0, 200), failed: errors.length };
+});
+function sheetUrlOk(url) { try { const x = new URL(String(url).trim()); return x.protocol === "https:" && x.hostname === "docs.google.com" && x.pathname.startsWith("/spreadsheets/d/"); } catch { return false; } }
+on("PUT", "/forms/:id/sheet", (u, { body }, id2) => { manage(u); const f = getForm(u, id2); if (!sheetUrlOk(body.url)) E(422, "Paste a Google Sheets link that starts with https://docs.google.com/spreadsheets/");
+  f.sheet_url = String(body.url).trim(); log(u.organization_id, u.id, "form_sheet_connected", "form", f.id, `${u.full_name} connected a Google Sheet to '${f.title}'`); return formOut(f); });
+on("POST", "/forms/:id/sheet-sync", (u, _, id2) => { manage(u); const f = getForm(u, id2); if (!f.sheet_url) E(409, "Connect a Google Sheet first.");
+  E(503, "Google Sheets sync runs on the live server. In this preview, download the sheet as CSV and use Import instead."); });
 const publicForm = (id2) => { const f = forms().find((x) => x.id === id2); if (!f || !f.is_public || f.status !== "open") E(404, "This form is not available."); return f; };
+on("POST", "/public/forms/:id/photo", async (_, { form }, id2) => {
+  const f = publicForm(id2); if (!f.fields.some((x) => x.type === "photo")) E(404, "This form does not take photos.");
+  const file = form.get("file"); if (!file || !file.size) E(422, "That file is empty."); if (file.size > 5 * 1024 * 1024) E(413, "Photos must be 5 MB or smaller.");
+  if (!/\.(jpe?g|png|webp)$/i.test(file.name)) E(422, "Upload a JPG, PNG or WebP photo.");
+  const url = await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(""); fr.readAsDataURL(file); });
+  return { name: file.name, url };
+});
 on("GET", "/public/forms/:id", (_, __, id2) => { const f = publicForm(id2); const site = mrows("site_settings").find((s2) => s2.organization_id === f.organization_id);
-  return { id: f.id, title: f.title, description: f.description, fields: f.fields, organization: byId("orgs", f.organization_id).name, brand: { primary: site?.brand_primary || "#6D3FC9", accent: site?.brand_accent || "#FFB020" } }; });
-on("POST", "/public/forms/:id", (_, { body }, id2) => { const f = publicForm(id2); const b2 = { ...body }; if (b2.website) return { ok: true }; delete b2.website;
-  subs().push({ id: uid(), form_id: f.id, organization_id: f.organization_id, data: validateAnswers(f.fields, b2), source: "public", submitted_by_id: null, created_at: nowIso() }); return { ok: true }; });
+  return { id: f.id, title: f.title, description: f.description, fields: f.fields, collect_gps: !!f.collect_gps, organization: byId("orgs", f.organization_id).name, brand: { primary: site?.brand_primary || "#5B4CDB", accent: site?.brand_accent || "#18181B" } }; });
+on("POST", "/public/forms/:id", (_, { body }, id2) => { const f = publicForm(id2); const p = payloadOf(body); if (p.website || body.website) return { ok: true }; delete p.data.website;
+  const [s2, created] = saveSub(f, p, "public", null); return { ok: true, id: s2.id, duplicate: !created }; });
 on("POST", "/auth/password", (u, { body }) => {
   if (u.password !== body.current_password) E(400, "Your current password is not right.");
   const pw = body.new_password || ""; if (pw.length < 10 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) vErr("Password needs at least 10 characters and letters and numbers.", "password");
@@ -955,7 +1026,7 @@ wrap("POST", "/m/:key/:id/transition", (inner, u, req, key, id2) => {
   }
   return out;
 });
-const _forms = ["/forms", "/forms/:id", "/forms/:id/submissions"];
+const _forms = ["/forms", "/forms/:id", "/forms/:id/submissions", "/forms/:id/tracker", "/forms/:id/import", "/forms/:id/sheet", "/forms/:id/sheet-sync"];
 for (const pat of _forms) for (const mth of ["GET", "POST", "PUT", "DELETE"]) wrap(mth, pat, (inner, u, ...a) => {
   if (!(byId("orgs", u.organization_id).installed_apps || []).includes("forms")) E(404, "Install the Data collection app to use this.");
   if (mth === "GET" && pat === "/forms" && a[0].params?.event_id) return inner(u, ...a).filter((f) => f.event_id === a[0].params.event_id);

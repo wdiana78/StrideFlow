@@ -18,6 +18,8 @@ Scope: FastAPI API, PostgreSQL schema, React frontend, public website and donati
 | Malicious uploads | `.exe` renamed to `.jpg`, HTML in `.txt`, path traversal | Allow-list of types, magic-byte check that content matches extension, 10 MB cap, random 128-bit names, strict filename route, `nosniff`, sandbox CSP, non-images forced to download | `test_upload_content_must_match_extension` |
 | Spam and abuse of public forms | Bots flooding volunteer, inquiry, donation and survey endpoints | Per-IP rate limits, hidden honeypot field, length limits, validation | `test_public_forms_are_rate_limited_and_honeypot_drops_bots` |
 | Donation fraud | Confirming an unpaid donation, enumerating donations, forged M-Pesa callbacks, amount tampering | Status lookup needs the receipt reference; simulator only exists in sandbox mode; callback URL carries a secret compared in constant time; amount from Safaricom must match; settled donations cannot change | `test_donation_flow_sandbox`, `test_mpesa_callback_needs_secret_token` |
+| Server-side request forgery | Pointing the Google Sheets sync at an internal address (cloud metadata, localhost) | Only `https://docs.google.com/spreadsheets/...` links are accepted, rewritten to Google's CSV export URL, redirects limited to Google hosts, 15 s timeout, 5 MB cap, sync rate-limited | `test_sheet_link_cannot_be_used_to_reach_other_hosts`, `test_sheet_sync_imports_new_rows_once` |
+| Duplicate or replayed field data | A phone retrying after a dropped connection, a sheet synced twice | Every device response carries a client id; imports and sheet rows are fingerprinted; repeats are recognised and not stored twice | `test_location_and_offline_retries_are_safe`, `test_import_saves_valid_rows_reports_the_rest_and_ignores_repeats` |
 | Clickjacking and content sniffing | Framing the app | `X-Frame-Options: DENY`, `frame-ancestors 'none'`, `nosniff` on API and site | `test_security_headers_present`, `frontend/vercel.json` |
 | Oversized requests | Memory exhaustion | 12 MB request cap, bounded reads, paginated lists | middleware `BodySizeLimit` |
 | Information leakage | Stack traces in errors | Generic 500 handler; details only in server logs | `main.py` |
@@ -31,7 +33,7 @@ Scope: FastAPI API, PostgreSQL schema, React frontend, public website and donati
 | Bandit | `backend/app` | No issues identified |
 | pip-audit | `backend/requirements.txt` | No known vulnerabilities (PyJWT upgraded 2.7.0 → 2.15.1 to close 16 advisories) |
 | npm audit | `frontend` (all dependencies) | 0 vulnerabilities (react-router-dom 6.28 → 7.18.4, vite 5 → 6.4.4, vitest 2 → 4.1.11) |
-| pytest | 38 tests, 16 of them security tests | All pass |
+| pytest | 56 tests, 18 of them security tests | All pass |
 
 ## Residual risks and next steps
 

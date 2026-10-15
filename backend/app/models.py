@@ -314,6 +314,10 @@ class Form(Base):
     fields: Mapped[list] = mapped_column(JsonType, default=list)
     is_public: Mapped[bool] = mapped_column(Boolean, default=False)
     status: Mapped[str] = mapped_column(String(20), default="open")  # draft | open | closed
+    target: Mapped[int | None] = mapped_column(nullable=True)  # responses wanted, for the tracker
+    collect_gps: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    sheet_url: Mapped[str | None] = mapped_column(Text, nullable=True)  # published Google Sheet (CSV) to pull rows from
+    sheet_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
@@ -326,6 +330,10 @@ class FormSubmission(Base):
     form_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("forms.id", ondelete="CASCADE"), index=True)
     organization_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
     data: Mapped[dict] = mapped_column(JsonType)
-    source: Mapped[str] = mapped_column(String(10), default="app")  # app | public
+    source: Mapped[str] = mapped_column(String(10), default="app")  # app | public | import | sheet
+    collector: Mapped[str | None] = mapped_column(String(120), nullable=True)  # who collected it in the field
+    location: Mapped[dict | None] = mapped_column(JsonType, nullable=True)  # {lat, lng, accuracy}
+    client_id: Mapped[str | None] = mapped_column(String(80), nullable=True, index=True)  # set by the device; makes offline retries safe
+    captured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)  # when it was filled in, if different
     submitted_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

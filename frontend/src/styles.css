@@ -568,3 +568,13 @@ dl.facts dt { color: var(--slate); } dl.facts dd { margin: 0; }
 .mk-footer-col b { font-weight: 600; margin-bottom: 4px; } .mk-footer-col a { color: var(--slate); text-decoration: none; } .mk-footer-col a:hover { color: var(--ink); }
 .mk-footer-legal { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 13px; color: var(--slate); padding-top: 20px; padding-bottom: 32px; border-top: 1px solid var(--rule-soft); }
 @media (max-width: 760px) { .mk-footer-in { grid-template-columns: 1fr 1fr; } .mk-footer-brand { grid-column: 1 / -1; } .mk-hero { padding-top: 64px; } .mk-section { padding: 64px 18px; } }
+
+/* ---------- live tracker ---------- */
+.tracker-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tracker-kpis > div { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 16px 18px; }
+.tracker-kpis span { font-size: 13px; color: var(--slate); font-weight: 500; }
+.tracker-kpis b { display: block; font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -.02em; margin-top: 6px; }
+@media (max-width: 760px) { .tracker-kpis { grid-template-columns: 1fr 1fr; } }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); animation: pulse 2s infinite; }
+@keyframes pulse { 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.row-new td { background: var(--cobalt-tint); transition: background 1s; }
