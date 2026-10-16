@@ -280,18 +280,15 @@ def seed_case_study(db, pw):
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "timiza"
 
 
-def stored_asset(name: str) -> dict:
-    """Copy a bundled image into the uploads folder under a stable random-looking name the file route accepts."""
+def stored_asset(db, name: str, organization_id, public: bool) -> dict:
+    """Copy a bundled image into storage under a stable name and record which workspace owns it."""
     import hashlib
-    import shutil
-    from app.config import get_settings
+
+    from app.services import files
 
     src = ASSETS / name
     ext = src.suffix.lower()
-    stored = hashlib.md5(name.encode()).hexdigest() + ext
-    folder = Path(get_settings().upload_dir)
-    folder.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(src, folder / stored)
+    stored = files.save(db, src.read_bytes(), ext, organization_id, public=public, name=hashlib.md5(name.encode(), usedforsecurity=False).hexdigest() + ext)
     return {"name": name, "url": f"/files/{stored}", "size": src.stat().st_size}
 
 
@@ -354,7 +351,8 @@ def seed_erp(db, org, people, stakes, projects, data):
                 elif f["type"] == "date":
                     v = date.fromisoformat(v)
                 elif f["type"] == "file":
-                    v = stored_asset(v["asset"]) if "asset" in v else {"name": v["name"], "url": "", "size": None}
+                    v = (stored_asset(db, v["asset"], org.id, public=m["app"] == "website") if "asset" in v
+                         else {"name": v["name"], "url": "", "size": None})
                 values[k] = v
             rid = uuid.uuid4()
             created = stamp - timedelta(days=rec.get("_age_days", 6))

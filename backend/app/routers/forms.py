@@ -25,6 +25,7 @@ from ..db import get_db
 from ..deps import admin_only, can_manage, get_current_user
 from ..hardening import check_upload, client_ip, rate_limit
 from ..models import Form, FormSubmission, Organization, Project, Role, User
+from ..services import files
 from ..services.audit import log
 
 router = APIRouter(tags=["data collection"])
@@ -521,8 +522,7 @@ async def public_photo(fid: uuid.UUID, request: Request, file: UploadFile = File
     if len(content) > 5 * 1024 * 1024:
         raise HTTPException(413, "Photos must be 5 MB or smaller.")
     check_upload(ext, content)
-    name = f"{uuid.uuid4().hex}{ext}"
-    folder = Path(get_settings().upload_dir)
-    folder.mkdir(parents=True, exist_ok=True)
-    (folder / name).write_bytes(content)
+    # Photos sent from a public form belong to the form's workspace and are private to it.
+    name = files.save(db, content, ext, f.organization_id)
+    db.commit()
     return {"name": Path(file.filename or "photo").name[:120], "url": f"/files/{name}"}

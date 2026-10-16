@@ -92,15 +92,34 @@ INLINE = {"jpg", "jpeg", "png", "webp", "pdf"}
 
 
 @app.get("/files/{name}", include_in_schema=False)
-def stored_file(name: str):
-    # Only names this API generated (128-bit random) are served; no path traversal, and non-images download instead of rendering.
+def stored_file(name: str, request: Request):
+    """Public website images are served to anyone; everything else only to signed-in members of the owning workspace.
+    Any other request gets the same 404, so file names cannot be probed."""
+    from fastapi import HTTPException
+
+    from .deps import current_session
+    from .models import StoredFile
+    from .services.files import path_for
+
+    missing = JSONResponse(status_code=404, content={"detail": "Not found."})
     if not STORED.match(name):
-        return JSONResponse(status_code=404, content={"detail": "Not found."})
-    path = Path(settings.upload_dir) / name
+        return missing
+    with SessionLocal() as db:
+        row = db.get(StoredFile, name)
+        if row is None:
+            return missing
+        if not row.public:
+            try:
+                sess = current_session(request, db)
+            except HTTPException:
+                return missing
+            if sess.user.organization_id != row.organization_id or not sess.user.is_active:
+                return missing
+    path = path_for(name)
     if not path.is_file():
-        return JSONResponse(status_code=404, content={"detail": "Not found."})
+        return missing
     ext = name.rsplit(".", 1)[1]
-    return FileResponse(path, headers={"Content-Disposition": "inline" if ext in INLINE else "attachment",
+    return FileResponse(path, headers={"Content-Disposition": "inline" if ext in INLINE else "attachment", "Cache-Control": "public, max-age=86400" if row.public else "private, no-store",
                                        "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'none'; sandbox"})
 
 

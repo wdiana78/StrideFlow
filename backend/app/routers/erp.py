@@ -12,9 +12,10 @@ from .. import erp
 from ..config import get_settings, today
 from ..db import get_db
 from ..deps import get_current_user
-from ..models import Activity, ActivityStatus, Commitment, Flag, FlagStatus, Organization, Project, ProjectStatus, Stakeholder, StakeholderKind, User
+from ..models import Activity, ActivityStatus, Commitment, Flag, FlagStatus, Organization, Project, ProjectStatus, Role, Stakeholder, StakeholderKind, User
 from ..services import pace, rules
 from ..hardening import check_upload, client_ip, rate_limit
+from ..services import files
 from ..services.audit import log
 
 router = APIRouter(tags=["erp"])
@@ -184,7 +185,7 @@ ALLOWED = {".jpg", ".jpeg", ".png", ".webp", ".pdf", ".doc", ".docx", ".xls", ".
 
 
 @router.post("/uploads", status_code=201)
-async def upload(file: UploadFile = File(...), user: User = Depends(get_current_user)):
+async def upload(file: UploadFile = File(...), module: str | None = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     ext = Path(file.filename or "").suffix.lower()
     content = await file.read(10 * 1024 * 1024 + 1)
     if not content:
@@ -192,10 +193,10 @@ async def upload(file: UploadFile = File(...), user: User = Depends(get_current_
     if len(content) > 10 * 1024 * 1024:
         raise HTTPException(413, "Files must be 10 MB or smaller.")
     check_upload(ext, content)
-    folder = Path(get_settings().upload_dir)
-    folder.mkdir(parents=True, exist_ok=True)
-    stored = f"{uuid.uuid4().hex}{ext}"
-    (folder / stored).write_bytes(content)
+    # Images for a public website page must be viewable by visitors; everything else stays private to the workspace.
+    public = bool(module and module in erp.MODULES and erp.MODULES[module]["app"] == "website" and user.role in (Role.admin, Role.manager))
+    stored = files.save(db, content, ext, user.organization_id, user.id, public=public)
+    db.commit()
     return {"name": Path(file.filename or "file").name[:200], "url": f"/files/{stored}", "size": len(content)}
 
 

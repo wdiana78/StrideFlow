@@ -30,6 +30,7 @@ from ..models import (
 from ..schemas import ActivityIn, ActivityOut, ActivityRow, ActivityUpdate, AuditOut, EvidenceIn, EvidenceOut
 from ..services import pace, rules
 from ..hardening import check_upload
+from ..services import files
 from ..services.audit import log
 
 router = APIRouter(tags=["activities"])
@@ -307,10 +308,7 @@ async def upload_evidence(
     if not content:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "That file is empty.")
     check_upload(ext, content)
-    folder = Path(get_settings().upload_dir)
-    folder.mkdir(parents=True, exist_ok=True)
-    stored = f"{uuid.uuid4().hex}{ext}"
-    (folder / stored).write_bytes(content)
+    stored = files.save(db, content, ext, user.organization_id, user.id)
     db.add(Evidence(activity_id=a.id, requirement_id=r.id if r else None, kind=EvidenceKind.file,
                     file_name=Path(file.filename or "file").name[:200], file_url=f"/files/{stored}", file_size=len(content), captured_by_id=user.id))
     _after_evidence(db, a, user, f"{user.full_name} attached {file.filename}")

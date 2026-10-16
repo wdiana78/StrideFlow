@@ -402,3 +402,15 @@ class OAuthIdentity(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     __table_args__ = (UniqueConstraint("provider", "subject", name="uq_oauth_provider_subject"),)
+
+
+
+class StoredFile(Base):
+    """Ownership of an uploaded file. Served only to its workspace's signed-in members, unless public (website images)."""
+    __tablename__ = "files"
+    name: Mapped[str] = mapped_column(String(64), primary_key=True)
+    organization_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    uploaded_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    public: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    size: Mapped[int] = mapped_column(BigInteger, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

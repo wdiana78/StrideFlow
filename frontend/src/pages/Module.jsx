@@ -317,7 +317,7 @@ export function RecordForm({ m, record, onClose, onSaved, preset = {} }) {
           {m.fields.map((f) => (
             <div key={f.key} style={{ gridColumn: f.type === "textarea" || f.type === "file" ? "1 / -1" : undefined }}>
               <Field label={f.label} hint={f.required ? undefined : "Optional"} error={fieldErr[f.key]}>
-                <Input f={f} value={vals[f.key]} onChange={(v) => setVals({ ...vals, [f.key]: v })} invalid={!!fieldErr[f.key]} />
+                <Input f={f} moduleKey={m.key} value={vals[f.key]} onChange={(v) => setVals({ ...vals, [f.key]: v })} invalid={!!fieldErr[f.key]} />
               </Field>
             </div>
           ))}
@@ -327,7 +327,7 @@ export function RecordForm({ m, record, onClose, onSaved, preset = {} }) {
   );
 }
 
-function Input({ f, value, onChange, invalid }) {
+function Input({ f, value, onChange, invalid, moduleKey }) {
   const opts = useOptions(f.type === "ref" ? f.ref : null);
   const [up, setUp] = useState(false);
   const [upErr, setUpErr] = useState(null);
@@ -349,7 +349,7 @@ function Input({ f, value, onChange, invalid }) {
           <input type="file" hidden accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt" onChange={async (e) => {
             const file = e.target.files[0]; if (!file) return; setUp(true); setUpErr(null);
             const form = new FormData(); form.append("file", file);
-            try { onChange(await api("/uploads", { method: "POST", form })); } catch (er) { setUpErr(er.message); } finally { setUp(false); e.target.value = ""; }
+            try { onChange(await api(`/uploads${moduleKey ? `?module=${moduleKey}` : ""}`, { method: "POST", form })); } catch (er) { setUpErr(er.message); } finally { setUp(false); e.target.value = ""; }
           }} />
         </label>
         {upErr && <span className="field-error">{upErr}</span>}

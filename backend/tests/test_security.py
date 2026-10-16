@@ -131,7 +131,7 @@ def test_upload_content_must_match_extension(client):
     assert html.status_code == 422
     ok = client.post("/api/uploads", headers=h, files={"file": ("photo.png", PNG, "image/png")})
     assert ok.status_code == 201
-    served = client.get(ok.json()["url"])
+    served = client.get(ok.json()["url"], headers=h)  # owner; strangers get 404
     assert served.status_code == 200 and served.headers["X-Content-Type-Options"] == "nosniff"
     assert client.get("/files/../app/config.py").status_code == 404
     assert client.get("/files/..%2F..%2Fetc%2Fpasswd").status_code == 404
@@ -184,3 +184,16 @@ def test_forms_validation_and_public_access(client):
     assert client.get(f"/api/public/forms/{form['id']}").status_code == 404
     other = register(client, "Other", "o@test.example")
     assert client.get(f"/api/forms/{form['id']}/submissions", headers=other).status_code == 404
+
+
+def test_files_are_private_to_their_workspace_unless_public(client):
+    from .conftest import register
+    h1 = register(client, email="files1@test.example", org="Files One")
+    h2 = register(client, email="files2@test.example", org="Files Two")
+    png = b"\x89PNG\r\n\x1a\n" + b"\x00" * 64
+    private = client.post("/api/uploads", headers=h1, files={"file": ("receipt.png", png, "image/png")}).json()["url"]
+    client.cookies.clear()
+    assert client.get(private).status_code == 404                      # signed out
+    assert client.get(private, headers=h2).status_code == 404          # another workspace: same 404, nothing revealed
+    assert client.get(private, headers=h1).status_code == 200          # owner
+    assert client.get("/files/" + "0" * 32 + ".png", headers=h1).status_code == 404  # unknown name
