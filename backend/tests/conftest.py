@@ -3,6 +3,8 @@ import os
 os.environ["DATABASE_URL"] = os.environ.get("TEST_DATABASE_URL", "postgresql+psycopg://kept:kept@localhost:5432/kept_test")
 os.environ["KEPT_TODAY"] = "2026-10-13"
 os.environ["UPLOAD_DIR"] = "/tmp/kept-test-uploads"
+os.environ["APP_MODE"] = "development"
+os.environ["EMAIL_TRANSPORT"] = "log"
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -22,19 +24,36 @@ def client():
         yield c
 
 
-def register(client, org="Test Org", email="admin@test.example"):
-    r = client.post("/api/auth/register", json={
-        "organization_name": org, "full_name": "Ada Admin", "email": email, "password": "Coastal-Breeze-2026"})
+def bearer(client, r):
+    """Tests act as API clients: take the session token from the cookie, send it as a Bearer header, and clear the
+    client's cookie jar so no later request is silently authenticated by a leftover cookie."""
+    token = r.cookies.get("sf_session")
+    assert token, f"no session cookie in {r.status_code} {r.text[:200]}"
+    client.cookies.clear()
+    return {"Authorization": f"Bearer {token}"}
+
+
+def register(client, org="Test Org", email="admin@test.example", template="community"):
+    # Most tests exercise the community capabilities, so they adopt that starter template explicitly.
+    body = {"organization_name": org, "full_name": "Ada Admin", "email": email, "password": "Coastal-Breeze-2026"}
+    if template:
+        body["template"] = template
+    r = client.post("/api/auth/register", json=body)
     assert r.status_code == 201, r.text
-    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+    return bearer(client, r)
+
+
+def login(client, email, password="Coastal-Breeze-2026"):
+    r = client.post("/api/auth/login", json={"email": email, "password": password})
+    assert r.status_code == 200, r.text
+    return bearer(client, r)
 
 
 def add_user(client, admin_h, email, role, name="Someone"):
     r = client.post("/api/users", headers=admin_h, json={
         "full_name": name, "email": email, "role": role, "temporary_password": "Coastal-Breeze-2026"})
     assert r.status_code == 201, r.text
-    tok = client.post("/api/auth/login", json={"email": email, "password": "Coastal-Breeze-2026"}).json()["access_token"]
-    return r.json()["id"], {"Authorization": f"Bearer {tok}"}
+    return r.json()["id"], login(client, email)
 
 
 def community_template(client, h):

@@ -4,7 +4,6 @@ import { api, PREVIEW } from "../api";
 import { useAuth } from "../auth";
 import { Logo } from "../components/Shell";
 import ThemeToggle from "../components/ThemeToggle";
-import { useApi } from "../hooks";
 import { ErrorNotice, Field } from "../components/ui";
 import PLATFORM from "../platform.json";
 import { AppIcon } from "./Apps";
@@ -39,7 +38,15 @@ function ProductMock() {
 
 const NAVS = [["/product", "Product"], ["/solutions", "Solutions"], ["/customers", "Customers"], ["/pricing", "Pricing"], ["/contact", "Contact"]];
 const PALETTE6 = [["Night", "#22184F"], ["Violet", "#7C5CFF"], ["Tangerine", "#FF6B35"], ["Marigold", "#FFB627"], ["Sky", "#3BA7FF"], ["Lilac", "#F3EFFF"]];
-const SITES = { timiza: "timiza.or.ke", tumaini: "tumaini.kept.africa", hatua: "hatua.co.ke", mwangaza: "mwangaza.studio", pwani: "pwanihotels.co.ke" };
+// Case studies are fixed marketing content, not a live list of workspaces (customer names are never published automatically).
+const CASE_STUDIES = [
+  { slug: "timiza", organization: "Timiza Youth Initiative", industry: "Community organization", primary: "#2563EB" },
+  { slug: "tumaini", organization: "Tumaini Community Network", industry: "Community organization", primary: "#2F6B3A" },
+  { slug: "hatua", organization: "Hatua Apparel", industry: "Retail chain", primary: "#8A3B12" },
+  { slug: "mwangaza", organization: "Mwangaza Creative Studio", industry: "Creative studio", primary: "#E8590C" },
+  { slug: "pwani", organization: "Pwani Hotels & Safaris", industry: "Hotels, dining and tours", primary: "#0E5A6B" },
+];
+const SITES = { timiza: "timiza.or.ke", tumaini: "tumaini.strideflow.app", hatua: "hatua.co.ke", mwangaza: "mwangaza.studio", pwani: "pwanihotels.co.ke" };
 
 function MkLayout({ children }) {
   const { user } = useAuth();
@@ -54,7 +61,7 @@ function MkLayout({ children }) {
     <div className="mk">
       <header className="mk-header">
         <div className="container mk-header-in">
-          <Link to="/" className="mk-brand"><Logo size={26} />Kept</Link>
+          <Link to="/" className="mk-brand"><Logo size={26} />StrideFlow</Link>
           <nav className="mk-nav" aria-label="Main">{NAVS.map(([to, l]) => <NavLink key={to} to={to}>{l}</NavLink>)}</nav>
           <div className="row" style={{ gap: 8 }}>
             <ThemeToggle />
@@ -65,18 +72,18 @@ function MkLayout({ children }) {
         {menu && <nav className="container mk-mobile" aria-label="Mobile">{NAVS.map(([to, l]) => <Link key={to} to={to} onClick={() => setMenu(false)}>{l}</Link>)}{!user && <Link to="/login">Sign in</Link>}</nav>}
       </header>
       <main>{children}</main>
-      <section className="container"><div className="mk-cta"><h2>See Kept running on your own numbers.</h2><p>A 30-minute walkthrough, configured for your industry, with your questions answered by the people who build it.</p><Link className="btn btn-primary btn-lg" to="/contact">Book a demo</Link></div></section>
+      <section className="container"><div className="mk-cta"><h2>See StrideFlow running on your own numbers.</h2><p>A 30-minute walkthrough, configured for your industry, with your questions answered by the people who build it.</p><Link className="btn btn-primary btn-lg" to="/contact">Book a demo</Link></div></section>
       <footer className="mk-footer">
         <div className="container mk-footer-in">
-          <div className="mk-footer-brand"><span className="mk-brand"><Logo size={22} />Kept</span><p>Operations software and websites for organizations that deliver in the field: community organizations, retail chains, hotels and creative studios.</p>
-            <div className="mk-palette" aria-label="Kept brand palette">{PALETTE6.map(([n, c]) => <span key={n}><i style={{ background: c }} />{n}</span>)}</div></div>
+          <div className="mk-footer-brand"><span className="mk-brand"><Logo size={22} />StrideFlow</span><p>Operations software and websites for organizations that deliver in the field: community organizations, retail chains, hotels and creative studios.</p>
+            <div className="mk-palette" aria-label="StrideFlow brand palette">{PALETTE6.map(([n, c]) => <span key={n}><i style={{ background: c }} />{n}</span>)}</div></div>
           {[["Product", [["Overview", "/product"], ["Tazama field data", "/product#tazama"], ["Websites", "/product#websites"], ["Security", "/product#platform"]]],
             ["Solutions", [["Community organizations", "/solutions#community"], ["Retail chains", "/solutions#retail"], ["Hotels and tours", "/solutions#hospitality"], ["Creative studios", "/solutions#agency"]]],
             ["Company", [["Customers", "/customers"], ["Pricing", "/pricing"], ["Contact", "/contact"], ["Sign in", "/login"]]]].map(([h, ls]) => (
             <div key={h} className="mk-footer-col"><b>{h}</b>{ls.map(([l, to]) => <Link key={l} to={to}>{l}</Link>)}</div>
           ))}
         </div>
-        <div className="container mk-footer-legal"><span>© 2026 Kept Technologies, Nairobi</span><span>Customer organizations shown with illustrative figures</span></div>
+        <div className="container mk-footer-legal"><span>© 2026 StrideFlow Technologies, Nairobi</span><span>Customer organizations shown with illustrative figures</span></div>
       </footer>
     </div>
   );
@@ -92,13 +99,13 @@ const PageTop = ({ eyebrow, title, sub }) => (
 
 // ---------- Home ----------
 export default function Landing() {
-  const { data: showcase } = useApi("/platform/showcase");
+  const showcase = CASE_STUDIES;
   return (
     <MkLayout>
       <div className="mk-hero-wrap">
         <section className="container mk-hero">
           <h1>One system for the work, the money and the <em className="mk-hl">proof</em>.</h1>
-          <p>Kept brings programmes, finance, stock, people and customers into one place, and turns the work your team records every day into the reports, dashboards and public website your stakeholders rely on.</p>
+          <p>StrideFlow brings programmes, finance, stock, people and customers into one place, and turns the work your team records every day into the reports, dashboards and public website your stakeholders rely on.</p>
           <div className="row wrap" style={{ gap: 10, justifyContent: "center" }}><Link className="btn btn-primary btn-lg" to="/contact">Book a demo</Link><Link className="btn btn-lg" to="/product">Explore the product</Link></div>
         </section>
         <section className="container"><ProductMock /></section>
@@ -125,7 +132,7 @@ export default function Landing() {
       </section>
 
       <section className="container mk-section">
-        <Head eyebrow="Built for your industry" title="Configured for the way you already operate." sub="Choose an industry and Kept installs the tools it needs. Nothing irrelevant, and every tool can be added or removed later." />
+        <Head eyebrow="Built for your industry" title="Configured for the way you already operate." sub="Choose an industry and StrideFlow installs the tools it needs. Nothing irrelevant, and every tool can be added or removed later." />
         <div className="mk-cols4">
           {[["community", "Community organizations", "Programmes, donors, M&E and field data in one place."], ["retail", "Retail chains", "Branch targets, stock transfers, deliveries and an online shop."],
             ["hospitality", "Hotels, dining and tours", "Rooms, tables and safaris, booked online and run from one desk."], ["agency", "Creative studios", "Productions, content calendars, gear bookings and invoicing."]].map(([k, t, d]) => (
@@ -151,7 +158,7 @@ const PILLARS = [
 export function ProductPage() {
   return (
     <MkLayout>
-      <PageTop eyebrow="Product" title="Everything an organization runs on, connected." sub="Kept replaces the spreadsheets, shared folders and message threads that hold your operations together, with one system where every record knows what it belongs to." />
+      <PageTop eyebrow="Product" title="Everything an organization runs on, connected." sub="StrideFlow replaces the spreadsheets, shared folders and message threads that hold your operations together, with one system where every record knows what it belongs to." />
       {PILLARS.map(([name, line, items], i) => (
         <section key={name} className={i % 2 ? "mk-band" : ""}>
           <div className="container mk-section">
@@ -197,7 +204,7 @@ const SOLUTIONS = [
 export function SolutionsPage() {
   return (
     <MkLayout>
-      <PageTop eyebrow="Solutions" title="Built around the work, not the other way round." sub="Kept starts with the tools your industry needs and nothing it does not. Each configuration is used today by a real-world style case study." />
+      <PageTop eyebrow="Solutions" title="Built around the work, not the other way round." sub="StrideFlow starts with the tools your industry needs and nothing it does not. Each configuration is used today by a real-world style case study." />
       {SOLUTIONS.map(([k, t, problem, points, slug], i) => (
         <section key={k} id={k} className={i % 2 ? "mk-band" : ""} style={{ scrollMarginTop: 70 }}>
           <div className="container mk-section mk-split">
@@ -219,11 +226,11 @@ const CASES = { timiza: ["Replaced a shared Google Sheet with Tazama for 110 out
 export function CustomersPage() {
   const { user, signIn } = useAuth();
   const nav = useNavigate();
-  const { data: showcase } = useApi("/platform/showcase");
+  const showcase = CASE_STUDIES;
   const explore = async (slug) => { if (!PREVIEW || !DEMO[slug]) { nav(`/site/${slug}/login`); return; } signIn(await api("/auth/login", { method: "POST", body: { email: DEMO[slug], password: "kept-demo-2026" } })); nav("/app"); };
   return (
     <MkLayout>
-      <PageTop eyebrow="Customers" title="Five organizations. Five different ways of working." sub="Each runs its own website and its own dashboard on Kept. Visit the websites as the public sees them, or open the dashboards as their staff do." />
+      <PageTop eyebrow="Customers" title="Five organizations. Five different ways of working." sub="Each runs its own website and its own dashboard on StrideFlow. Visit the websites as the public sees them, or open the dashboards as their staff do." />
       <section className="container mk-section">
         <div className="mk-cases">
           {(showcase || []).map((s) => (
@@ -232,7 +239,7 @@ export function CustomersPage() {
               <span className="mk-case-kind">{s.industry}</span>
               <h3>{s.organization}</h3>
               <p>{CASES[s.slug]?.[0]}</p>
-              <dl className="mk-case-meta"><dt>Uses</dt><dd>{CASES[s.slug]?.[1]}</dd><dt>Website</dt><dd><code>{SITES[s.slug] || `${s.slug}.kept.africa`}</code></dd></dl>
+              <dl className="mk-case-meta"><dt>Uses</dt><dd>{CASES[s.slug]?.[1]}</dd><dt>Website</dt><dd><code>{SITES[s.slug] || `${s.slug}.strideflow.app`}</code></dd></dl>
               <div className="row wrap" style={{ gap: 8, marginTop: "auto" }}>
                 <Link className="btn" to={`/site/${s.slug}`}>Visit website</Link>
                 {!user && <button className="btn btn-ghost" onClick={() => explore(s.slug)}>Open dashboard</button>}
@@ -246,7 +253,7 @@ export function CustomersPage() {
 }
 
 // ---------- Pricing ----------
-const PLANS = [["Starter", "4,900", "For small teams getting off spreadsheets.", ["Up to 10 staff accounts", "Five apps of your choice", "Website on a kept.africa address", "Tazama with 1,000 responses a month", "Email support"]],
+const PLANS = [["Starter", "4,900", "For small teams getting off spreadsheets.", ["Up to 10 staff accounts", "Five apps of your choice", "Website on a strideflow.app address", "Tazama with 1,000 responses a month", "Email support"]],
   ["Growth", "14,900", "For organizations with several programmes, branches or properties.", ["Up to 50 staff accounts", "All apps", "Website on your own domain", "Unlimited Tazama responses", "M-Pesa donations and payments", "Onboarding and data import"], true],
   ["Organization", "Custom", "For groups, networks and multi-site operations.", ["Unlimited staff", "Multiple branches or properties", "Single sign-on and custom roles", "Service-level agreement", "Dedicated success manager"]]];
 const FAQS = [["How long does it take to get started?", "Most organizations are live within two weeks. We configure your apps, import existing records and train your team in two sessions."],
@@ -297,7 +304,7 @@ export function ContactPage() {
       <PageTop eyebrow="Contact" title="Book a demo" sub="Tell us how your organization works today. We will come back within one working day with a time and a demo configured for your industry." />
       <section className="container mk-section mk-split" style={{ paddingTop: 24 }}>
         <div className="stack">
-          {[["Sales and demos", "hello@kept.africa"], ["Support for customers", "support@kept.africa"], ["Office", "Westlands, Nairobi. Monday to Friday, 8:30 to 17:30"]].map(([t, v]) => <div key={t} className="mk-fact"><h3>{t}</h3><p>{v}</p></div>)}
+          {[["Sales and demos", "hello@strideflow.app"], ["Support for customers", "support@strideflow.app"], ["Office", "Westlands, Nairobi. Monday to Friday, 8:30 to 17:30"]].map(([t, v]) => <div key={t} className="mk-fact"><h3>{t}</h3><p>{v}</p></div>)}
         </div>
         <form className="panel panel-body stack" onSubmit={send} noValidate>
           {st.ok ? <div className="stack-sm"><h3 className="card-title">Thank you. We have your request.</h3><p className="muted">Expect a reply within one working day.</p></div> : <>
@@ -309,7 +316,7 @@ export function ContactPage() {
               <Field label="Team size"><select className="select" value={f.size} onChange={(e) => setF({ ...f, size: e.target.value })}>{["1-10", "11-50", "51-200", "200+"].map((x) => <option key={x}>{x}</option>)}</select></Field>
             </div>
             <Field label="Email or phone"><input className="input" value={f.contact} onChange={(e) => setF({ ...f, contact: e.target.value })} /></Field>
-            <Field label="What would you like Kept to fix?" hint="Optional"><textarea className="textarea" rows={4} value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} /></Field>
+            <Field label="What would you like StrideFlow to fix?" hint="Optional"><textarea className="textarea" rows={4} value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} /></Field>
             <button className="btn btn-primary btn-lg" disabled={st.busy}>{st.busy ? "Sending..." : "Request a demo"}</button>
           </>}
         </form>

@@ -31,9 +31,13 @@ with sync_playwright() as p:
     # retail and hospitality
     pg.goto(URL+"#/site/hatua/shop"); pg.wait_for_selector("text=Add to bag"); pg.locator("button:has-text('Add to bag')").first.click(); pg.fill(".site-drawer input >> nth=0", "Asha Mwende"); pg.fill(".site-drawer input >> nth=1", "0712345678"); pg.fill(".site-drawer input >> nth=2", "Kilimani"); pg.click("button:has-text('Place order')"); pg.wait_for_selector("text=received"); step("shop order")
     pg.goto(URL+"#/site/pwani/rooms?start=2026-10-20&end=2026-10-22&guests=2"); pg.wait_for_selector("button:has-text('Request 2 nights')"); pg.locator("button:has-text('Request 2 nights')").first.click(); pg.fill(".site-drawer input >> nth=0", "Ben Otieno"); pg.fill(".site-drawer input >> nth=1", "0712345678"); pg.click("button:has-text('Hold these dates')"); pg.wait_for_selector("text=Request received"); step("booking request")
-    # sign up as a new business
-    pg.evaluate("localStorage.removeItem('kept_token')"); pg.goto(URL+"#/register"); pg.reload(); pg.click("button:has-text('Hotels, dining and tours')"); pg.click("text=Continue"); pg.fill(".auth-card input >> nth=0", "Lamu Dhow Lodge"); pg.click("text=Continue")
-    pg.fill(".auth-card input >> nth=0", "Fatma Ali"); pg.fill("input[type=email]", "fatma@lamu.example"); pg.fill("input[type=password]", "Lamu-Dhow-2026"); pg.click("text=Create workspace"); pg.wait_for_selector("text=Good to see you"); step("sign up")
+    # sign up: one short form, no industry, then choose capabilities, then the getting-started home
+    pg.evaluate("localStorage.removeItem('kept_token')"); pg.goto(URL+"#/register"); pg.reload(); pg.wait_for_selector("text=Create your workspace")
+    pg.fill("input[autocomplete=name]", "Fatma Ali"); pg.fill("input[autocomplete=organization]", "Lamu Dhow Lodge"); pg.fill("input[type=email]", "fatma@lamu.example")
+    pg.fill(".pw-wrap input", "Lamu-Dhow-2026"); pg.click(".pw-toggle"); assert pg.get_attribute(".pw-wrap input", "type") == "text"
+    pg.click("text=Create workspace"); pg.wait_for_selector("text=What do you want to manage first?")
+    pg.click(".welcome-opt:has-text('Rooms and bookings')"); pg.click("text=Continue to my workspace"); pg.wait_for_selector("text=Get started")
+    assert pg.locator("text=Add a bookable resource").count() == 1 and pg.locator("text=Grants").count() == 0; step("sign up")
     pg.goto(URL+"#/app/apps"); pg.click(".tile:has-text('Events') >> button:has-text('Install')"); pg.wait_for_selector("text=Events installed"); step("install app")
     b.close()
 print("PASSED:", len(ok), "|", ", ".join(ok)); print("ERRORS:", errs)

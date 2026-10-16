@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { api } from "../api";
+import { api, PREVIEW } from "../api";
 import { useAuth } from "../auth";
 import { Dialog, ErrorNotice, Field, Loading, Toast } from "../components/ui";
 import { fmtDateTime } from "../format";
@@ -35,7 +35,7 @@ function People() {
   if (loading && !data) return <Loading />;
   return (
     <section className="panel">
-      <div className="panel-head"><h2>People</h2><button className="btn btn-primary" onClick={() => setInvite(true)}>Add person</button></div>
+      <div className="panel-head"><h2>Team</h2><button className="btn btn-primary" onClick={() => setInvite(true)}>Invite someone</button></div>
       <ErrorNotice error={error || err} onRetry={reload} />
       <div className="table-wrap"><table className="table" style={{ minWidth: 640 }}>
         <thead><tr><th>Name</th><th>Email</th><th>Role</th><th style={{ textAlign: "right" }}>Access</th></tr></thead>
@@ -53,27 +53,50 @@ function People() {
           </tr>
         ))}</tbody>
       </table></div>
-      <div className="panel-body small muted">Admins manage people and settings. Managers plan work and resolve flags. Members work on activities assigned to them. Viewers can read everything and change nothing.</div>
-      {invite && <InviteDialog onClose={() => setInvite(false)} onDone={() => { setInvite(false); setToast("Person added"); reload(); }} />}
+      <div className="panel-body small muted">Administrators manage the team, capabilities and settings. Managers plan work and approve requests. Members work on what is assigned to them. Read-only members can see everything and change nothing.</div>
+      <Invitations key={toast} />
+      {invite && <InviteDialog onClose={() => setInvite(false)} onDone={(addr) => { setInvite(false); setToast(`Invitation sent to ${addr}`); }} />}
       <Toast message={toast} onDone={() => setToast("")} />
     </section>
   );
 }
 
-function InviteDialog({ onClose, onDone }) {
-  const [form, setForm] = useState({ full_name: "", email: "", role: "member", temporary_password: "" });
-  const [error, setError] = useState(null);
-  const submit = async () => { try { await api("/users", { method: "POST", body: form }); onDone(); } catch (e) { setError(e); } };
+function Invitations() {
+  const { data, reload } = useApi("/invitations");
+  const [err, setErr] = useState(null);
+  const pending = (data || []).filter((i) => i.state === "pending");
+  if (!pending.length) return null;
+  const revoke = async (i) => { if (!confirm(`Cancel the invitation for ${i.email}? The link in their email will stop working.`)) return; try { await api(`/invitations/${i.id}`, { method: "DELETE" }); reload(); } catch (e) { setErr(e); } };
   return (
-    <Dialog title="Add person" onClose={onClose} footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn btn-primary" onClick={submit}>Add person</button></>}>
+    <div className="panel-body stack-sm" style={{ borderTop: "1px solid var(--rule-soft)" }}>
+      <b>Pending invitations</b>
+      <ErrorNotice error={err} />
+      {pending.map((i) => (
+        <div key={i.id} className="spread">
+          <span>{i.full_name ? `${i.full_name} · ` : ""}{i.email} <span className="muted small">as {i.role}, expires {new Date(i.expires_at).toLocaleDateString()}</span></span>
+          <button className="btn btn-ghost" onClick={() => revoke(i)}>Cancel invitation</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function InviteDialog({ onClose, onDone }) {
+  const [form, setForm] = useState({ full_name: "", email: "", role: "member" });
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const submit = async () => { setBusy(true); try { await api("/invitations", { method: "POST", body: form }); onDone(form.email); } catch (e) { setError(e); setBusy(false); } };
+  return (
+    <Dialog title="Invite someone" onClose={onClose} footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn btn-primary" disabled={busy || !form.email} onClick={submit}>{busy ? "Sending..." : "Send invitation"}</button></>}>
       <div className="dialog-body">
         <ErrorNotice error={error} />
-        <Field label="Full name"><input className="input" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></Field>
+        <p className="small muted">They receive an email with a link to choose a password and join. The link expires in 7 days.</p>
         <Field label="Email"><input className="input" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field>
         <div className="form-grid">
-          <Field label="Role"><select className="select" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}><option value="member">Member</option><option value="manager">Manager</option><option value="viewer">Viewer</option><option value="admin">Admin</option></select></Field>
-          <Field label="Temporary password" hint="Share it privately"><input className="input" value={form.temporary_password} onChange={(e) => setForm({ ...form, temporary_password: e.target.value })} /></Field>
+          <Field label="Name" hint="Optional"><input className="input" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></Field>
+          <Field label="Role"><select className="select" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}><option value="member">Member</option><option value="manager">Manager</option><option value="viewer">Read-only</option><option value="admin">Administrator</option></select></Field>
         </div>
+        {PREVIEW && <p className="small muted">In this offline preview the invitation is recorded but no email is sent.</p>}
       </div>
     </Dialog>
   );

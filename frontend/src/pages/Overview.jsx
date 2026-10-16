@@ -57,6 +57,37 @@ function Banner({ title, subtitle, actions }) {
 }
 export const roleLabel = (r) => ({ admin: "Administrator", manager: "Manager", member: "Field team", viewer: "Board and partners (read only)" }[r] || r);
 
+// One next action per enabled capability, so a new workspace never opens on a page of zeros.
+const FIRST_STEPS = [
+  ["projects", "Create your first project", "Set a goal, a deadline and the people responsible. Tasks and progress hang off it.", "/app/projects?new=1"],
+  ["forms", "Build a Tazama form", "Collect data in the field, with GPS and photos, even without signal.", "/app/forms/new"],
+  ["finance", "Set up a budget line", "Expenses are approved against budget lines, so start with one.", "/app/m/budget_lines?new=1"],
+  ["inventory", "Add your first stock item", "Record what you hold and where. Movements and low-stock alerts follow.", "/app/m/items?new=1"],
+  ["procurement", "Add a supplier", "Purchase requests are raised against suppliers.", "/app/m/vendors?new=1"],
+  ["sales", "Add a customer", "Invoices and overdue reminders start from customer records.", "/app/m/customers?new=1"],
+  ["bookings", "Add a bookable resource", "Rooms, vehicles or equipment, with availability checks.", "/app/m/resources?new=1"],
+  ["branches", "Add your locations", "Branches, warehouses or sites that stock, sales and deliveries belong to.", "/app/m/branches?new=1"],
+  ["deliveries", "Record a delivery", "Follow it from dispatch to doorstep.", "/app/m/deliveries?new=1"],
+  ["documents", "Upload a contract or certificate", "Add an expiry date and StrideFlow reminds you before it lapses.", "/app/m/documents?new=1"],
+  ["events", "Plan an event", "Each event gets its own attendance form.", "/app/m/events?new=1"],
+  ["people", "Add people to your register", "Staff, volunteers, contractors or members.", "/app/m/volunteers?new=1"],
+];
+
+function GettingStarted({ has, admin }) {
+  const steps = FIRST_STEPS.filter(([k]) => has(k)).slice(0, 5);
+  return (
+    <section className="panel" aria-labelledby="gs-h">
+      <div className="panel-head"><h2 id="gs-h">Get started</h2>{admin && <Link to="/app/welcome" className="small">Change capabilities</Link>}</div>
+      <ol className="gs-list">
+        {steps.map(([k, title, text, to]) => (
+          <li key={k}><div><b>{title}</b><span>{text}</span></div><Link className="btn" to={to}>Start</Link></li>
+        ))}
+        {admin && <li><div><b>Invite your team</b><span>Send email invitations with the right role for each person.</span></div><Link className="btn" to="/app/settings">Invite</Link></li>}
+      </ol>
+    </section>
+  );
+}
+
 function AppLauncher({ installed, industry }) {
   return (
     <section className="stack-sm" aria-labelledby="apps-h">
@@ -86,6 +117,15 @@ function ManagerHome() {
   if (loading && !d) return <Loading rows={10} />;
   if (error) return <ErrorNotice error={error} onRetry={reload} />;
   const has = (a) => d.installed.includes(a);
+  if (d.is_empty) {
+    return (
+      <>
+        <Banner title={`Welcome to StrideFlow, ${user.full_name.split(" ")[0]}`} subtitle={`${user.organization.name} is ready. Here is a sensible first step for each capability you chose.`} />
+        <GettingStarted has={has} admin={can.admin} />
+        <AppLauncher installed={d.installed} industry={d.industry} />
+      </>
+    );
+  }
   const ind = d.industry, o = d.ops || {}, f = d.finance, p = d.people, g = p.participants_by_gender || {};
   const quick = [
     has("branches") && ["Record takings", "/app/m/branch_sales?new=1"], has("deliveries") && ["New delivery", "/app/m/deliveries?new=1"], has("studio") && ["New production", "/app/m/productions?new=1"],

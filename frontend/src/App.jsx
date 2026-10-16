@@ -5,7 +5,7 @@ import { Loading } from "./components/ui";
 import Activity from "./pages/Activity";
 import Attention from "./pages/Attention";
 import Landing, { ContactPage, CustomersPage, PricingPage, ProductPage, SolutionsPage } from "./pages/Landing";
-import { Login, Register } from "./pages/Auth";
+import { AcceptInvitation, ForgotPassword, Login, Register, ResetPassword, Welcome } from "./pages/Auth";
 import Project from "./pages/Project";
 import Projects from "./pages/Projects";
 import ReportView from "./pages/ReportView";
@@ -47,6 +47,10 @@ export default function App() {
       <Route path="/f/:id" element={<PublicForm />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/accept-invitation" element={<AcceptInvitation />} />
+      <Route path="/app/welcome" element={<RequireAuth><Welcome /></RequireAuth>} />
       <Route path="/site/:slug/*" element={<PublicSite />} />
       <Route path="/app" element={<RequireAuth><Shell /></RequireAuth>}>
         <Route index element={<Overview />} />

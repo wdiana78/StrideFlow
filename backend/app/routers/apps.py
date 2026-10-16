@@ -7,7 +7,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .. import erp
-from ..apps import APP_KEYS, APPS, INDUSTRIES, INDUSTRY_BY_KEY, PALETTES
+from ..apps import APPS, INDUSTRIES, INDUSTRY_BY_KEY, PALETTES
+from ..config import get_settings
 from ..db import get_db
 from ..deps import admin_only, get_current_user
 from ..models import Organization, User
@@ -23,22 +24,25 @@ def _app_modules():
     return out
 
 
+DEFAULT_CAPABILITIES = ["projects", "forms", "finance", "documents"]
+
+
+def available_apps() -> list[dict]:
+    """Capabilities a customer can switch on. Demonstration-only capabilities (the case-study website builder) never appear in production."""
+    prod = get_settings().app_mode == "production"
+    return [a for a in APPS if not (prod and a.get("demo_only"))]
+
+
 @router.get("/platform")
 def platform():
-    """Public catalogue for the Kept home page: apps, industries, palettes."""
-    names = {a["key"]: a["name"] for a in APPS}
-    return {"apps": APPS, "palettes": PALETTES,
-            "industries": [{**i, "app_names": [names[a] for a in i["apps"]]} for i in INDUSTRIES]}
-
-
-@router.get("/platform/showcase")
-def showcase(db: Session = Depends(get_db)):
-    st = erp.TABLES["site_settings"]
-    rows = db.execute(select(st, Organization.name, Organization.industry).join(Organization, Organization.id == st.c.organization_id)).all()
-    order = {"timiza": 1, "tumaini": 2, "hatua": 3, "mwangaza": 4, "pwani": 5}
-    out = [{"slug": r.slug, "organization": r.name, "industry": INDUSTRY_BY_KEY.get(r.industry, {}).get("name", r.industry), "kind": "Business" if r.industry in ("retail", "hospitality", "agency") else "Organization",
-            "tagline": r.tagline, "primary": r.brand_primary, "accent": r.brand_accent, "deep": r.brand_deep} for r in rows]
-    return sorted(out, key=lambda x: order.get(x["slug"], 99))
+    """Public catalogue: capabilities and optional starter templates."""
+    apps = available_apps()
+    keys = {a["key"] for a in apps}
+    names = {a["key"]: a["name"] for a in apps}
+    return {"apps": apps, "default_capabilities": DEFAULT_CAPABILITIES,
+            "templates": [{**i, "apps": [x for x in i["apps"] if x in keys], "app_names": [names[x] for x in i["apps"] if x in keys]} for i in INDUSTRIES],
+            # kept for older clients
+            "industries": [{**i, "app_names": [names[x] for x in i["apps"] if x in keys]} for i in INDUSTRIES], "palettes": PALETTES}
 
 
 @router.get("/apps")
@@ -46,12 +50,12 @@ def my_apps(user: User = Depends(get_current_user)):
     installed = set(user.organization.installed_apps or [])
     mods = _app_modules()
     return {"industry": user.organization.industry, "installed": sorted(installed),
-            "apps": [{**a, "installed": a["key"] in installed, "modules": mods.get(a["key"], [])} for a in APPS]}
+            "apps": [{**a, "installed": a["key"] in installed, "modules": mods.get(a["key"], [])} for a in available_apps()]}
 
 
 def _set(db: Session, admin: User, key: str, on: bool):
-    if key not in APP_KEYS:
-        raise HTTPException(404, "Unknown app.")
+    if key not in {a["key"] for a in available_apps()}:
+        raise HTTPException(404, "Unknown capability.")
     org = db.get(Organization, admin.organization_id)
     apps = set(org.installed_apps or [])
     apps.add(key) if on else apps.discard(key)
@@ -73,21 +77,26 @@ def uninstall(key: str, admin: User = Depends(admin_only), db: Session = Depends
     return _set(db, admin, key, False)
 
 
-def setup_new_org(db: Session, org: Organization, user: User, industry: str, slug: str | None, palette: str):
-    ind = INDUSTRY_BY_KEY.get(industry)
-    if not ind:
-        raise HTTPException(422, "Choose an industry.")
-    org.industry = industry
-    org.installed_apps = sorted(set(ind["apps"]))
-    if slug:
-        st = erp.TABLES["site_settings"]
-        if db.execute(select(st.c.id).where(st.c.slug == slug)).first():
-            raise HTTPException(409, {"message": "That web address is taken. Try another.", "field": "site_slug"})
-        pal = PALETTES.get(palette, PALETTES["royal"])
-        db.execute(st.insert().values(id=uuid.uuid4(), organization_id=org.id, created_by_id=user.id, created_at=erp.now(), updated_at=erp.now(),
-                                      slug=slug, tagline=f"Welcome to {org.name}", intro=f"{org.name} on Kept.", show_impact=True,
-                                      brand_primary=pal["primary"], brand_accent=pal["accent"]))
-
+def setup_new_org(db: Session, org: Organization, capabilities: list[str] | None = None, template: str | None = None):
+    """A new workspace starts empty. It switches on the capabilities the person chose, a starter template they chose,
+    or a small neutral default. No industry is assumed and no records are created."""
+    allowed = {a["key"] for a in available_apps()}
+    if template:
+        ind = INDUSTRY_BY_KEY.get(template)
+        if not ind:
+            raise HTTPException(422, {"message": "Choose one of the listed templates.", "field": "template"})
+        org.industry = template
+        chosen = set(ind["apps"])
+    elif capabilities:
+        unknown = [c for c in capabilities if c not in allowed]
+        if unknown:
+            raise HTTPException(422, {"message": f"Unknown capability: {unknown[0]}.", "field": "capabilities"})
+        org.industry = "general"
+        chosen = set(capabilities)
+    else:
+        org.industry = "general"
+        chosen = set(DEFAULT_CAPABILITIES)
+    org.installed_apps = sorted(chosen & allowed)
 
 
 class DemoIn(BaseModel):

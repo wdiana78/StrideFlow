@@ -7,3 +7,5 @@ frontend/dist/
 .pytest_cache/
 .DS_Store
 frontend/dist-preview/
+tests-e2e/shots/
+tests-e2e/sheet.csv

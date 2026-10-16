@@ -1,4 +1,4 @@
-// Kept's signature motif: a kitenge-inspired lattice of four-petal jacaranda flowers, mango seeds and coral dots.
+// StrideFlow's signature motif: a kitenge-inspired lattice of four-petal jacaranda flowers, mango seeds and coral dots.
 const FLOWER = (cx, cy, r, fill, o = 1) => (
   <g key={`${cx}-${cy}`} opacity={o} transform={`translate(${cx} ${cy})`}>
     {[0, 90, 180, 270].map((a) => <ellipse key={a} cx="0" cy={-r * 0.62} rx={r * 0.34} ry={r * 0.62} fill={fill} transform={`rotate(${a})`} />)}

@@ -14,18 +14,17 @@ class ORM(BaseModel):
 # ---------- auth / users ----------
 class RegisterIn(BaseModel):
     organization_name: str = Field(min_length=2, max_length=160)
-    sector: str = Field(default="", max_length=80)
-    currency: str = Field(default="KES", min_length=3, max_length=3)
     full_name: str = Field(min_length=2, max_length=120)
     email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
-    industry: str = "community"
-    site_slug: str | None = Field(default=None, max_length=40, pattern=r"^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$")
-    palette: str = "royal"
+    password: str = Field(min_length=1, max_length=128)
+    currency: str = Field(default="KES", min_length=3, max_length=3)
+    # Optional, chosen explicitly: capabilities to switch on, or a starter template (a preset list of capabilities).
+    capabilities: list[str] | None = Field(default=None, max_length=30)
+    template: str | None = Field(default=None, max_length=30)
 
     @field_validator("currency")
     @classmethod
-    def upper(cls, v: str) -> str:
+    def upper_currency(cls, v: str) -> str:
         return v.upper()
 
 
@@ -40,8 +39,9 @@ class OrgOut(ORM):
     name: str
     sector: str
     currency: str
-    industry: str = "community"
+    industry: str = "general"
     installed_apps: list = []
+    kind: str = "customer"
 
 
 class UserOut(ORM):
@@ -56,9 +56,7 @@ class MeOut(UserOut):
     organization: OrgOut
 
 
-class TokenOut(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+class SessionOut(BaseModel):
     user: MeOut
 
 

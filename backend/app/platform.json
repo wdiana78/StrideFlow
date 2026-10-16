@@ -96,7 +96,8 @@
    "name": "Website",
    "tagline": "Your public site, live numbers, inquiries",
    "color": "#FFB020",
-   "icon": "globe"
+   "icon": "globe",
+   "demo_only": true
   },
   {
    "key": "branches",

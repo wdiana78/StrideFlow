@@ -10,6 +10,7 @@ from ..models import AuditEvent, Role, Stakeholder, Template, User
 from ..schemas import AuditOut, InviteIn, StakeholderIn, StakeholderOut, TemplateOut, UserOut, UserUpdate
 from ..hardening import check_password
 from ..security import hash_password
+from ..services import sessions
 from ..services.audit import log
 
 router = APIRouter(tags=["organization"])
@@ -50,7 +51,7 @@ def update_user(user_id: uuid.UUID, body: UserUpdate, admin: User = Depends(admi
         changes["is_active"] = [u.is_active, body.is_active]
         u.is_active = body.is_active
     if changes:
-        u.token_version = (u.token_version or 0) + 1  # new role or removed access takes effect immediately, not when the token expires
+        sessions.revoke_all(db, u.id)  # a new role or removed access takes effect immediately
         log(db, admin.organization_id, admin.id, "user_updated", "user", u.id, f"Updated {u.full_name}", changes)
     db.commit()
     return u

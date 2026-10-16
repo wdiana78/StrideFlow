@@ -5,6 +5,8 @@ from datetime import date, datetime, timezone
 from sqlalchemy import (
     JSON,
     BigInteger,
+    CheckConstraint,
+    UniqueConstraint,
     Boolean,
     Date,
     DateTime,
@@ -102,9 +104,14 @@ class Organization(Base):
     name: Mapped[str] = mapped_column(String(160))
     sector: Mapped[str] = mapped_column(String(80), default="")
     currency: Mapped[str] = mapped_column(String(3), default="KES")
-    industry: Mapped[str] = mapped_column(String(30), default="community", server_default="community")
+    # "general" unless the workspace explicitly adopted a starter template (community, retail, hospitality ...).
+    industry: Mapped[str] = mapped_column(String(30), default="general", server_default="general")
     installed_apps: Mapped[list] = mapped_column(JsonType, default=list)
+    # customer | demo_scenario | demo_sandbox. Production refuses anything but "customer" (see deps.get_current_user).
+    kind: Mapped[str] = mapped_column(String(20), default="customer", server_default="customer", index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    __table_args__ = (CheckConstraint("kind IN ('customer', 'demo_scenario', 'demo_sandbox')", name="ck_organizations_kind"),)
 
 
 class User(Base):
@@ -113,7 +120,7 @@ class User(Base):
     organization_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
     full_name: Mapped[str] = mapped_column(String(120))
     email: Mapped[str] = mapped_column(String(254), unique=True, index=True)
-    password_hash: Mapped[str] = mapped_column(String(100))
+    password_hash: Mapped[str | None] = mapped_column(String(100), nullable=True)  # empty for Google-only accounts
     role: Mapped[Role] = mapped_column(_enum(Role), default=Role.member)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
@@ -337,3 +344,61 @@ class FormSubmission(Base):
     captured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)  # when it was filled in, if different
     submitted_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+
+# ---------- accounts: sessions, password reset, invitations, external identities ----------
+class AuthSession(Base):
+    """A signed-in browser or API client. Only a SHA-256 hash of the session token is stored."""
+    __tablename__ = "sessions"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))  # absolute limit
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(String(200), nullable=True)
+
+    user: Mapped[User] = relationship()
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class Invitation(Base):
+    __tablename__ = "invitations"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    organization_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    email: Mapped[str] = mapped_column(String(254), index=True)
+    full_name: Mapped[str] = mapped_column(String(120), default="")
+    role: Mapped[Role] = mapped_column(_enum(Role))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    invited_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    organization: Mapped[Organization] = relationship()
+
+
+class OAuthIdentity(Base):
+    """Links a provider account (Google) to a StrideFlow user. Used from Phase 6."""
+    __tablename__ = "oauth_identities"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    provider: Mapped[str] = mapped_column(String(20))
+    subject: Mapped[str] = mapped_column(String(255))
+    email: Mapped[str] = mapped_column(String(254))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    __table_args__ = (UniqueConstraint("provider", "subject", name="uq_oauth_provider_subject"),)

@@ -3,7 +3,7 @@ import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, usePa
 import { api, PREVIEW } from "../api";
 import { useAuth } from "../auth";
 import { Meter } from "../components/charts";
-import { ErrorNotice, Field, Loading } from "../components/ui";
+import { ErrorNotice, Field, Loading, PasswordInput } from "../components/ui";
 import { fmtDate, fmtNum, initials } from "../format";
 import { useApi } from "../hooks";
 import { isoToday } from "../format";
@@ -591,7 +591,7 @@ function Footer({ links }) {
       </div>
       <div className="container spread small" style={{ padding: "18px 32px 28px", borderTop: "1px solid rgba(255,255,255,.14)" }}>
         <span>© 2026 {s.organization}. All rights reserved.</span>
-        <span className="row" style={{ gap: 16 }}><Link to={`${s.base}/login`} className="site-foot-link">Staff login</Link><Link to="/" className="site-foot-link">Powered by Kept</Link></span>
+        <span className="row" style={{ gap: 16 }}><Link to={`${s.base}/login`} className="site-foot-link">Staff login</Link><Link to="/" className="site-foot-link">Powered by StrideFlow</Link></span>
       </div>
     </footer>
   );
@@ -674,7 +674,7 @@ function StaffLogin() {
           <h2 style={{ fontSize: 24, fontWeight: 800 }}>Sign in</h2>
           <ErrorNotice error={error} />
           <Field label="Work email"><input className="input" type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
-          <Field label="Password"><input className="input" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></Field>
+          <Field label="Password"><PasswordInput value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></Field>
           <button className="btn btn-lg site-donate" style={{ justifyContent: "center" }} disabled={busy}>{busy ? "Signing in…" : "Sign in to dashboard"}</button>
           {PREVIEW && STAFF_DEMO[s.slug] && (
             <div className="stack-sm" style={{ borderTop: "1px solid #F0E3DC", paddingTop: 14 }}>

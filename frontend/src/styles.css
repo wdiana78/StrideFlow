@@ -75,7 +75,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .btn[disabled], .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
 
 /* ---------- forms ---------- */
-.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.field-label { font-weight: 600; }
 .field .hint { font-weight: 400; color: var(--slate); font-size: 13px; }
 .input, .select, .textarea { min-height: 42px; border: 1px solid var(--control); border-radius: var(--radius-sm); padding: 0 12px; background: var(--surface); color: var(--ink);
   font-weight: 400; font-size: 15px; width: 100%; transition: border-color .15s, box-shadow .15s; }
@@ -815,3 +816,32 @@ body { background: var(--bg); }
 .org-brand { align-items: stretch; }
 .org-brand img { width: 100%; height: 72px; object-fit: contain; object-position: center; background: #fff; padding: 10px 14px; border-radius: 14px; box-shadow: 0 8px 22px rgba(0, 0, 0, .28); }
 .org-brand .org-brand-sub { text-align: center; letter-spacing: .04em; text-transform: uppercase; font-size: 11px; font-weight: 600; }
+
+/* ---------- password field ---------- */
+.pw-wrap { position: relative; display: block; }
+.pw-wrap .input { padding-right: 68px; width: 100%; }
+.pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); height: 30px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--cobalt); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.pw-toggle:hover { background: var(--cobalt-tint); }
+.pw-toggle:focus-visible { outline: 2px solid var(--cobalt); outline-offset: 1px; }
+.pw-rules { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--slate); }
+.pw-rules li::before { content: "○"; display: inline-block; width: 18px; color: var(--slate); }
+.pw-rules li.ok { color: var(--ok); } .pw-rules li.ok::before { content: "✓"; color: var(--ok); }
+.pw-rules li.note::before { content: "·"; }
+
+/* ---------- first-run capability selection ---------- */
+.welcome { max-width: 980px; margin: 0 auto; padding: 48px 24px 120px; display: flex; flex-direction: column; gap: 28px; }
+.welcome-head h1 { font-size: 34px; line-height: 1.15; font-weight: 750; letter-spacing: -0.02em; margin: 8px 0 10px; }
+.welcome-head p { max-width: 640px; }
+.welcome-group h2 { font-size: 13px; font-weight: 650; text-transform: uppercase; letter-spacing: .06em; color: var(--slate); margin-bottom: 10px; }
+.welcome-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 10px; }
+.welcome-opt { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; cursor: pointer; }
+.welcome-opt input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--brand); flex: none; }
+.welcome-opt span { display: flex; flex-direction: column; gap: 2px; } .welcome-opt b { font-size: 15px; } .welcome-opt span span { font-size: 13px; color: var(--slate); }
+.welcome-opt.on { border-color: var(--brand); background: var(--cobalt-tint); }
+.welcome-opt:focus-within { outline: 2px solid var(--brand); outline-offset: 2px; }
+.welcome-actions { position: sticky; bottom: 0; display: flex; justify-content: flex-end; align-items: center; gap: 16px; padding: 16px 0; background: linear-gradient(transparent, var(--bg) 30%); }
+.gs-list { list-style: none; margin: 0; padding: 0; counter-reset: gs; }
+.gs-list li { counter-increment: gs; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 22px; border-top: 1px solid var(--rule-soft); }
+.gs-list li > div { display: flex; flex-direction: column; gap: 2px; padding-left: 40px; position: relative; }
+.gs-list li > div::before { content: counter(gs); position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--cobalt-tint); color: var(--cobalt-dark); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+.gs-list span { color: var(--slate); font-size: 14px; }

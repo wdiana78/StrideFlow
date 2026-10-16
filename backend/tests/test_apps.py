@@ -1,21 +1,21 @@
-from .conftest import add_user, register
+from .conftest import add_user, bearer, register
 
 
-def reg(client, industry, email, slug=None):
-    body = {"organization_name": f"{industry.title()} Org", "full_name": "Ada Admin", "email": email, "password": "Coastal-Breeze-2026", "industry": industry}
-    if slug:
-        body["site_slug"] = slug
-    r = client.post("/api/auth/register", json=body)
+def reg(client, template, email, slug=None):
+    r = client.post("/api/auth/register", json={"organization_name": f"{template.title()} Org", "full_name": "Ada Admin", "email": email,
+                                                "password": "Coastal-Breeze-2026", "template": template})
     assert r.status_code == 201, r.text
-    return {"Authorization": f"Bearer {r.json()['access_token']}"}, r.json()["user"]["organization"]
+    org = r.json()["user"]["organization"]
+    h = bearer(client, r)
+    if slug:  # the case-study website capability (demonstration-only in production)
+        assert client.post("/api/m/site_settings", headers=h, json={"slug": slug, "tagline": "Welcome", "intro": "About us"}).status_code == 201
+    return h, org
 
 
-def test_industry_installs_the_right_apps_and_site(client):
-    h, org = reg(client, "retail", "shop@test.example", slug="my-shop")
-    assert {"sales", "inventory", "website"} <= set(org["installed_apps"]) and "participants" not in org["installed_apps"]
-    assert client.get("/api/public/my-shop").json()["brand"]["primary"] == "#6D3FC9"  # jacaranda palette by default
-    assert client.post("/api/auth/register", json={"organization_name": "Copy Org", "full_name": "Bo Bee", "email": "b@test.example",
-                                                   "password": "Coastal-Breeze-2026", "site_slug": "my-shop"}).status_code == 409
+def test_template_installs_the_right_capabilities(client):
+    h, org = reg(client, "retail", "shop@test.example")
+    assert {"sales", "inventory", "branches", "deliveries"} <= set(org["installed_apps"]) and "participants" not in org["installed_apps"]
+    assert org["industry"] == "retail" and org["kind"] == "customer"
 
 
 def test_uninstalled_apps_are_closed_and_admins_can_install(client):

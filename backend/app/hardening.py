@@ -17,7 +17,8 @@ _hits: dict[str, deque] = defaultdict(deque)
 _lock = threading.Lock()
 
 
-def rate_limit(key: str, limit: int, window_seconds: int) -> None:
+def rate_limit(key: str, limit: int, window_seconds: int, consume: bool = True) -> None:
+    """Sliding-window limit. consume=False only checks, so callers can count successes separately from attempts."""
     now = time.monotonic()
     with _lock:
         q = _hits[key]
@@ -25,8 +26,10 @@ def rate_limit(key: str, limit: int, window_seconds: int) -> None:
             q.popleft()
         if len(q) >= limit:
             retry = int(window_seconds - (now - q[0])) + 1
-            raise HTTPException(429, f"Too many attempts. Try again in {retry} seconds.", headers={"Retry-After": str(retry)})
-        q.append(now)
+            wait = f"{retry} seconds" if retry < 120 else f"{(retry + 59) // 60} minutes"
+            raise HTTPException(429, f"Too many attempts. Try again in {wait}.", headers={"Retry-After": str(retry)})
+        if consume:
+            q.append(now)
 
 
 def reset_rate_limits() -> None:

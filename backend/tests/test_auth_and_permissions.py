@@ -20,10 +20,10 @@ def test_validation_messages_are_readable(client):
     h = register(client)
     r = client.post("/api/projects", headers=h, json={"name": "Bad", "starts_on": "2026-10-01", "ends_on": "2026-09-01"})
     assert r.status_code == 422
-    assert r.json()["detail"] == "The end date must be after the start date."
+    assert r.json()["detail"]["message"] == "The end date must be after the start date."
     short = client.post("/api/auth/register", json={"organization_name": "X Org", "full_name": "Y Z",
                                                     "email": "x@test.example", "password": "short"})
-    assert short.status_code == 422 and short.json()["errors"][0]["field"] == "password"
+    assert short.status_code == 422 and short.json()["detail"]["field"] == "password"
 
 
 def test_roles_enforced_by_backend(client):

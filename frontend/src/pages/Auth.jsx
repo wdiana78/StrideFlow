@@ -1,16 +1,38 @@
-import { useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { api, PREVIEW } from "../api";
-import PLATFORM from "../platform.json";
 import { useAuth } from "../auth";
 import { Logo } from "../components/Shell";
-import { ErrorNotice, Field } from "../components/ui";
+import { ErrorNotice, Field, PasswordInput, PasswordRules } from "../components/ui";
+import PLATFORM from "../platform.json";
 
+/** Field-level messages from either shape the API returns: {detail: {message, field}} or {errors: [{field, message}]}. */
 function fieldErrors(err) {
   const out = {};
-  (err?.data?.errors || []).forEach((e) => { out[e.field] = e.message; });
+  (err?.data?.errors || []).forEach((e) => { if (e.field) out[e.field.split(".").pop()] = e.message; });
+  const d = err?.data?.detail;
+  if (d && typeof d === "object" && d.field) out[d.field] = d.message;
   return out;
 }
+// Shown in the banner only when no field can carry the message.
+const generalError = (err) => (err && !Object.keys(fieldErrors(err)).length ? err : null);
+
+function AuthCard({ title, sub, children, onSubmit }) {
+  return (
+    <div className="auth-wrap">
+      <form className="auth-card" onSubmit={onSubmit} noValidate>
+        <Link to="/" className="brand" style={{ padding: 0 }} aria-label="StrideFlow home"><Logo />StrideFlow</Link>
+        <div className="stack-sm" style={{ gap: 6 }}><h1 style={{ fontSize: 26, fontWeight: 750, letterSpacing: "-0.01em" }}>{title}</h1>{sub && <p className="muted">{sub}</p>}</div>
+        {children}
+      </form>
+    </div>
+  );
+}
+
+// ---------- sign in ----------
+const PREVIEW_ACCOUNTS = [["zawadi@timiza.example", "Timiza Youth Initiative", "Community organization · manager"], ["wairimu@mwangaza.example", "Mwangaza Creative Studio", "Creative studio · admin"],
+  ["wanjiru@hatua.example", "Hatua Apparel", "Retail chain · owner"], ["rehema@pwani.example", "Pwani Hotels & Safaris", "Hotels and tours · general manager"],
+  ["baraka@timiza.example", "Timiza, field officer", "Member: only their own work"]];
 
 export function Login() {
   const { user, signIn } = useAuth();
@@ -20,129 +42,194 @@ export function Login() {
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   if (user) return <Navigate to="/app" replace />;
-  const submit = async (e) => {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      signIn(await api("/auth/login", { method: "POST", body: form }));
-      nav(loc.state?.from || "/app", { replace: true });
-    } catch (err) {
-      setError(err);
-    } finally {
-      setBusy(false);
-    }
+  const go = async (body) => {
+    setBusy(true); setError(null);
+    try { signIn(await api("/auth/login", { method: "POST", body })); nav(loc.state?.from || "/app", { replace: true }); }
+    catch (err) { setError(err); } finally { setBusy(false); }
   };
-  const demo = () => setForm({ email: "achieng@tumaini.example", password: "kept-demo-2026" });
   return (
-    <div className="auth-wrap">
-      <form className="auth-card" onSubmit={submit} noValidate>
-        <Link to="/" className="brand" style={{ padding: 0 }}><Logo />Kept</Link>
-        <div className="stack-sm"><Link to="/" className="small">← Back</Link><h1 style={{ fontSize: 26, fontWeight: 800 }}>Sign in to your workspace</h1></div>
-        <ErrorNotice error={error} />
-        <Field label="Email"><input className="input" type="email" autoComplete="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field>
-        <Field label="Password"><input className="input" type="password" autoComplete="current-password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></Field>
-        <button className="btn btn-primary btn-lg" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
-        {PREVIEW ? (
-          <div className="stack-sm" style={{ borderTop: "1px solid var(--rule-soft)", paddingTop: 16 }}>
-            <b style={{ fontSize: 14 }}>Try it as</b>
-            {[["zawadi@timiza.example", "Timiza Youth Initiative", "Community organization · manager"],
-              ["wairimu@mwangaza.example", "Mwangaza Creative Studio", "Agency · admin"],
-              ["wanjiru@hatua.example", "Hatua Apparel", "Retail chain · owner"],
-              ["rehema@pwani.example", "Pwani Hotels & Safaris", "Hotels and tours · general manager"],
-              ["admin@timiza.example", "Timiza, administrator", "Install apps, people, audit log"],
-              ["baraka@timiza.example", "Timiza, field officer", "Member: only their own work"]].map(([email, name, what]) => (
-              <button key={email} type="button" className="btn" style={{ height: "auto", padding: "10px 14px", justifyContent: "flex-start", textAlign: "left", whiteSpace: "normal" }}
-                onClick={async () => { try { signIn(await api("/auth/login", { method: "POST", body: { email, password: "kept-demo-2026" } })); nav("/app", { replace: true }); } catch (err) { setError(err); } }}>
-                <span style={{ display: "flex", flexDirection: "column" }}><span>{name}</span><span className="small muted" style={{ fontWeight: 400 }}>{what}</span></span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="notice notice-warn small">Demo: <button type="button" className="btn btn-quiet" style={{ height: 28, padding: "0 6px" }} onClick={demo}>fill in the demo manager account</button></div>
-        )}
-        <p className="small muted">New here? <Link to="/register">Create your organization</Link></p>
-      </form>
-    </div>
+    <AuthCard title="Sign in to StrideFlow" onSubmit={(e) => { e.preventDefault(); go(form); }}>
+      {loc.state?.notice && <div className="notice notice-ok" role="status">{loc.state.notice}</div>}
+      <ErrorNotice error={error} />
+      <Field label="Email"><input className="input" type="email" autoComplete="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field>
+      <Field label="Password"><PasswordInput required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></Field>
+      <div className="spread"><span /><Link to="/forgot-password" className="small">Forgot password?</Link></div>
+      <button className="btn btn-primary btn-lg" disabled={busy}>{busy ? "Signing in..." : "Sign in"}</button>
+      {PREVIEW && (
+        <div className="stack-sm" style={{ borderTop: "1px solid var(--rule-soft)", paddingTop: 16 }}>
+          <b style={{ fontSize: 14 }}>Demonstration accounts</b>
+          <span className="small muted">Illustrative organizations with sample data.</span>
+          {PREVIEW_ACCOUNTS.map(([email, name, what]) => (
+            <button key={email} type="button" className="btn" style={{ height: "auto", padding: "10px 14px", justifyContent: "flex-start", textAlign: "left", whiteSpace: "normal" }}
+              onClick={() => go({ email, password: "kept-demo-2026" })}>
+              <span style={{ display: "flex", flexDirection: "column" }}><span>{name}</span><span className="small muted" style={{ fontWeight: 400 }}>{what}</span></span>
+            </button>
+          ))}
+        </div>
+      )}
+      <p className="small muted">New to StrideFlow? <Link to="/register">Create a workspace</Link></p>
+    </AuthCard>
   );
 }
 
+// ---------- sign up ----------
 export function Register() {
   const { user, signIn } = useAuth();
-  const nav = useNavigate();
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ industry: "community", organization_name: "", site_slug: "", palette: "royal", currency: "KES", full_name: "", email: "", password: "" });
+  const [form, setForm] = useState({ full_name: "", organization_name: "", email: "", password: "" });
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [created, setCreated] = useState(false);
+  if (created) return <Navigate to="/app/welcome" replace />;
   if (user) return <Navigate to="/app" replace />;
   const errs = fieldErrors(error);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
-  const ind = PLATFORM.industries.find((i) => i.key === form.industry);
-  const apps = Object.fromEntries(PLATFORM.apps.map((a) => [a.key, a]));
-  const slugify = (v) => v.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
   const submit = async (e) => {
     e.preventDefault(); setBusy(true); setError(null);
-    try { signIn(await api("/auth/register", { method: "POST", body: { ...form, site_slug: form.site_slug || null } })); nav("/app", { replace: true }); }
-    catch (err) { setError(err); if (err.data?.detail?.field === "site_slug") setStep(2); } finally { setBusy(false); }
+    try { const res = await api("/auth/register", { method: "POST", body: form }); setCreated(true); signIn(res); }
+    catch (err) { setError(err); } finally { setBusy(false); }
   };
   return (
-    <div className="auth-wrap">
-      <form className="auth-card" style={{ maxWidth: 880, borderRadius: 24, boxShadow: "var(--shadow-float)" }} onSubmit={submit} noValidate>
-        <div className="spread"><Link to="/" className="brand" style={{ padding: 0 }}><Logo size={28} />Kept</Link>
-          <div className="row" style={{ gap: 6 }}>{[1, 2, 3].map((n) => <span key={n} style={{ width: n === step ? 28 : 10, height: 10, borderRadius: 5, background: n <= step ? "var(--cobalt)" : "var(--rule)", transition: "width .2s" }} />)}</div></div>
-        <ErrorNotice error={error && !Object.keys(errs).length ? error : null} />
-        {step === 1 && (
-          <>
-            <div className="stack-sm"><h1 style={{ fontSize: 30, fontWeight: 800 }}>What kind of organization are you?</h1><p className="muted">We install the right apps. You can add or remove apps any time.</p></div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
-              {PLATFORM.industries.map((i, k) => (
-                <button type="button" key={i.key} aria-pressed={form.industry === i.key} onClick={() => setForm({ ...form, industry: i.key })}
-                  className="stack-sm" style={{ textAlign: "left", padding: 16, borderRadius: 16, cursor: "pointer", border: form.industry === i.key ? "2px solid var(--cobalt)" : "1px solid var(--rule)", background: form.industry === i.key ? "linear-gradient(150deg, var(--cobalt-tint), #fff)" : "#fff" }}>
-                  <b style={{ fontSize: 16 }}>{i.name}</b>
-                  <span className="row wrap" style={{ gap: 4 }}>{i.apps.slice(0, 5).map((a) => <span key={a} className="dot" title={apps[a].name} style={{ background: apps[a].color, width: 10, height: 10 }} />)}<span className="small muted">{i.apps.length} apps</span></span>
-                </button>
-              ))}
-            </div>
-            <div className="stack-sm"><b className="small">Installs for {ind.name.toLowerCase()}</b>
-              <div className="row wrap" style={{ gap: 8 }}>{ind.apps.map((a) => <span key={a} className="chip-tone" style={{ background: `${apps[a].color}22`, color: "var(--ink)" }}><span className="dot" style={{ background: apps[a].color }} />{apps[a].name}</span>)}</div></div>
-            <button type="button" className="btn btn-primary btn-lg" style={{ alignSelf: "flex-end" }} onClick={() => setStep(2)}>Continue</button>
-          </>
-        )}
-        {step === 2 && (
-          <>
-            <div className="stack-sm"><h1 style={{ fontSize: 30, fontWeight: 800 }}>Your organization and website</h1></div>
-            <Field label="Organization name" error={errs.organization_name}><input className="input" value={form.organization_name} autoFocus onChange={(e) => setForm({ ...form, organization_name: e.target.value, site_slug: form.site_slug || slugify(e.target.value) })} /></Field>
-            <Field label="Website address" hint="Optional" error={errs.site_slug}>
-              <div className="row" style={{ gap: 0 }}><span className="input" style={{ width: "auto", display: "flex", alignItems: "center", background: "var(--stone)", borderRadius: "10px 0 0 10px", color: "var(--slate)" }}>kept.africa/site/</span>
-                <input className="input" style={{ borderRadius: "0 10px 10px 0", borderLeft: 0 }} value={form.site_slug} onChange={(e) => setForm({ ...form, site_slug: slugify(e.target.value) })} /></div>
-            </Field>
-            <div className="stack-sm"><b className="small">Brand palette</b>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 10 }}>
-                {Object.entries(PLATFORM.palettes).map(([k, p]) => (
-                  <button type="button" key={k} aria-pressed={form.palette === k} onClick={() => setForm({ ...form, palette: k })} className="stack-sm"
-                    style={{ padding: 12, borderRadius: 14, cursor: "pointer", border: form.palette === k ? "2px solid var(--cobalt)" : "1px solid var(--rule)", background: "#fff", textAlign: "left" }}>
-                    <span className="row" style={{ gap: 0 }}>{p.colors.map((c) => <span key={c} style={{ flex: 1, height: 28, background: c }} />)}</span><b className="small">{p.name}</b>
-                  </button>
-                ))}
-              </div></div>
-            <div className="row" style={{ justifyContent: "space-between" }}><button type="button" className="btn" onClick={() => setStep(1)}>Back</button><button type="button" className="btn btn-primary btn-lg" disabled={form.organization_name.trim().length < 2} onClick={() => setStep(3)}>Continue</button></div>
-          </>
-        )}
-        {step === 3 && (
-          <>
-            <div className="stack-sm"><h1 style={{ fontSize: 30, fontWeight: 800 }}>Your admin account</h1><p className="muted">You can invite your team next.</p></div>
-            <div className="form-grid">
-              <Field label="Your name" error={errs.full_name}><input className="input" autoComplete="name" value={form.full_name} onChange={set("full_name")} autoFocus /></Field>
-              <Field label="Work email" error={errs.email}><input className="input" type="email" autoComplete="email" value={form.email} onChange={set("email")} /></Field>
-            </div>
-            <Field label="Password" hint="10+ characters, letters and numbers" error={errs.password}><input className="input" type="password" autoComplete="new-password" value={form.password} onChange={set("password")} /></Field>
-            <div className="row" style={{ justifyContent: "space-between" }}><button type="button" className="btn" onClick={() => setStep(2)}>Back</button><button className="btn btn-primary btn-lg" disabled={busy}>{busy ? "Setting up…" : "Create workspace"}</button></div>
-          </>
-        )}
-        <p className="small muted">Already on Kept? <Link to="/login">Sign in</Link></p>
-      </form>
-    </div>
+    <AuthCard title="Create your workspace" sub="Start with an empty workspace and set it up your way. No payment details needed." onSubmit={submit}>
+      <ErrorNotice error={generalError(error)} />
+      <Field label="Your name" error={errs.full_name}><input className="input" autoComplete="name" value={form.full_name} onChange={set("full_name")} /></Field>
+      <Field label="Organization or business name" error={errs.organization_name}><input className="input" autoComplete="organization" value={form.organization_name} onChange={set("organization_name")} /></Field>
+      <Field label="Work email" error={errs.email}><input className="input" type="email" autoComplete="email" value={form.email} onChange={set("email")} /></Field>
+      <Field label="Password" error={errs.password}>
+        <PasswordInput autoComplete="new-password" value={form.password} onChange={set("password")} invalid={!!errs.password} />
+        <PasswordRules value={form.password} />
+      </Field>
+      <button className="btn btn-primary btn-lg" disabled={busy}>{busy ? "Creating your workspace..." : "Create workspace"}</button>
+      <p className="small muted">Already have an account? <Link to="/login">Sign in</Link></p>
+    </AuthCard>
   );
 }
 
-export const INDUSTRY_EMOJI = {};
+// ---------- password reset ----------
+export function ForgotPassword() {
+  const [emailAddr, setEmailAddr] = useState("");
+  const [state, setState] = useState({ busy: false, error: null, sent: "" });
+  const submit = async (e) => {
+    e.preventDefault(); setState({ busy: true, error: null, sent: "" });
+    try { const r = await api("/auth/password-reset", { method: "POST", body: { email: emailAddr } }); setState({ busy: false, error: null, sent: r.message }); }
+    catch (err) { setState({ busy: false, error: err, sent: "" }); }
+  };
+  return (
+    <AuthCard title="Reset your password" sub="Enter the email you sign in with. We will send a link to choose a new password." onSubmit={submit}>
+      {state.sent ? <div className="notice notice-ok" role="status">{state.sent}</div> : <>
+        <ErrorNotice error={state.error} />
+        <Field label="Email"><input className="input" type="email" autoComplete="email" value={emailAddr} onChange={(e) => setEmailAddr(e.target.value)} /></Field>
+        <button className="btn btn-primary btn-lg" disabled={state.busy || !emailAddr}>{state.busy ? "Sending..." : "Send reset link"}</button>
+      </>}
+      {PREVIEW && state.sent && <span className="small muted">In this offline preview no email is sent. Reset links work on the hosted application.</span>}
+      <p className="small muted"><Link to="/login">Back to sign in</Link></p>
+    </AuthCard>
+  );
+}
+
+export function ResetPassword() {
+  const [sp] = useSearchParams();
+  const nav = useNavigate();
+  const [pw, setPw] = useState("");
+  const [state, setState] = useState({ busy: false, error: null });
+  const errs = fieldErrors(state.error);
+  const submit = async (e) => {
+    e.preventDefault(); setState({ busy: true, error: null });
+    try { const r = await api("/auth/password-reset/confirm", { method: "POST", body: { token: sp.get("token") || "", new_password: pw } }); nav("/login", { replace: true, state: { notice: r.message } }); }
+    catch (err) { setState({ busy: false, error: err }); }
+  };
+  return (
+    <AuthCard title="Choose a new password" sub="You will be signed out everywhere else." onSubmit={submit}>
+      <ErrorNotice error={generalError(state.error)} />
+      <Field label="New password" error={errs.password || errs.new_password}><PasswordInput autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} /><PasswordRules value={pw} /></Field>
+      <button className="btn btn-primary btn-lg" disabled={state.busy || !pw}>{state.busy ? "Saving..." : "Save new password"}</button>
+      <p className="small muted"><Link to="/forgot-password">Request a new link</Link></p>
+    </AuthCard>
+  );
+}
+
+// ---------- invitations ----------
+export function AcceptInvitation() {
+  const [sp] = useSearchParams();
+  const token = sp.get("token") || "";
+  const { signIn } = useAuth();
+  const nav = useNavigate();
+  const [info, setInfo] = useState(null);
+  const [loadErr, setLoadErr] = useState(null);
+  const [form, setForm] = useState({ full_name: "", password: "" });
+  const [state, setState] = useState({ busy: false, error: null });
+  useEffect(() => { api(`/auth/invitations/${encodeURIComponent(token)}`).then((d) => { setInfo(d); setForm((f) => ({ ...f, full_name: d.full_name || "" })); }).catch(setLoadErr); }, [token]);
+  const errs = fieldErrors(state.error);
+  const submit = async (e) => {
+    e.preventDefault(); setState({ busy: true, error: null });
+    try { signIn(await api(`/auth/invitations/${encodeURIComponent(token)}/accept`, { method: "POST", body: form })); nav("/app", { replace: true }); }
+    catch (err) { setState({ busy: false, error: err }); }
+  };
+  if (loadErr) return <AuthCard title="This invitation is not valid"><ErrorNotice error={loadErr} /><Link className="btn" to="/login">Go to sign in</Link></AuthCard>;
+  if (!info) return <AuthCard title="Checking your invitation..." />;
+  return (
+    <AuthCard title={`Join ${info.organization}`} sub={`You are invited as ${info.role === "admin" ? "an administrator" : `a ${info.role === "viewer" ? "read-only member" : info.role}`}. Your sign-in email will be ${info.email}.`} onSubmit={submit}>
+      <ErrorNotice error={generalError(state.error)} />
+      <Field label="Your name" error={errs.full_name}><input className="input" autoComplete="name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></Field>
+      <Field label="Choose a password" error={errs.password}><PasswordInput autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /><PasswordRules value={form.password} /></Field>
+      <button className="btn btn-primary btn-lg" disabled={state.busy}>{state.busy ? "Joining..." : "Accept and join"}</button>
+    </AuthCard>
+  );
+}
+
+// ---------- first run: choose capabilities ----------
+const GROUPS = [
+  ["Plan and deliver work", ["projects", "forms", "events", "documents", "governance"]],
+  ["Money and requests", ["finance", "procurement", "sales", "funding"]],
+  ["Stock, locations and delivery", ["inventory", "branches", "deliveries"]],
+  ["Bookings and services", ["bookings", "dining", "tours", "studio", "social"]],
+  ["People", ["people", "participants"]],
+];
+
+export function Welcome() {
+  const { user, refresh, can } = useAuth();
+  const nav = useNavigate();
+  const apps = PLATFORM.apps.filter((a) => !a.demo_only);
+  const [chosen, setChosen] = useState(() => new Set(user?.organization?.installed_apps || []));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  if (!user) return <Navigate to="/login" replace />;
+  if (!can.admin) return <Navigate to="/app" replace />;
+  const toggle = (k) => { const n = new Set(chosen); n.has(k) ? n.delete(k) : n.add(k); setChosen(n); };
+  const save = async () => {
+    setBusy(true); setError(null);
+    try {
+      const had = new Set(user.organization.installed_apps || []);
+      for (const k of chosen) if (!had.has(k)) await api(`/apps/${k}/install`, { method: "POST" });
+      for (const k of had) if (!chosen.has(k)) await api(`/apps/${k}/uninstall`, { method: "POST" });
+      await refresh(); nav("/app", { replace: true });
+    } catch (err) { setError(err); setBusy(false); }
+  };
+  const byKey = Object.fromEntries(apps.map((a) => [a.key, a]));
+  return (
+    <div className="welcome">
+      <div className="welcome-head">
+        <span className="eyebrow">Welcome, {user.full_name.split(" ")[0]}</span>
+        <h1>What do you want to manage first?</h1>
+        <p className="muted">Choose the capabilities {user.organization.name} needs now. You can add or remove them at any time from Capabilities; switching one off keeps its data.</p>
+      </div>
+      <ErrorNotice error={error} />
+      {GROUPS.map(([label, keys]) => (
+        <section key={label} className="welcome-group" aria-label={label}>
+          <h2>{label}</h2>
+          <div className="welcome-grid">
+            {keys.filter((k) => byKey[k]).map((k) => (
+              <label key={k} className={"welcome-opt" + (chosen.has(k) ? " on" : "")}>
+                <input type="checkbox" checked={chosen.has(k)} onChange={() => toggle(k)} />
+                <span><b>{byKey[k].name}</b><span>{byKey[k].tagline}</span></span>
+              </label>
+            ))}
+          </div>
+        </section>
+      ))}
+      <div className="welcome-actions">
+        <span className="muted small">{chosen.size} selected</span>
+        <button className="btn btn-primary btn-lg" disabled={busy || chosen.size === 0} onClick={save}>{busy ? "Setting up..." : "Continue to my workspace"}</button>
+      </div>
+    </div>
+  );
+}

@@ -247,6 +247,7 @@ def dashboard(user: User = Depends(get_current_user), db: Session = Depends(get_
     return {
         "installed": user.organization.installed_apps or [], "industry": user.organization.industry, "top_flags": top_flags,
         "ops": ops_summary(db, org, t0, set(user.organization.installed_apps or [])),
+        "is_empty": workspace_is_empty(db, org),
         "sales": {"outstanding": _sum(db, iv, "amount", iv.c.organization_id == org, iv.c.status == "sent"),
                   "paid": _sum(db, iv, "amount", iv.c.organization_id == org, iv.c.status == "paid"),
                   "overdue": db.scalar(select(func.count()).where(iv.c.organization_id == org, iv.c.status == "sent", iv.c.due_on < t0)),
@@ -853,3 +854,12 @@ def table(slug: str, body: TableIn, request: Request, db: Session = Depends(get_
     log(db, site.organization_id, None, "reservations_created", "reservations", rid, f"Website table for {body.covers} at {body.time}")
     db.commit()
     return {"ok": True, "message": f"Table for {body.covers} on {body.date.strftime('%d %b')} at {body.time} is booked."}
+
+
+
+def workspace_is_empty(db: Session, org) -> bool:
+    """True until the workspace has its first project, form or record, so the home screen can guide setup instead of showing zeros."""
+    from ..models import Form
+    if db.scalar(select(Project.id).where(Project.organization_id == org).limit(1)) or db.scalar(select(Form.id).where(Form.organization_id == org).limit(1)):
+        return False
+    return not any(db.execute(select(t.c.id).where(t.c.organization_id == org).limit(1)).first() for t in erp.TABLES.values())

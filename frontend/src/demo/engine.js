@@ -7,7 +7,7 @@ import SPEC from "../modules.json";
 import PLATFORM from "../platform.json";
 import { SEED } from "./seed";
 
-const KEY = "kept_preview_db_v13";
+const KEY = "kept_preview_db_v14";
 export const TODAY = "2026-10-13";
 const AT_RISK_GAP = 15, DUE_SOON = 3, ESCALATE = 2;
 
@@ -185,17 +185,45 @@ on("POST", "/auth/login", (_, { body }) => {
   if (body.site_slug) { const st = mrows("site_settings").find((x) => String(x.slug).toLowerCase() === String(body.site_slug).toLowerCase()); if (!st || st.organization_id !== u.organization_id) E(401, "Email or password is incorrect."); }
   return { access_token: u.id, token_type: "bearer", user: meOut(u) };
 });
+// Mirrors routers/auth.py: neutral workspaces, field-tagged errors, explicit templates only.
+const fErr = (status, message, field) => { throw Object.assign(new HttpError(status, message), { data: { detail: { message, field }, errors: field ? [{ field, message }] : [] } }); };
+const COMMON_PW = ["password", "password1", "password123", "12345678", "qwerty123", "kenya2026", "nairobi123", "changeme"];
+function checkPw(pw, email, name) {
+  if ((pw || "").length < 10) fErr(422, "Password needs at least 10 characters.", "password");
+  if (!/[a-z]/i.test(pw) || !/\d/.test(pw)) fErr(422, "Password needs both letters and numbers.", "password");
+  const low = pw.toLowerCase(); const parts = [(email || "").split("@")[0], ...(name || "").toLowerCase().split(/\s+/)].filter((x) => x.length >= 3);
+  if (COMMON_PW.some((c) => low.includes(c)) || parts.some((x) => low.includes(x.toLowerCase()))) fErr(422, "That password is too easy to guess. Avoid common words and your name or email.", "password");
+}
+const DEFAULT_CAPS = ["projects", "forms", "finance", "documents"];
 on("POST", "/auth/register", (_, { body }) => {
-  need((body.organization_name || "").trim().length >= 2, "String should have at least 2 characters");
-  need((body.full_name || "").trim().length >= 2, "String should have at least 2 characters");
-  need(emailOk(body.email), "value is not a valid email address");
-  need((body.password || "").length >= 8, "String should have at least 8 characters");
-  if (T("users").some((x) => x.email.toLowerCase() === body.email.toLowerCase())) E(409, "An account with this email already exists. Sign in instead.");
-  const org = { id: uid(), name: body.organization_name.trim(), sector: body.sector || "", currency: body.currency || "KES" };
+  if ((body.full_name || "").trim().length < 2) fErr(422, "Your name needs at least 2 characters.", "full_name");
+  if ((body.organization_name || "").trim().length < 2) fErr(422, "Organization name needs at least 2 characters.", "organization_name");
+  if (!emailOk(body.email)) fErr(422, "Enter a valid email address, like name@company.com.", "email");
+  checkPw(body.password || "", body.email, body.full_name);
+  if (T("users").some((x) => x.email.toLowerCase() === body.email.toLowerCase())) fErr(409, "An account with this email already exists. Sign in instead.", "email");
+  const tpl = body.template ? PLATFORM.industries.find((i) => i.key === body.template) : null;
+  if (body.template && !tpl) fErr(422, "Choose one of the listed templates.", "template");
+  const caps = tpl ? tpl.apps : body.capabilities?.length ? body.capabilities : DEFAULT_CAPS;
+  const org = { id: uid(), name: body.organization_name.trim(), sector: "", currency: body.currency || "KES", industry: tpl ? tpl.key : "general", kind: "customer", installed_apps: [...new Set(caps)].sort() };
   const u = { id: uid(), organization_id: org.id, full_name: body.full_name.trim(), email: body.email.toLowerCase(), password: body.password, role: "admin", is_active: true };
   db.orgs.push(org); db.users.push(u); log(org.id, u.id, "organization_created", "organization", org.id, `Created ${org.name}`);
-  return { access_token: u.id, token_type: "bearer", user: meOut(u) };
+  return { access_token: u.id, user: meOut(u) };
 });
+on("POST", "/auth/logout", () => null);
+// Password reset and invitations work in the preview, but no email can be sent from a browser; the UI says so.
+on("POST", "/auth/password-reset", () => ({ message: "If an account exists for that email, we have sent a link to reset the password. It expires in 30 minutes." }));
+on("POST", "/auth/password-reset/confirm", () => E(400, "This reset link has expired or was already used. Ask for a new one."));
+const invites = () => (db.invitations ||= []);
+const inviteOut = (i) => ({ id: i.id, email: i.email, full_name: i.full_name, role: i.role, state: i.revoked ? "revoked" : i.accepted ? "accepted" : "pending", created_at: i.created_at, expires_at: i.expires_at });
+on("GET", "/invitations", (u) => { adminOnly(u); return invites().filter((i) => i.organization_id === u.organization_id).map(inviteOut).reverse(); });
+on("POST", "/invitations", (u, { body }) => {
+  adminOnly(u); if (!emailOk(body.email)) fErr(422, "Enter a valid email address, like name@company.com.", "email");
+  const addr = body.email.toLowerCase(); if (T("users").some((x) => x.email === addr)) fErr(409, "Someone with this email already has a StrideFlow account.", "email");
+  invites().forEach((i) => { if (i.organization_id === u.organization_id && i.email === addr && !i.accepted) i.revoked = true; });
+  const i = { id: uid(), organization_id: u.organization_id, email: addr, full_name: body.full_name || "", role: body.role || "member", created_at: nowIso(), expires_at: new Date(Date.now() + 7 * 86400000).toISOString() };
+  invites().push(i); log(u.organization_id, u.id, "invitation_sent", "user", null, `${u.full_name} invited ${addr} as ${i.role}`); return inviteOut(i);
+});
+on("DELETE", "/invitations/:id", (u, _, id2) => { adminOnly(u); const i = invites().find((x) => x.id === id2 && x.organization_id === u.organization_id); if (!i) E(404, "Invitation not found."); i.revoked = true; return null; });
 on("GET", "/auth/me", (u) => meOut(u));
 
 on("GET", "/users", (u) => T("users").filter((x) => x.organization_id === u.organization_id).sort((a, b) => a.full_name.localeCompare(b.full_name)).map(userOut));
@@ -432,7 +460,7 @@ export async function handle(method, path, { body, form, params, token }) {
   for (const rt of routes) {
     if (rt.method !== method) continue;
     const m = path.match(rt.re); if (!m) continue;
-    const isPublic = path === "/auth/login" || path === "/auth/register" || path.startsWith("/public/") || path.startsWith("/platform");
+    const isPublic = ["/auth/login", "/auth/register", "/auth/password-reset", "/auth/password-reset/confirm"].includes(path) || path.startsWith("/auth/invitations/") || path.startsWith("/public/") || path.startsWith("/platform");
     const user = isPublic ? null : current(token);
     try {
       const out = await rt.fn(user, { body: body || {}, form, params: params || {} }, ...m.slice(1));
@@ -643,6 +671,7 @@ on("GET", "/dashboard", (u) => {
   const sev = { high: 0, medium: 1, low: 2 };
   return {
     installed: org2.installed_apps || [], industry: org2.industry, ops: opsSummary(org, org2.installed_apps || []),
+    is_empty: !T("projects").some((p) => p.organization_id === org) && !(db.forms || []).some((f) => f.organization_id === org) && !SPEC.modules.some((m) => mrows(m.key).some((r) => r.organization_id === org)),
     top_flags: T("flags").filter((f) => f.organization_id === org && f.status === "open").sort((a, b) => sev[a.severity] - sev[b.severity] || a.opened_at.localeCompare(b.opened_at)).slice(0, 6).map((f) => ({ rule: f.rule, title: f.title, detail: f.detail, severity: f.severity })),
     sales: { outstanding: sumOf(inv.filter((i) => i.status === "sent"), "amount"), paid: sumOf(inv.filter((i) => i.status === "paid"), "amount"), overdue: inv.filter((i) => i.status === "sent" && i.due_on < TODAY).length, drafts: inv.filter((i) => i.status === "draft").length },
     inventory: { items: mine("items").length, low_stock: low, units: mine("items").reduce((a, r) => a + computed("items", r).stock, 0) },
@@ -972,9 +1001,6 @@ function requireApp(u, key) {
 on("GET", "/platform", () => ({ apps: APPDEFS, palettes: PLATFORM.palettes, industries: PLATFORM.industries.map((i) => ({ ...i, app_names: i.apps.map(appName) })) }));
 const SHOW_ORDER = { timiza: 1, tumaini: 2, hatua: 3, mwangaza: 4, pwani: 5 };
 on("POST", "/platform/demo-request", (_, { body }) => { if ((body.name || "").trim().length < 2) E(422, "Enter your name."); if ((body.organization || "").trim().length < 2) E(422, "Enter your organization."); if ((body.contact || "").trim().length < 5) E(422, "Enter an email or phone number."); return { ok: true }; });
-on("GET", "/platform/showcase", () => mrows("site_settings").map((s2) => { const o = byId("orgs", s2.organization_id);
-  return { slug: s2.slug, organization: o.name, industry: INDS[o.industry]?.name || o.industry, kind: ["retail", "hospitality", "agency"].includes(o.industry) ? "Business" : "Organization",
-    tagline: s2.tagline, primary: s2.brand_primary, accent: s2.brand_accent, deep: s2.brand_deep }; }).sort((a, b) => (SHOW_ORDER[a.slug] || 99) - (SHOW_ORDER[b.slug] || 99)));
 on("GET", "/apps", (u) => { const org = byId("orgs", u.organization_id); const inst = new Set(org.installed_apps || []);
   return { industry: org.industry, installed: [...inst].sort(), apps: APPDEFS.map((a) => ({ ...a, installed: inst.has(a.key), modules: SPEC.modules.filter((m) => m.app === a.key).map((m) => ({ key: m.key, label: m.label })) })) }; });
 function setApp(u, key, on2) {
@@ -1034,20 +1060,6 @@ for (const pat of _forms) for (const mth of ["GET", "POST", "PUT", "DELETE"]) wr
   if (mth === "GET" && pat === "/forms" && a[0].params?.event_id) return inner(u, ...a).filter((f) => f.event_id === a[0].params.event_id);
   return inner(u, ...a);
 });
-// --- registration with industry, site and palette
-wrap("POST", "/auth/register", (inner, u, req) => {
-  const ind = INDS[req.body.industry || "community"]; if (!ind) E(422, "Choose an industry.");
-  const slug = req.body.site_slug;
-  if (slug && !/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(slug)) E(422, "Web address: lowercase letters, numbers and dashes.");
-  if (slug && mrows("site_settings").some((s2) => s2.slug === slug)) E(409, { message: "That web address is taken. Try another.", field: "site_slug" });
-  const pw = req.body.password || ""; if (pw.length < 10 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) E(422, "Password needs at least 10 characters with letters and numbers.");
-  const out = inner(u, req); const org = byId("orgs", out.user.organization.id);
-  org.industry = ind.key; org.installed_apps = [...new Set(ind.apps)].sort();
-  if (slug) { const pal = PLATFORM.palettes[req.body.palette] || PLATFORM.palettes.royal;
-    mrows("site_settings").push({ id: uid(), organization_id: org.id, created_by_id: out.user.id, created_at: nowIso(), updated_at: nowIso(), slug, tagline: `Welcome to ${org.name}`, intro: `${org.name} on Kept.`, show_impact: true, brand_primary: pal.primary, brand_accent: pal.accent }); }
-  return { ...out, user: meOut(byId("users", out.user.id)) };
-});
-
 // ---------- public shop and bookings (business websites) ----------
 on("GET", "/public/:slug/products", (_, __, slug) => { const site = siteFor(slug);
   return mrows("items").filter((r) => r.organization_id === site.organization_id && r.show_on_site).sort((a, b) => a.name.localeCompare(b.name))

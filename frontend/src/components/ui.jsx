@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { Children, cloneElement, isValidElement, useEffect, useId, useRef, useState } from "react";
 
 const SHAPES = {
   circle: "M6 1.5a4.5 4.5 0 1 1 0 9a4.5 4.5 0 1 1 0-9Z",
@@ -117,12 +117,20 @@ export function Dialog({ title, onClose, children, footer }) {
 }
 
 export function Field({ label, hint, error, children }) {
+  // The label points at the first control by id, so its accessible name is exactly the label (not the text of
+  // sibling buttons, rules or errors). The error is announced as the control's description.
+  const auto = useId();
+  const items = Children.toArray(children);
+  const first = items.findIndex((c) => isValidElement(c));
+  const id = first >= 0 ? items[first].props.id || `f${auto}` : undefined;
+  const errId = error ? `${id}-err` : undefined;
+  if (first >= 0) items[first] = cloneElement(items[first], { id, "aria-describedby": errId, "aria-invalid": error ? true : undefined });
   return (
-    <label className="field">
-      <span>{label} {hint && <span className="hint">{hint}</span>}</span>
-      {children}
-      {error && <span className="field-error">{error}</span>}
-    </label>
+    <div className="field">
+      <label className="field-label" htmlFor={id}>{label} {hint && <span className="hint">{hint}</span>}</label>
+      {items}
+      {error && <span className="field-error" id={errId} role="alert">{error}</span>}
+    </div>
   );
 }
 
@@ -134,4 +142,33 @@ export function Toast({ message, onDone }) {
   }, [message, onDone]);
   if (!message) return null;
   return <div className="toast" role="status">{message}</div>;
+}
+
+/** Password field with a show/hide control. The toggle is a real button: keyboard operable, announced, and it never submits the form. */
+export function PasswordInput({ value, onChange, autoComplete = "current-password", id, invalid, "aria-invalid": ariaInvalid, ...rest }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <span className="pw-wrap">
+      <input {...rest} id={id} className="input" type={shown ? "text" : "password"} autoComplete={autoComplete} value={value} onChange={onChange}
+        aria-invalid={invalid || ariaInvalid || undefined} spellCheck={false} autoCapitalize="off" />
+      <button type="button" className="pw-toggle" onClick={() => setShown(!shown)} aria-label={shown ? "Hide password" : "Show password"} aria-pressed={shown}>
+        {shown ? "Hide" : "Show"}
+      </button>
+    </span>
+  );
+}
+
+export const PASSWORD_RULES = [
+  ["At least 10 characters", (p) => p.length >= 10],
+  ["Letters and numbers", (p) => /[a-z]/i.test(p) && /\d/.test(p)],
+];
+
+/** Live checklist of the password policy, plus the rules the server also enforces, stated up front. */
+export function PasswordRules({ value }) {
+  return (
+    <ul className="pw-rules" aria-live="polite">
+      {PASSWORD_RULES.map(([label, test]) => <li key={label} className={test(value) ? "ok" : ""}>{label}</li>)}
+      <li className="note">Not a common password, and not your name or email</li>
+    </ul>
+  );
 }

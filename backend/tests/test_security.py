@@ -3,10 +3,9 @@ import base64
 import json
 from datetime import datetime, timedelta, timezone
 
-import jwt
 
 from app.config import get_settings
-from .conftest import add_user, make_project, register
+from .conftest import login, add_user, make_project, register
 
 PNG = b"\x89PNG\r\n\x1a\n" + b"0" * 64
 
@@ -47,27 +46,37 @@ def test_unknown_email_and_wrong_password_look_identical(client):
     assert a.status_code == b.status_code == 401 and a.json() == b.json()
 
 
-def test_tampered_and_unsigned_tokens_rejected(client):
+def test_forged_unknown_and_expired_sessions_rejected(client):
+    from app.db import SessionLocal
+    from app.models import AuthSession
     h = register(client)
     token = h["Authorization"].split()[1]
-    head, body, sig = token.split(".")
-    claims = json.loads(base64.urlsafe_b64decode(body + "=="))
-    claims["role"] = "admin"
-    forged_body = base64.urlsafe_b64encode(json.dumps(claims).encode()).decode().rstrip("=")
-    assert client.get("/api/auth/me", headers={"Authorization": f"Bearer {head}.{forged_body}.{sig}"}).status_code == 401
-    none_alg = jwt.encode({**claims, "exp": datetime.now(timezone.utc) + timedelta(hours=1)}, key="", algorithm="none")
-    assert client.get("/api/auth/me", headers={"Authorization": f"Bearer {none_alg}"}).status_code == 401
-    expired = jwt.encode({**claims, "exp": datetime.now(timezone.utc) - timedelta(minutes=1)}, get_settings().jwt_secret, algorithm="HS256")
-    assert client.get("/api/auth/me", headers={"Authorization": f"Bearer {expired}"}).status_code == 401
+    for bad in ("nonsense", token[:-2] + "xx", "eyJhbGciOiJub25lIn0.eyJzdWIiOiJ4In0."):
+        assert client.get("/api/auth/me", headers={"Authorization": f"Bearer {bad}"}).status_code == 401
+    assert client.get("/api/auth/me", headers=h).status_code == 200
+    with SessionLocal() as db:  # absolute expiry reached
+        for srow in db.query(AuthSession).all():
+            srow.expires_at = datetime.now(timezone.utc) - timedelta(minutes=1)
+        db.commit()
+    assert client.get("/api/auth/me", headers=h).status_code == 401
+
+
+def test_session_tokens_are_stored_only_as_hashes(client):
+    from app.db import SessionLocal
+    from app.models import AuthSession
+    token = register(client)["Authorization"].split()[1]
+    with SessionLocal() as db:
+        stored = [s.token_hash for s in db.query(AuthSession).all()]
+    assert token not in stored and len(stored[0]) == 64
 
 
 def test_password_change_signs_out_other_sessions(client):
     h = register(client)
-    other = {"Authorization": "Bearer " + client.post("/api/auth/login", json={"email": "admin@test.example", "password": "Coastal-Breeze-2026"}).json()["access_token"]}
+    other = login(client, "admin@test.example")
     r = client.post("/api/auth/password", headers=h, json={"current_password": "Coastal-Breeze-2026", "new_password": "Mangrove-Tide-4421"})
     assert r.status_code == 200
     assert client.get("/api/auth/me", headers=other).status_code == 401
-    assert client.get("/api/auth/me", headers={"Authorization": "Bearer " + r.json()["access_token"]}).status_code == 200
+    assert client.get("/api/auth/me", headers=h).status_code == 200  # the session that changed it stays signed in
 
 
 def test_role_change_takes_effect_immediately(client):

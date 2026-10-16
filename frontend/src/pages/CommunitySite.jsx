@@ -584,6 +584,7 @@ export function TzLogin({ s, demo }) {
   const nav = useNavigate();
   const [f, setF] = useState({ email: "", password: "" });
   const [error, setError] = useState(null);
+  const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
   const go = async (body) => {
     setBusy(true); setError(null);
@@ -598,7 +599,10 @@ export function TzLogin({ s, demo }) {
           <p className="tz-muted" style={{ marginTop: -8 }}>Access the {s.organization} dashboard.</p>
           <ErrorNotice error={error} />
           <Underline label="Work email" type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
-          <Underline label="Password" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+          <div className="pw-wrap">
+            <Underline label="Password" type={showPw ? "text" : "password"} autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+            <button type="button" className="pw-toggle" onClick={() => setShowPw(!showPw)} aria-label={showPw ? "Hide password" : "Show password"} aria-pressed={showPw}>{showPw ? "Hide" : "Show"}</button>
+          </div>
           <button className="tz-btn tz-btn-blue tz-btn-full" disabled={busy}>{busy ? "Signing in..." : "Sign in"}</button>
           {PREVIEW && demo?.length > 0 && (
             <div className="tz-demo">

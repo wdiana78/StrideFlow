@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../auth";
 import ThemeToggle from "../components/ThemeToggle";
-import { ErrorNotice, Field } from "../components/ui";
+import { ErrorNotice, Field, PasswordInput, PasswordRules } from "../components/ui";
 import { initials } from "../format";
 import { roleLabel } from "./Overview";
 
@@ -52,9 +52,9 @@ export default function Account() {
             <h2 className="card-title">Change password</h2>
             {state.ok && <div className="notice notice-ok">{state.ok}</div>}
             <ErrorNotice error={state.error} />
-            <Field label="Current password"><input className="input" type="password" autoComplete="current-password" value={f.current} onChange={(e) => setF({ ...f, current: e.target.value })} /></Field>
-            <Field label="New password" hint="At least 10 characters, with letters and numbers"><input className="input" type="password" autoComplete="new-password" value={f.next} onChange={(e) => setF({ ...f, next: e.target.value })} /></Field>
-            <Field label="Confirm new password"><input className="input" type="password" autoComplete="new-password" value={f.confirm} onChange={(e) => setF({ ...f, confirm: e.target.value })} /></Field>
+            <Field label="Current password"><PasswordInput value={f.current} onChange={(e) => setF({ ...f, current: e.target.value })} /></Field>
+            <Field label="New password"><PasswordInput autoComplete="new-password" value={f.next} onChange={(e) => setF({ ...f, next: e.target.value })} /><PasswordRules value={f.next} /></Field>
+            <Field label="Confirm new password"><PasswordInput autoComplete="new-password" value={f.confirm} onChange={(e) => setF({ ...f, confirm: e.target.value })} /></Field>
             <button className="btn btn-primary" disabled={state.busy || !f.current || !f.next}>{state.busy ? "Saving..." : "Change password"}</button>
           </form>
           <section className="panel panel-body stack-sm">

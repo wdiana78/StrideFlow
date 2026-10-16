@@ -93,7 +93,7 @@ def seed():
     client_t = db.scalar(select(Template).where(Template.key == "client_engagement", Template.organization_id.is_(None)))
 
     # ---------------- Tumaini Community Network ----------------
-    org = Organization(name="Tumaini Community Network", sector="Community development", currency="KES")
+    org = Organization(name="Tumaini Community Network", sector="Community development", currency="KES", kind="demo_scenario")
     db.add(org)
     db.flush()
     pw = hash_password(PASSWORD)
@@ -188,7 +188,7 @@ def seed():
     rules.evaluate_org(db, org.id, today())
 
     # ---------------- Mwangaza Creative Studio (contrasting example) ----------------
-    org2 = Organization(name="Mwangaza Creative Studio", sector="Creative agency", currency="KES")
+    org2 = Organization(name="Mwangaza Creative Studio", sector="Creative agency", currency="KES", kind="demo_scenario")
     db.add(org2)
     db.flush()
     lead = User(organization_id=org2.id, full_name="Wairimu Kamau", email="wairimu@mwangaza.example", password_hash=pw, role=Role.admin)
@@ -234,7 +234,7 @@ def seed_case_study(db, pw):
     d = lambda s: date.fromisoformat(s) if s else None  # noqa: E731
     tpl = db.scalar(select(Template).where(Template.key == data["template_key"], Template.organization_id.is_(None)))
     from app.apps import INDUSTRY_BY_KEY
-    org = Organization(name=data["organization"]["name"], sector=data["organization"]["sector"], currency="KES",
+    org = Organization(name=data["organization"]["name"], sector=data["organization"]["sector"], currency="KES", kind="demo_scenario",
                        industry="community", installed_apps=sorted(INDUSTRY_BY_KEY["community"]["apps"]))
     db.add(org)
     db.flush()
@@ -524,7 +524,7 @@ def seed_tenants(db, pw):
     for t in spec["tenants"]:
         org = db.scalar(select(Organization).where(Organization.name == t["organization"]["name"]))
         if not org:
-            org = Organization(name=t["organization"]["name"], sector=t["organization"]["sector"], currency="KES")
+            org = Organization(name=t["organization"]["name"], sector=t["organization"]["sector"], currency="KES", kind="demo_scenario")
             db.add(org)
             db.flush()
         if not (t.get("existing") and org.installed_apps):
@@ -566,5 +566,14 @@ def seed_tenants(db, pw):
         rules.evaluate_org(db, org.id, today())
 
 
+def _refuse_production():
+    """Demonstration data never goes into a production database (see docs/rebuild/ARCHITECTURE_PLAN.md, section 6)."""
+    from app.config import get_settings
+    s = get_settings()
+    if s.app_mode == "production" or s.environment == "production":
+        raise SystemExit("Refusing to seed demonstration data: APP_MODE or ENVIRONMENT is production.")
+
+
 if __name__ == "__main__":
+    _refuse_production()
     seed()

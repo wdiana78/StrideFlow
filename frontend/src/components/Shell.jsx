@@ -42,7 +42,7 @@ function Links({ openFlags, approvals, admin, onNavigate, installed, siteSlug })
       <L to="/app/attention"><Icon d={I.attention} />Alerts{openFlags > 0 && <span className="nav-badge">{openFlags}</span>}</L>
       <L to="/app/approvals"><Icon d={I.check} />Approvals{approvals > 0 && <span className="nav-badge">{approvals}</span>}</L>
       <L to="/app/calendar"><Icon d={I.calendar} />Calendar</L>
-      {(has("projects") || has("forms")) && <div className="nav-section">Programmes</div>}
+      {(has("projects") || has("forms")) && <div className="nav-section">Work</div>}
       {has("projects") && <><L to="/app/projects"><Icon d={I.projects} />Projects</L><L to="/app/work"><Icon d={I.work} />Tasks</L><L to="/app/analytics"><Icon d={I.analytics} />Insights</L></>}
       {has("forms") && <L to="/app/forms"><Icon d={I.forms} />Tazama<span className="nav-tag">Field</span></L>}
       {has("projects") && <L to="/app/reports"><Icon d={I.reports} />Reports</L>}
@@ -84,8 +84,8 @@ export default function Shell() {
   const installed = user.organization.installed_apps || [];
   useEffect(() => {
     if (installed.includes("website")) {
-      // The workspace always wears Kept's brand; the organization's own colour only marks its logo.
-      // Each organization's dashboard wears its own brand: logo, primary colour and accent. Kept stays in the footer.
+      // The workspace always wears StrideFlow's brand; the organization's own colour only marks its logo.
+      // Each organization's dashboard wears its own brand: logo, primary colour and accent. StrideFlow stays in the footer.
       api("/m/site_settings", { params: { page_size: 1 } }).then((d) => {
         const st = d.items[0]; setSiteSlug(st?.slug || null);
         const root = document.documentElement.style;
@@ -108,7 +108,7 @@ export default function Shell() {
     window.addEventListener("keydown", key);
     return () => { window.removeEventListener("kept:changed", load); window.removeEventListener("keydown", key); document.documentElement.style.removeProperty("--brand"); document.documentElement.style.removeProperty("--brand-2"); document.documentElement.style.removeProperty("--on-brand-2"); document.documentElement.style.removeProperty("--on-brand"); };
   }, [installed.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
-  const out = () => { nav(siteSlug ? `/site/${siteSlug}` : "/"); setTimeout(signOut, 0); };
+  const out = () => signOut({ then: () => nav(siteSlug ? `/site/${siteSlug}` : "/") });
   const linkProps = { openFlags, approvals, admin: can.admin, installed, siteSlug };
   return (
     <div className="shell">
@@ -127,7 +127,7 @@ export default function Shell() {
           </span>
           <button className="btn btn-quiet" onClick={out} aria-label="Sign out" title="Sign out"><Icon d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11" /></button>
         </div>
-        <span className="row small muted" style={{ gap: 6, padding: "6px 8px 0" }}><Logo size={14} />Powered by Kept</span>
+        <span className="row small muted" style={{ gap: 6, padding: "6px 8px 0" }}><Logo size={14} />Powered by StrideFlow</span>
       </aside>
       <nav className="topbar" aria-label="Quick links">
         <button className="btn btn-quiet" onClick={() => setMenu(true)} aria-label="Open menu"><Icon d="M4 6h16M4 12h16M4 18h16" /></button>
